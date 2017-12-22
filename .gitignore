@@ -1,0 +1,15 @@
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+
+Gemfile.lock
+.ruby-version
+.ruby-gemset
+
+# rspec failure tracking
+.rspec_status
