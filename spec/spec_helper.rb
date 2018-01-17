@@ -1,5 +1,7 @@
-require "bundler/setup"
-require "typesense"
+require 'bundler/setup'
+require 'webmock/rspec'
+require 'typesense'
+require 'pry'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -11,4 +13,15 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.expose_dsl_globally = true
+
+
+  # This config option will be enabled by default on RSpec 4,
+  # but for reasons of backwards compatibility, you have to
+  # set it on RSpec 3.
+  #
+  # It causes the host group and examples to inherit metadata
+  # from the shared context.
+  config.shared_context_metadata_behavior = :apply_to_host_groups
 end
