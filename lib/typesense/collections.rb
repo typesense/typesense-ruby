@@ -17,5 +17,9 @@ module Typesense
     def self.retrieve_all
       ApiCall.new.get("#{ENDPOINT_PATH}")
     end
+
+    def self.documents_path_for(collection_name)
+      "#{ENDPOINT_PATH}/#{collection_name}/documents"
+    end
   end
 end

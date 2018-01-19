@@ -16,19 +16,23 @@ module Typesense
     end
 
     def get(endpoint, parameters = {})
+      get_unparsed_response(endpoint, parameters).parsed_response
+    end
+
+    def get_unparsed_response(endpoint, parameters = {})
       self.class.get(self.class.uri_for(endpoint),
-                      query:   parameters,
-                      headers: {
-                          "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key
-                      }).parsed_response
+                     query:   parameters,
+                     headers: {
+                         "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key
+                     })
     end
 
     def delete(endpoint, parameters = {})
       self.class.delete(self.class.uri_for(endpoint),
-                      query:   parameters,
-                      headers: {
-                          "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key
-                      }).parsed_response
+                        query:   parameters,
+                        headers: {
+                            "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key
+                        }).parsed_response
     end
 
     private
