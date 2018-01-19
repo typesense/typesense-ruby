@@ -1,8 +1,8 @@
-# Typesense
+# Typesense Ruby Gem
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/typesense`. To experiment with that code, run `bin/console` for an interactive prompt.
+Ruby client library for accessing the [Typesense HTTP API](https://github.com/wreally/typesense).
 
-TODO: Delete this and the text above, and describe your gem
+Follows the API spec [here](https://github.com/wreally/typesense-api-spec).
 
 ## Installation
 
@@ -22,7 +22,78 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+#### Configure
+
+Configure the gem (in an initializer if you're using Rails):
+
+```ruby
+Typesense.configure do |config|
+  config.host = 'localhost:8108'
+  config.protocol = 'http'
+  config.api_key = 'abcd'
+end
+```
+
+#### Create a collection
+
+```ruby
+schema = {
+        'name'                => 'companies',
+        'fields'              => [
+            {
+                'name'  => 'company_name',
+                'type'  => 'string',
+                'facet' => false
+            },
+            {
+                'name'  => 'num_employees',
+                'type'  => 'int32',
+                'facet' => false
+            },
+            {
+                'name'  => 'country',
+                'type'  => 'string',
+                'facet' => true
+            }
+        ],
+        'token_ranking_field' => 'num_employees'
+    }
+    
+result = Typesense::Collections.create(schema)
+```
+
+
+#### Retrieve a collection
+
+```ruby    
+Typesense::Collections.retrieve('companies')
+```
+```ruby
+{
+    'name'                => 'companies',
+    'fields'              => [
+        {
+            'name'  => 'company_name',
+            'type'  => 'string',
+            'facet' => false
+        },
+        {
+            'name'  => 'num_employees',
+            'type'  => 'int32',
+            'facet' => false
+        },
+        {
+            'name'  => 'country',
+            'type'  => 'string',
+            'facet' => true
+        }
+    ],
+    'token_ranking_field' => 'num_employees'
+}
+
+```
+
+
 
 ## Development
 
@@ -32,8 +103,8 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/wreally/typesense.
+Bug reports and pull requests are welcome on GitHub at [https://github.com/wreally/typesense-ruby].
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+This gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
