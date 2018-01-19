@@ -9,5 +9,9 @@ module Typesense
     def self.retrieve(collection_name)
       ApiCall.new.get("#{ENDPOINT_PATH}/#{collection_name}")
     end
+
+    def self.retrieve_all
+      ApiCall.new.get("#{ENDPOINT_PATH}")
+    end
   end
 end
