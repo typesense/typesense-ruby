@@ -94,7 +94,9 @@ Typesense::Collections.retrieve('companies')
 
 ```
 
+#### Work in progress...
 
+TODO
 
 ## Development
 
