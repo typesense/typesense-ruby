@@ -71,6 +71,7 @@ Typesense::Collections.retrieve('companies')
 ```ruby
 {
     'name'                => 'companies',
+    'num_documents'       => 0,
     'fields'              => [
         {
             'name'  => 'company_name',
