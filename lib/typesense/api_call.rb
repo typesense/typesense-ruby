@@ -11,7 +11,15 @@ module Typesense
                       body:    parameters.to_json,
                       headers: {
                           "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key,
-                          'Content-Type' => 'application/json'
+                          'Content-Type'           => 'application/json'
+                      }).parsed_response
+    end
+
+    def get(endpoint, parameters = {})
+      self.class.get(self.class.uri_for(endpoint),
+                      query:   parameters,
+                      headers: {
+                          "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key
                       }).parsed_response
     end
 

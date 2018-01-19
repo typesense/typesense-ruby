@@ -5,5 +5,9 @@ module Typesense
     def self.create(schema)
       ApiCall.new.post(ENDPOINT_PATH, schema)
     end
+
+    def self.get(collection_name)
+      ApiCall.new.get("#{ENDPOINT_PATH}/#{collection_name}")
+    end
   end
 end
