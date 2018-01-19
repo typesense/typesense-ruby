@@ -23,6 +23,14 @@ module Typesense
                       }).parsed_response
     end
 
+    def delete(endpoint, parameters = {})
+      self.class.delete(self.class.uri_for(endpoint),
+                      query:   parameters,
+                      headers: {
+                          "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key
+                      }).parsed_response
+    end
+
     private
     def self.uri_for(endpoint)
       "#{Typesense.configuration.protocol}://#{Typesense.configuration.host}#{endpoint}"

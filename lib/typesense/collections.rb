@@ -10,6 +10,10 @@ module Typesense
       ApiCall.new.get("#{ENDPOINT_PATH}/#{collection_name}")
     end
 
+    def self.delete(collection_name)
+      ApiCall.new.delete("#{ENDPOINT_PATH}/#{collection_name}")
+    end
+
     def self.retrieve_all
       ApiCall.new.get("#{ENDPOINT_PATH}")
     end

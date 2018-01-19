@@ -64,6 +64,20 @@ describe Typesense::Collections do
     end
   end
 
+  describe '.delete' do
+    it 'deletes the specified collection' do
+      stub_request(:delete, Typesense::ApiCall.send(:uri_for, '/collections/companies')).
+          with(headers: {
+              'X-Typesense-Api-Key' => Typesense.configuration.api_key
+          }).
+          to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
+
+      result = Typesense::Collections.delete('companies')
+
+      expect(result).to eq(company_schema)
+    end
+  end
+
   describe '.retrieve_all' do
     it 'returns all collections' do
       stub_request(:get, Typesense::ApiCall.send(:uri_for, '/collections')).
@@ -75,12 +89,8 @@ describe Typesense::Collections do
       result = Typesense::Collections.retrieve_all
 
       expect(result).to eq([company_schema])
-
     end
   end
 
-  describe '.delete' do
-    it 'deletes the specified collection'
-  end
 end
 
