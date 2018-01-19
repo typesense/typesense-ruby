@@ -6,7 +6,7 @@ module Typesense
       ApiCall.new.post(ENDPOINT_PATH, schema)
     end
 
-    def self.get(collection_name)
+    def self.retrieve(collection_name)
       ApiCall.new.get("#{ENDPOINT_PATH}/#{collection_name}")
     end
   end

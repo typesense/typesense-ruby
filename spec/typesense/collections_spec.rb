@@ -50,7 +50,7 @@ describe Typesense::Collections do
     end
   end
 
-  describe '.get' do
+  describe '.retrieve' do
     it 'returns the specified collection' do
       stub_request(:get, Typesense::ApiCall.send(:uri_for, '/collections/companies')).
           with(headers: {
@@ -58,7 +58,7 @@ describe Typesense::Collections do
                }).
           to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
 
-      result = Typesense::Collections.get('companies')
+      result = Typesense::Collections.retrieve('companies')
 
       expect(result).to eq(company_schema)
     end
