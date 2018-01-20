@@ -47,6 +47,10 @@ module Typesense
     end
 
     def perform_api_call_with_error_handling
+      if Typesense.configuration.nil? || %i(protocol host port api_key).any? { |attr| Typesense.configuration.send(attr).nil? }
+        raise Error::MissingConfiguration.new('Missing required configuration. Use `Typsense.configure to set protocol, host, port and api_key.')
+      end
+
       response_object = yield
 
       return response_object if response_object.response.code_type <= Net::HTTPSuccess # 2xx

@@ -26,6 +26,24 @@ describe Typesense::ApiCall do
         }.to raise_error error
       end
     end
+
+    it 'throws an Error if the config values are not set' do
+      Typesense.configuration = nil
+
+      expect {
+        subject.send(method, '')
+      }.to raise_error Typesense::Error::MissingConfiguration
+    end
+
+    %i(protocol host port api_key).each do |config_value|
+      it "throws an Error if config value for #{config_value} is nil" do
+        Typesense.configuration.send("#{config_value}=".to_sym, nil)
+
+        expect {
+          subject.send(method, '')
+        }.to raise_error Typesense::Error::MissingConfiguration
+      end
+    end
   end
 
   describe '#post' do

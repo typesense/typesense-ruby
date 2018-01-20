@@ -1,5 +1,8 @@
 module Typesense
   class Error < StandardError
+    class MissingConfiguration < Error
+    end
+
     class ObjectAlreadyExists < Error
     end
 
