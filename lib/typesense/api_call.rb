@@ -37,7 +37,7 @@ module Typesense
 
     private
     def self.uri_for(endpoint)
-      "#{Typesense.configuration.protocol}://#{Typesense.configuration.host}#{endpoint}"
+      "#{Typesense.configuration.protocol}://#{Typesense.configuration.host}:#{Typesense.configuration.port}#{endpoint}"
     end
   end
 end
