@@ -6,7 +6,6 @@ module Typesense
       self.host     = 'localhost'
       self.port     = 8108
       self.protocol = 'http'
-      self.api_key  = 'abcd'
     end
   end
 end
