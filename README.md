@@ -22,8 +22,6 @@ Or install it yourself as:
 
 ## Usage
 
-#### Configure
-
 Configure the gem (in an initializer if you're using Rails):
 
 ```ruby
@@ -34,69 +32,7 @@ Typesense.configure do |config|
 end
 ```
 
-#### Create a collection
-
-```ruby
-schema = {
-        'name'                => 'companies',
-        'fields'              => [
-            {
-                'name'  => 'company_name',
-                'type'  => 'string',
-                'facet' => false
-            },
-            {
-                'name'  => 'num_employees',
-                'type'  => 'int32',
-                'facet' => false
-            },
-            {
-                'name'  => 'country',
-                'type'  => 'string',
-                'facet' => true
-            }
-        ],
-        'token_ranking_field' => 'num_employees'
-    }
-    
-result = Typesense::Collections.create(schema)
-```
-
-
-#### Retrieve a collection
-
-```ruby    
-Typesense::Collections.retrieve('companies')
-```
-```ruby
-{
-    'name'                => 'companies',
-    'num_documents'       => 0,
-    'fields'              => [
-        {
-            'name'  => 'company_name',
-            'type'  => 'string',
-            'facet' => false
-        },
-        {
-            'name'  => 'num_employees',
-            'type'  => 'int32',
-            'facet' => false
-        },
-        {
-            'name'  => 'country',
-            'type'  => 'string',
-            'facet' => true
-        }
-    ],
-    'token_ranking_field' => 'num_employees'
-}
-
-```
-
-#### Work in progress...
-
-TODO
+Read the rest of the documentation here: [todo]
 
 ## Development
 
