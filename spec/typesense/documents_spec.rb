@@ -94,7 +94,7 @@ describe Typesense::Documents do
 
       result = Typesense::Documents.export('companies')
 
-      expect(result).to eq([document, document])
+      expect(result).to eq(%W(#{JSON.dump(document)} #{JSON.dump(document)}))
     end
   end
 

@@ -16,9 +16,7 @@ module Typesense
       def export(collection_name)
         api_response = ApiCall.new.get_unparsed_response("#{Collections.documents_path_for(collection_name)}/export")
 
-        api_response.split("\n").map do |document_json_string|
-          JSON.parse(document_json_string)
-        end
+        api_response.split("\n")
       end
 
       def search(collection_name, search_parameters)
