@@ -48,24 +48,6 @@ describe Typesense::Collections do
 
       expect(result).to eq(company_schema)
     end
-
-    describe 'when the collection already exists' do
-      it 'throws an error' do
-        schema_for_creation = company_schema.select { |key, value| key != 'num_documents' }
-
-        stub_request(:post, Typesense::ApiCall.send(:uri_for, '/collections')).
-            with(body:    schema_for_creation,
-                 headers: {
-                     'X-Typesense-Api-Key' => Typesense.configuration.api_key,
-                     'Content-Type'        => 'application/json'
-                 }).
-            to_return(status: 409, body: JSON.dump({ 'message' => 'Collection already exists' }), headers: { 'Content-Type': 'application/json' })
-
-        expect {
-          Typesense::Collections.create(schema_for_creation)
-        }.to raise_error(Typesense::Error::ObjectAlreadyExists)
-      end
-    end
   end
 
   describe '.retrieve' do

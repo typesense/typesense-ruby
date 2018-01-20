@@ -54,7 +54,7 @@ module Typesense
       error_klass = if response_object.response.code_type <= Net::HTTPBadRequest # 400
                       Error::RequestMalformed
                     elsif response_object.response.code_type <= Net::HTTPUnauthorized # 401
-                      Error::Unauthorized
+                      Error::RequestUnauthorized
                     elsif response_object.response.code_type <= Net::HTTPNotFound # 404
                       Error::ObjectNotFound
                     elsif response_object.response.code_type <= Net::HTTPConflict # 409

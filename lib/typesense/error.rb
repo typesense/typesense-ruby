@@ -1,21 +1,21 @@
 module Typesense
-  class Error
-    class ObjectAlreadyExists < StandardError
+  class Error < StandardError
+    class ObjectAlreadyExists < Error
     end
 
-    class ObjectNotFound < StandardError
+    class ObjectNotFound < Error
     end
 
-    class ObjectUnprocessable < StandardError
+    class ObjectUnprocessable < Error
     end
 
-    class RequestMalformed < StandardError
+    class RequestMalformed < Error
     end
 
-    class Unauthorized < StandardError
+    class RequestUnauthorized < Error
     end
 
-    class ServerError < StandardError
+    class ServerError < Error
     end
   end
 end
