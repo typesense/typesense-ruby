@@ -24,17 +24,7 @@ Or install it yourself as:
 
 ## Usage
 
-Configure the gem (in an initializer if you're using Rails):
-
-```ruby
-Typesense.configure do |config|
-  config.host = 'localhost:8108'
-  config.protocol = 'http'
-  config.api_key = 'abcd'
-end
-```
-
-Read the rest of the documentation here: [todo]
+Read the documentation here: [todo]
 
 ## Development
 
