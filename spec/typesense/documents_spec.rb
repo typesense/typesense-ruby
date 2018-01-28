@@ -45,7 +45,7 @@ describe Typesense::Documents do
       stub_request(:post, Typesense::ApiCall.send(:uri_for, '/collections/companies/documents')).
           with(body:    document,
                headers: {
-                   'X-Typesense-Api-Key' => Typesense.configuration.api_key,
+                   'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key],
                    'Content-Type'        => 'application/json'
                }).
           to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
@@ -60,7 +60,7 @@ describe Typesense::Documents do
     it 'returns the specified document' do
       stub_request(:get, Typesense::ApiCall.send(:uri_for, '/collections/companies/documents/124')).
           with(headers: {
-              'X-Typesense-Api-Key' => Typesense.configuration.api_key
+              'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key]
           }).
           to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
@@ -74,7 +74,7 @@ describe Typesense::Documents do
     it 'deletes the specified document' do
       stub_request(:delete, Typesense::ApiCall.send(:uri_for, '/collections/companies/documents/124')).
           with(headers: {
-              'X-Typesense-Api-Key' => Typesense.configuration.api_key
+              'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key]
           }).
           to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
@@ -88,7 +88,7 @@ describe Typesense::Documents do
     it 'exports all documents in a collection as an array' do
       stub_request(:get, Typesense::ApiCall.send(:uri_for, '/collections/companies/documents/export')).
           with(headers: {
-              'X-Typesense-Api-Key' => Typesense.configuration.api_key
+              'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key]
           }).
           to_return(status: 200, body: "#{JSON.dump(document)}\n#{JSON.dump(document)}")
 
@@ -125,7 +125,7 @@ describe Typesense::Documents do
       }
       stub_request(:get, Typesense::ApiCall.send(:uri_for, '/collections/companies/documents/search')).
           with(headers: {
-              'X-Typesense-Api-Key' => Typesense.configuration.api_key
+              'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key]
           },
                query:   search_parameters).
           to_return(status: 200, body: JSON.dump(stubbed_search_result), headers: { 'Content-Type': 'application/json' })
