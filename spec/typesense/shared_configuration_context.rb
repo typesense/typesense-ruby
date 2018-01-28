@@ -9,7 +9,7 @@ shared_context 'Typesense configuration', shared_context: :metadata do
           protocol: 'http',
           api_key:  'abcd'
       }
-
+      
       config.read_replica_nodes = [
           {
               host:     'read_replica_1',
@@ -24,6 +24,8 @@ shared_context 'Typesense configuration', shared_context: :metadata do
               api_key:  'abcd'
           }
       ]
+
+      config.timeout = 10
     end
   end
 end
