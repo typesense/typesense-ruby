@@ -7,13 +7,13 @@ module Typesense
     API_KEY_HEADER_NAME = 'X-TYPESENSE-API-KEY'
 
     def post(endpoint, parameters = {})
-      perform_api_call_with_error_handling do
+      perform_http_call_with_error_handling do
         self.class.post(self.class.uri_for(endpoint),
-                        body:    parameters.to_json,
-                        headers: {
-                            "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key,
-                            'Content-Type'           => 'application/json'
-                        })
+                        default_options.merge(
+                            body:    parameters.to_json,
+                            headers: default_headers.merge('Content-Type' => 'application/json')
+                        )
+        )
       end.parsed_response
     end
 
@@ -22,33 +22,42 @@ module Typesense
     end
 
     def get_unparsed_response(endpoint, parameters = {})
-      perform_api_call_with_error_handling do
+      perform_http_call_with_error_handling do
         self.class.get(self.class.uri_for(endpoint),
-                       query:   parameters,
-                       headers: {
-                           "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key
-                       })
+                       default_options.merge(
+                           query:   parameters,
+                           headers: default_headers
+                       )
+        )
       end
     end
 
     def delete(endpoint, parameters = {})
-      perform_api_call_with_error_handling do
+      perform_http_call_with_error_handling do
         self.class.delete(self.class.uri_for(endpoint),
-                          query:   parameters,
-                          headers: {
-                              "#{API_KEY_HEADER_NAME}" => Typesense.configuration.api_key
-                          })
+                          default_options.merge(
+                              query:   parameters,
+                              headers: default_headers
+                          )
+        )
       end.parsed_response
     end
 
     private
     def self.uri_for(endpoint)
-      "#{Typesense.configuration.protocol}://#{Typesense.configuration.host}:#{Typesense.configuration.port}#{endpoint}"
+      "#{Typesense.configuration.master_node[:protocol]}://#{Typesense.configuration.master_node[:host]}:#{Typesense.configuration.master_node[:port]}#{endpoint}"
     end
 
-    def perform_api_call_with_error_handling
-      if Typesense.configuration.nil? || %i(protocol host port api_key).any? { |attr| Typesense.configuration.send(attr).nil? }
-        raise Error::MissingConfiguration.new('Missing required configuration. Use `Typsense.configure to set protocol, host, port and api_key.')
+    def perform_http_call_with_error_handling
+      if Typesense.configuration.nil? ||
+          Typesense.configuration.master_node.nil? ||
+          %i(protocol host port api_key).any? { |attr| Typesense.configuration.master_node.send(:[], attr).nil? }
+        raise Error::MissingConfiguration.new('Missing required configuration. Use `Typsense.configure to set master_node[:protocol], master_node[:host], master_node[:port] and master_node[:api_key].')
+      end
+
+      if !Typesense.configuration.read_replica_nodes.nil? &&
+          Typesense.configuration.read_replica_nodes.map { |node| [node[:protocol], node[:host], node[:port], node[:api_key]] }.flatten.include?(nil)
+        raise Error::MissingConfiguration.new('Missing required configuration for read_replica_nodes. Use `Typsense.configure to set read_replica_nodes[][:protocol], read_replica_nodes[][:host], read_replica_nodes[][:port] and read_replica_nodes[][:api_key].')
       end
 
       response_object = yield
@@ -72,6 +81,18 @@ module Typesense
                     end
 
       raise error_klass.new(response_object.parsed_response['message'])
+    end
+
+    def default_options
+      {
+          timeout: Typesense.configuration.timeout
+      }
+    end
+
+    def default_headers
+      {
+          "#{API_KEY_HEADER_NAME}" => Typesense.configuration.master_node[:api_key]
+      }
     end
   end
 end

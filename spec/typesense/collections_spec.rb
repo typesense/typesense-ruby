@@ -39,7 +39,7 @@ describe Typesense::Collections do
       stub_request(:post, Typesense::ApiCall.send(:uri_for, '/collections')).
           with(body:    schema_for_creation,
                headers: {
-                   'X-Typesense-Api-Key' => Typesense.configuration.api_key,
+                   'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key],
                    'Content-Type'        => 'application/json'
                }).
           to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
@@ -54,7 +54,7 @@ describe Typesense::Collections do
     it 'returns the specified collection' do
       stub_request(:get, Typesense::ApiCall.send(:uri_for, '/collections/companies')).
           with(headers: {
-              'X-Typesense-Api-Key' => Typesense.configuration.api_key
+              'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key]
           }).
           to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
 
@@ -68,7 +68,7 @@ describe Typesense::Collections do
     it 'deletes the specified collection' do
       stub_request(:delete, Typesense::ApiCall.send(:uri_for, '/collections/companies')).
           with(headers: {
-              'X-Typesense-Api-Key' => Typesense.configuration.api_key
+              'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key]
           }).
           to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
 
@@ -82,7 +82,7 @@ describe Typesense::Collections do
     it 'returns all collections' do
       stub_request(:get, Typesense::ApiCall.send(:uri_for, '/collections')).
           with(headers: {
-              'X-Typesense-Api-Key' => Typesense.configuration.api_key
+              'X-Typesense-Api-Key' => Typesense.configuration.master_node[:api_key]
           }).
           to_return(status: 200, body: JSON.dump([company_schema]), headers: { 'Content-Type': 'application/json' })
 

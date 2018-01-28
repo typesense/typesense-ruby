@@ -27,7 +27,7 @@ describe Typesense::ApiCall do
       end
     end
 
-    it 'throws an Error if the config values are not set' do
+    it 'throws an Error if no config values are not set' do
       Typesense.configuration = nil
 
       expect {
@@ -35,9 +35,26 @@ describe Typesense::ApiCall do
       }.to raise_error Typesense::Error::MissingConfiguration
     end
 
+    it 'throws an Error if the master_node config is not set' do
+      Typesense.configuration.master_node = nil
+
+      expect {
+        subject.send(method, '')
+      }.to raise_error Typesense::Error::MissingConfiguration
+    end
+
+
     %i(protocol host port api_key).each do |config_value|
-      it "throws an Error if config value for #{config_value} is nil" do
-        Typesense.configuration.send("#{config_value}=".to_sym, nil)
+      it "throws an Error if master config value for #{config_value} is nil" do
+        Typesense.configuration.master_node.send(:[]=, config_value.to_sym, nil)
+
+        expect {
+          subject.send(method, '')
+        }.to raise_error Typesense::Error::MissingConfiguration
+      end
+
+      it "throws an Error if read_replica configs for #{config_value} is missing values" do
+        Typesense.configuration.read_replica_nodes[0].send(:[]=, config_value.to_sym, nil)
 
         expect {
           subject.send(method, '')

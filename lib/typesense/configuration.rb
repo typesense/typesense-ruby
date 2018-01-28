@@ -1,11 +1,19 @@
 module Typesense
   class Configuration
-    attr_accessor :host, :port, :protocol, :api_key
+    attr_accessor :master_node
+    attr_accessor :read_replica_nodes
+    attr_accessor :timeout
 
     def initialize
-      self.host     = 'localhost'
-      self.port     = 8108
-      self.protocol = 'http'
+      @master_node = {
+          host:     'localhost',
+          port:     '8108',
+          protocol: 'http'
+      }
+
+      @read_replica_nodes = []
+
+      @timeout = 10
     end
   end
 end
