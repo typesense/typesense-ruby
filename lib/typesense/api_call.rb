@@ -7,7 +7,7 @@ module Typesense
     API_KEY_HEADER_NAME = 'X-TYPESENSE-API-KEY'
 
     def post(endpoint, parameters = {})
-      perform_http_call_with_error_handling do
+      perform_http_call_with_error_handling(:do_not_use_read_replicas) do
         self.class.post(self.class.uri_for(endpoint),
                         default_options.merge(
                             body:    parameters.to_json,
@@ -22,8 +22,8 @@ module Typesense
     end
 
     def get_unparsed_response(endpoint, parameters = {})
-      perform_http_call_with_error_handling do
-        self.class.get(self.class.uri_for(endpoint),
+      perform_http_call_with_error_handling(:use_read_replicas) do |node, node_index|
+        self.class.get(self.class.uri_for(endpoint, node, node_index),
                        default_options.merge(
                            query:   parameters,
                            headers: default_headers
@@ -33,7 +33,7 @@ module Typesense
     end
 
     def delete(endpoint, parameters = {})
-      perform_http_call_with_error_handling do
+      perform_http_call_with_error_handling(:do_not_use_read_replicas) do
         self.class.delete(self.class.uri_for(endpoint),
                           default_options.merge(
                               query:   parameters,
@@ -44,11 +44,56 @@ module Typesense
     end
 
     private
-    def self.uri_for(endpoint)
-      "#{Typesense.configuration.master_node[:protocol]}://#{Typesense.configuration.master_node[:host]}:#{Typesense.configuration.master_node[:port]}#{endpoint}"
+    def self.uri_for(endpoint, node = :master, node_index = 0)
+      if node == :read_replica
+        "#{Typesense.configuration.read_replica_nodes[node_index][:protocol]}://#{Typesense.configuration.read_replica_nodes[node_index][:host]}:#{Typesense.configuration.read_replica_nodes[node_index][:port]}#{endpoint}"
+      else
+        "#{Typesense.configuration.master_node[:protocol]}://#{Typesense.configuration.master_node[:host]}:#{Typesense.configuration.master_node[:port]}#{endpoint}"
+      end
     end
 
-    def perform_http_call_with_error_handling
+    def perform_http_call_with_error_handling(use_read_replicas = :do_not_use_read_replicas)
+      validate_presence_of_configs!
+
+      node       = :master
+      node_index = -1
+
+      begin
+        response_object = yield node, node_index
+
+        return response_object if response_object.response.code_type <= Net::HTTPSuccess # 2xx
+
+        error_klass = if response_object.response.code_type <= Net::HTTPBadRequest # 400
+                        Error::RequestMalformed
+                      elsif response_object.response.code_type <= Net::HTTPUnauthorized # 401
+                        Error::RequestUnauthorized
+                      elsif response_object.response.code_type <= Net::HTTPNotFound # 404
+                        Error::ObjectNotFound
+                      elsif response_object.response.code_type <= Net::HTTPConflict # 409
+                        Error::ObjectAlreadyExists
+                      elsif response_object.response.code_type <= Net::HTTPUnprocessableEntity # 422
+                        Error::ObjectUnprocessable
+                      elsif response_object.response.code_type <= Net::HTTPServerError # 5xx
+                        Error::ServerError
+                      else
+                        Error
+                      end
+
+        raise error_klass.new(response_object.parsed_response['message'])
+      rescue Net::ReadTimeout, Net::OpenTimeout, Error::ServerError => e
+        if (use_read_replicas == :use_read_replicas || use_read_replicas == true) &&
+            !Typesense.configuration.read_replica_nodes.nil?
+          node       = :read_replica
+          node_index += 1
+
+          retry if !Typesense.configuration.read_replica_nodes[node_index].nil?
+        end
+
+        raise
+      end
+    end
+
+    def validate_presence_of_configs!
       if Typesense.configuration.nil? ||
           Typesense.configuration.master_node.nil? ||
           %i(protocol host port api_key).any? { |attr| Typesense.configuration.master_node.send(:[], attr).nil? }
@@ -59,28 +104,6 @@ module Typesense
           Typesense.configuration.read_replica_nodes.map { |node| [node[:protocol], node[:host], node[:port], node[:api_key]] }.flatten.include?(nil)
         raise Error::MissingConfiguration.new('Missing required configuration for read_replica_nodes. Use `Typsense.configure to set read_replica_nodes[][:protocol], read_replica_nodes[][:host], read_replica_nodes[][:port] and read_replica_nodes[][:api_key].')
       end
-
-      response_object = yield
-
-      return response_object if response_object.response.code_type <= Net::HTTPSuccess # 2xx
-
-      error_klass = if response_object.response.code_type <= Net::HTTPBadRequest # 400
-                      Error::RequestMalformed
-                    elsif response_object.response.code_type <= Net::HTTPUnauthorized # 401
-                      Error::RequestUnauthorized
-                    elsif response_object.response.code_type <= Net::HTTPNotFound # 404
-                      Error::ObjectNotFound
-                    elsif response_object.response.code_type <= Net::HTTPConflict # 409
-                      Error::ObjectAlreadyExists
-                    elsif response_object.response.code_type <= Net::HTTPUnprocessableEntity # 422
-                      Error::ObjectUnprocessable
-                    elsif response_object.response.code_type <= Net::HTTPServerError # 5xx
-                      Error::ServerError
-                    else
-                      Error
-                    end
-
-      raise error_klass.new(response_object.parsed_response['message'])
     end
 
     def default_options
