@@ -80,7 +80,10 @@ module Typesense
                       end
 
         raise error_klass.new(response_object.parsed_response['message'])
-      rescue Net::ReadTimeout, Net::OpenTimeout, Error::ServerError => e
+      rescue Net::ReadTimeout, Net::OpenTimeout, Error::ServerError, HTTParty::ResponseError,
+          Timeout::Error, EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
+          Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
+          Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH => e
         if (use_read_replicas == :use_read_replicas || use_read_replicas == true) &&
             !Typesense.configuration.read_replica_nodes.nil?
           node       = :read_replica
