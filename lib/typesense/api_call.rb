@@ -6,9 +6,13 @@ module Typesense
 
     API_KEY_HEADER_NAME = 'X-TYPESENSE-API-KEY'
 
+    def initialize(configuration)
+      @configuration = configuration
+    end
+
     def post(endpoint, parameters = {})
       perform_http_call_with_error_handling(:do_not_use_read_replicas) do
-        self.class.post(self.class.uri_for(endpoint),
+        self.class.post(uri_for(endpoint),
                         default_options.merge(
                             body:    parameters.to_json,
                             headers: default_headers.merge('Content-Type' => 'application/json')
@@ -23,7 +27,7 @@ module Typesense
 
     def get_unparsed_response(endpoint, parameters = {})
       perform_http_call_with_error_handling(:use_read_replicas) do |node, node_index|
-        self.class.get(self.class.uri_for(endpoint, node, node_index),
+        self.class.get(uri_for(endpoint, node, node_index),
                        default_options.merge(
                            query:   parameters,
                            headers: default_headers
@@ -34,7 +38,7 @@ module Typesense
 
     def delete(endpoint, parameters = {})
       perform_http_call_with_error_handling(:do_not_use_read_replicas) do
-        self.class.delete(self.class.uri_for(endpoint),
+        self.class.delete(uri_for(endpoint),
                           default_options.merge(
                               query:   parameters,
                               headers: default_headers
@@ -44,16 +48,16 @@ module Typesense
     end
 
     private
-    def self.uri_for(endpoint, node = :master, node_index = 0)
+    def uri_for(endpoint, node = :master, node_index = 0)
       if node == :read_replica
-        "#{Typesense.configuration.read_replica_nodes[node_index][:protocol]}://#{Typesense.configuration.read_replica_nodes[node_index][:host]}:#{Typesense.configuration.read_replica_nodes[node_index][:port]}#{endpoint}"
+        "#{@configuration.read_replica_nodes[node_index][:protocol]}://#{@configuration.read_replica_nodes[node_index][:host]}:#{@configuration.read_replica_nodes[node_index][:port]}#{endpoint}"
       else
-        "#{Typesense.configuration.master_node[:protocol]}://#{Typesense.configuration.master_node[:host]}:#{Typesense.configuration.master_node[:port]}#{endpoint}"
+        "#{@configuration.master_node[:protocol]}://#{@configuration.master_node[:host]}:#{@configuration.master_node[:port]}#{endpoint}"
       end
     end
 
     def perform_http_call_with_error_handling(use_read_replicas = :do_not_use_read_replicas)
-      validate_presence_of_configs!
+      @configuration.validate!
 
       node       = :master
       node_index = -1
@@ -85,39 +89,26 @@ module Typesense
           Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
           Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH => e
         if (use_read_replicas == :use_read_replicas || use_read_replicas == true) &&
-            !Typesense.configuration.read_replica_nodes.nil?
+            !@configuration.read_replica_nodes.nil?
           node       = :read_replica
           node_index += 1
 
-          retry if !Typesense.configuration.read_replica_nodes[node_index].nil?
+          retry if !@configuration.read_replica_nodes[node_index].nil?
         end
 
         raise
       end
     end
 
-    def validate_presence_of_configs!
-      if Typesense.configuration.nil? ||
-          Typesense.configuration.master_node.nil? ||
-          %i(protocol host port api_key).any? { |attr| Typesense.configuration.master_node.send(:[], attr).nil? }
-        raise Error::MissingConfiguration.new('Missing required configuration. Use `Typsense.configure to set master_node[:protocol], master_node[:host], master_node[:port] and master_node[:api_key].')
-      end
-
-      if !Typesense.configuration.read_replica_nodes.nil? &&
-          Typesense.configuration.read_replica_nodes.map { |node| [node[:protocol], node[:host], node[:port], node[:api_key]] }.flatten.include?(nil)
-        raise Error::MissingConfiguration.new('Missing required configuration for read_replica_nodes. Use `Typsense.configure to set read_replica_nodes[][:protocol], read_replica_nodes[][:host], read_replica_nodes[][:port] and read_replica_nodes[][:api_key].')
-      end
-    end
-
     def default_options
       {
-          timeout: Typesense.configuration.timeout
+          timeout: @configuration.timeout_seconds
       }
     end
 
     def default_headers
       {
-          "#{API_KEY_HEADER_NAME}" => Typesense.configuration.master_node[:api_key]
+          "#{API_KEY_HEADER_NAME}" => @configuration.master_node[:api_key]
       }
     end
   end

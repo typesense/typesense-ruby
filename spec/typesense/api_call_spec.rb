@@ -4,6 +4,8 @@ require_relative 'shared_configuration_context'
 describe Typesense::ApiCall do
   include_context 'Typesense configuration'
 
+  subject { Typesense::ApiCall.new(typesense.configuration) }
+
   shared_examples 'General error handling' do |method|
     {
         400 => Typesense::Error::RequestMalformed,
@@ -15,19 +17,19 @@ describe Typesense::ApiCall do
         300 => Typesense::Error
     }.each do |response_code, error|
       it "throws #{error} for a #{response_code} response" do
-        stub_request(:any, Typesense::ApiCall.send(:uri_for, '/')).
+        stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/')).
             to_return(status:  response_code,
                       body:    JSON.dump({ 'message' => 'Error Message' }),
                       headers: { 'Content-Type' => 'application/json' }
             )
 
-        stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :read_replica, 0)).
+        stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :read_replica, 0)).
             to_return(status:  response_code,
                       body:    JSON.dump({ 'message' => 'Error Message' }),
                       headers: { 'Content-Type' => 'application/json' }
             )
 
-        stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :read_replica, 1)).
+        stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :read_replica, 1)).
             to_return(status:  response_code,
                       body:    JSON.dump({ 'message' => 'Error Message' }),
                       headers: { 'Content-Type' => 'application/json' }
@@ -39,40 +41,6 @@ describe Typesense::ApiCall do
       end
     end
 
-    it 'throws an Error if no config values are not set' do
-      Typesense.configuration = nil
-
-      expect {
-        subject.send(method, '')
-      }.to raise_error Typesense::Error::MissingConfiguration
-    end
-
-    it 'throws an Error if the master_node config is not set' do
-      Typesense.configuration.master_node = nil
-
-      expect {
-        subject.send(method, '')
-      }.to raise_error Typesense::Error::MissingConfiguration
-    end
-
-
-    %i(protocol host port api_key).each do |config_value|
-      it "throws an Error if master config value for #{config_value} is nil" do
-        Typesense.configuration.master_node.send(:[]=, config_value.to_sym, nil)
-
-        expect {
-          subject.send(method, '')
-        }.to raise_error Typesense::Error::MissingConfiguration
-      end
-
-      it "throws an Error if read_replica configs for #{config_value} is missing values" do
-        Typesense.configuration.read_replica_nodes[0].send(:[]=, config_value.to_sym, nil)
-
-        expect {
-          subject.send(method, '')
-        }.to raise_error Typesense::Error::MissingConfiguration
-      end
-    end
   end
 
   shared_examples 'Read Replica selection for write operations' do |method|
@@ -83,11 +51,11 @@ describe Typesense::ApiCall do
 
       expect(master_node_stub).to have_been_requested
 
-      expect(a_request(:any, Typesense::ApiCall.send(:uri_for, '/', :read_replica))).not_to have_been_made
+      expect(a_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :read_replica))).not_to have_been_made
     end
 
     it 'does not use any read replicas and fails immediately when there is a server error' do
-      master_node_stub = stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :master)).
+      master_node_stub = stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :master)).
           to_return(status:  500,
                     body:    JSON.dump({ 'message' => 'Error Message' }),
                     headers: { 'Content-Type' => 'application/json' }
@@ -97,7 +65,7 @@ describe Typesense::ApiCall do
     end
 
     it 'does not use any read replicas and fails immediately when there is a connection timeout' do
-      master_node_stub = stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :master)).to_timeout
+      master_node_stub = stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :master)).to_timeout
 
       common_expectations(method, master_node_stub, Net::OpenTimeout)
     end
@@ -115,19 +83,19 @@ describe Typesense::ApiCall do
     end
 
     it 'selects the next available read replica when there is a server error' do
-      master_node_stub = stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :master)).
+      master_node_stub = stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :master)).
           to_return(status:  500,
                     body:    JSON.dump({ 'message' => 'Error Message' }),
                     headers: { 'Content-Type' => 'application/json' }
           )
 
-      read_replica_0_node_stub = stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :read_replica, 0)).
+      read_replica_0_node_stub = stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :read_replica, 0)).
           to_return(status:  500,
                     body:    JSON.dump({ 'message' => 'Error Message' }),
                     headers: { 'Content-Type' => 'application/json' }
           )
 
-      read_replica_1_node_stub = stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :read_replica, 1)).
+      read_replica_1_node_stub = stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :read_replica, 1)).
           to_return(status:  200,
                     body:    JSON.dump({ 'message' => 'Success' }),
                     headers: { 'Content-Type' => 'application/json' }
@@ -137,9 +105,9 @@ describe Typesense::ApiCall do
     end
 
     it 'selects the next available read replica when there is a connection timeout' do
-      master_node_stub         = stub_request(:any, Typesense::ApiCall.send(:uri_for, '/')).to_timeout
-      read_replica_0_node_stub = stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :read_replica, 0)).to_timeout
-      read_replica_1_node_stub = stub_request(:any, Typesense::ApiCall.send(:uri_for, '/', :read_replica, 1)).
+      master_node_stub         = stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/')).to_timeout
+      read_replica_0_node_stub = stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :read_replica, 0)).to_timeout
+      read_replica_1_node_stub = stub_request(:any, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/', :read_replica, 1)).
           to_return(status:  200,
                     body:    JSON.dump({ 'message' => 'Success' }),
                     headers: { 'Content-Type' => 'application/json' }

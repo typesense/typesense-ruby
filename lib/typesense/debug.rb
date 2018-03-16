@@ -2,10 +2,12 @@ module Typesense
   class Debug
     ENDPOINT_PATH = '/debug'
 
-    class << self
-      def retrieve
-        ApiCall.new.get(ENDPOINT_PATH)
-      end
+    def initialize(configuration)
+      @configuration = configuration
+    end
+
+    def retrieve
+      ApiCall.new(@configuration).get(ENDPOINT_PATH)
     end
   end
 end

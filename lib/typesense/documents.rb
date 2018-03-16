@@ -1,26 +1,46 @@
 module Typesense
   class Documents
-    class << self
-      def create(collection_name, document)
-        ApiCall.new.post(Collections.documents_path_for(collection_name), document)
-      end
+    def initialize(configuration, collection_name, document_id = nil)
+      @configuration   = configuration
+      @collection_name = collection_name
+      @document_id     = document_id
+    end
 
-      def retrieve(collection_name, document_id)
-        ApiCall.new.get("#{Collections.documents_path_for(collection_name)}/#{document_id}")
-      end
+    def create(document)
+      validate_absence_of_document_id! __method__
+      ApiCall.new(@configuration).post(endpoint_path, document)
+    end
 
-      def delete(collection_name, document_id)
-        ApiCall.new.delete("#{Collections.documents_path_for(collection_name)}/#{document_id}")
-      end
+    def retrieve
+      ApiCall.new(@configuration).get("#{endpoint_path}/#{@document_id}")
+    end
 
-      def export(collection_name)
-        api_response = ApiCall.new.get_unparsed_response("#{Collections.documents_path_for(collection_name)}/export")
+    def delete
+      ApiCall.new(@configuration).delete("#{endpoint_path}/#{@document_id}")
+    end
 
-        api_response.split("\n")
-      end
+    def export
+      validate_absence_of_document_id! __method__
 
-      def search(collection_name, search_parameters)
-        ApiCall.new.get("#{Collections.documents_path_for(collection_name)}/search", search_parameters)
+      api_response = ApiCall.new(@configuration).get_unparsed_response("#{endpoint_path}/export")
+
+      api_response.split("\n")
+    end
+
+    def search(search_parameters)
+      validate_absence_of_document_id! __method__
+
+      ApiCall.new(@configuration).get("#{endpoint_path}/search", search_parameters)
+    end
+
+    private
+    def endpoint_path
+      "#{Collections::ENDPOINT_PATH}/#{@collection_name}/documents"
+    end
+
+    def validate_absence_of_document_id!(method)
+      if !@document_id.nil?
+        raise Error::NoMethodError.new("#{method} cannot be called on a specific document")
       end
     end
   end

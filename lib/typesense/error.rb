@@ -20,5 +20,9 @@ module Typesense
 
     class ServerError < Error
     end
+
+    class NoMethodError < ::NoMethodError
+
+    end
   end
 end
