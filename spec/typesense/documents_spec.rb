@@ -4,6 +4,8 @@ require_relative 'shared_configuration_context'
 describe Typesense::Documents do
   include_context 'Typesense configuration'
 
+  subject { typesense.collections['companies'].documents }
+
   let(:company_schema) do
     {
         'name'                => 'companies',
@@ -48,35 +50,7 @@ describe Typesense::Documents do
                }).
           to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
-      result = Typesense::Documents.new(typesense.configuration, 'companies').create(document)
-
-      expect(result).to eq(document)
-    end
-  end
-
-  describe '#retrieve' do
-    it 'returns the specified document' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/124')).
-          with(headers: {
-              'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
-          }).
-          to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
-
-      result = Typesense::Documents.new(typesense.configuration, 'companies', '124').retrieve
-
-      expect(result).to eq(document)
-    end
-  end
-
-  describe '#delete' do
-    it 'deletes the specified document' do
-      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/124')).
-          with(headers: {
-              'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
-          }).
-          to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
-
-      result = Typesense::Documents.new(typesense.configuration, 'companies', '124').delete
+      result = subject.create(document)
 
       expect(result).to eq(document)
     end
@@ -90,7 +64,7 @@ describe Typesense::Documents do
           }).
           to_return(status: 200, body: "#{JSON.dump(document)}\n#{JSON.dump(document)}")
 
-      result = Typesense::Documents.new(typesense.configuration, 'companies').export
+      result = subject.export
 
       expect(result).to eq(%W(#{JSON.dump(document)} #{JSON.dump(document)}))
     end
@@ -103,6 +77,7 @@ describe Typesense::Documents do
           'query_by' => 'company_name'
       }
     end
+
     let(:stubbed_search_result) do
       {
           'facet_counts'   => [],
@@ -124,6 +99,7 @@ describe Typesense::Documents do
           ]
       }
     end
+
     it 'search the documents in a collection' do
       stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/search')).
           with(headers: {
@@ -132,15 +108,18 @@ describe Typesense::Documents do
                query:   search_parameters).
           to_return(status: 200, body: JSON.dump(stubbed_search_result), headers: { 'Content-Type': 'application/json' })
 
-      result = Typesense::Documents.new(typesense.configuration, 'companies').search(search_parameters)
+      result = subject.search(search_parameters)
 
       expect(result).to eq(stubbed_search_result)
     end
+  end
 
-    it 'throws an error if a document_id is set' do
-      expect {
-        Typesense::Documents.new(typesense.configuration, 'companies', '124').search(search_parameters)
-      }.to raise_exception Typesense::Error::NoMethodError
+  describe '#[]' do
+    it 'creates a document object and returns it' do
+      result = subject['124']
+
+      expect(result).to be_a_kind_of(Typesense::Document)
+      expect(result.instance_variable_get(:@document_id)).to eq('124')
     end
   end
 end

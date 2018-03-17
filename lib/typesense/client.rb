@@ -1,19 +1,13 @@
 module Typesense
   class Client
-    attr_accessor :configuration
+    attr_reader :configuration
+    attr_reader :collections
+    attr_reader :debug
 
     def initialize(configuration = {})
       @configuration ||= Configuration.new(configuration)
-      @collections   = {}
+      @collections   = Collections.new(@configuration)
       @debug         = Debug.new(configuration)
-    end
-
-    def collections(collection_name = nil)
-      @collections[collection_name] ||= Collections.new(configuration, collection_name)
-    end
-
-    def debug
-      @debug
     end
   end
 end

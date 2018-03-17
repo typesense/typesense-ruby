@@ -4,6 +4,8 @@ require_relative 'shared_configuration_context'
 describe Typesense::Collections do
   include_context 'Typesense configuration'
 
+  subject { typesense.collections }
+
   let(:company_schema) do
     {
         'name'                => 'companies',
@@ -42,41 +44,7 @@ describe Typesense::Collections do
                }).
           to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
 
-      result = Typesense::Collections.new(typesense.configuration).create(schema_for_creation)
-
-      expect(result).to eq(company_schema)
-    end
-
-    it 'throws an error if a collection name is set' do
-      expect {
-        Typesense::Collections.new(typesense.configuration, 'companies').create(company_schema)
-      }.to raise_exception Typesense::Error::NoMethodError
-    end
-  end
-
-  describe '#retrieve' do
-    it 'returns the specified collection' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies')).
-          with(headers: {
-              'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
-          }).
-          to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
-
-      result = Typesense::Collections.new(typesense.configuration, 'companies').retrieve
-
-      expect(result).to eq(company_schema)
-    end
-  end
-
-  describe '#delete' do
-    it 'deletes the specified collection' do
-      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies')).
-          with(headers: {
-              'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
-          }).
-          to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
-
-      result = Typesense::Collections.new(typesense.configuration, 'companies').delete
+      result = subject.create(schema_for_creation)
 
       expect(result).to eq(company_schema)
     end
@@ -90,44 +58,19 @@ describe Typesense::Collections do
           }).
           to_return(status: 200, body: JSON.dump([company_schema]), headers: { 'Content-Type': 'application/json' })
 
-      result = Typesense::Collections.new(typesense.configuration).retrieve_all
+      result = subject.retrieve_all
 
       expect(result).to eq([company_schema])
     end
-
-    it 'throws an error if a collection name is set' do
-      expect {
-        Typesense::Collections.new(typesense.configuration, 'companies').retrieve_all
-      }.to raise_exception Typesense::Error::NoMethodError
-    end
   end
 
-  describe '#documents' do
-    context 'when no arguments are passed' do
-      it 'creates a documents object and returns it' do
-        result = typesense.collections('companies').documents
+  describe '#[]' do
+    it 'returns a collection object' do
+      result = subject['companies']
 
-        expect(result).to be_a_kind_of(Typesense::Documents)
-        expect(result.instance_variable_get(:@document_id)).to be_nil
-      end
-    end
-
-    context 'when a document id is passed' do
-      it 'creates a documents object and returns it' do
-        result = typesense.collections('companies').documents('124')
-
-        expect(result).to be_a_kind_of(Typesense::Documents)
-        expect(result.instance_variable_get(:@document_id)).to eq('124')
-      end
-    end
-
-    it 'throws an error if a collection name is not set' do
-      expect {
-        Typesense::Collections.new(typesense.configuration, nil).documents
-      }.to raise_exception Typesense::Error::NoMethodError
+      expect(result).to be_a_kind_of(Typesense::Collection)
+      expect(result.instance_variable_get(:@name)).to eq('companies')
     end
   end
-
-
 end
 

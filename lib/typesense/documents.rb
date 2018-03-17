@@ -1,47 +1,32 @@
 module Typesense
   class Documents
-    def initialize(configuration, collection_name, document_id = nil)
+    RESOURCE_PATH = '/documents'
+
+    def initialize(configuration, collection_name)
       @configuration   = configuration
       @collection_name = collection_name
-      @document_id     = document_id
+      @documents       = {}
     end
 
     def create(document)
-      validate_absence_of_document_id! __method__
       ApiCall.new(@configuration).post(endpoint_path, document)
     end
 
-    def retrieve
-      ApiCall.new(@configuration).get("#{endpoint_path}/#{@document_id}")
-    end
-
-    def delete
-      ApiCall.new(@configuration).delete("#{endpoint_path}/#{@document_id}")
-    end
-
     def export
-      validate_absence_of_document_id! __method__
-
-      api_response = ApiCall.new(@configuration).get_unparsed_response("#{endpoint_path}/export")
-
-      api_response.split("\n")
+      ApiCall.new(@configuration).get_unparsed_response(endpoint_path('export')).split("\n")
     end
 
     def search(search_parameters)
-      validate_absence_of_document_id! __method__
+      ApiCall.new(@configuration).get(endpoint_path('search'), search_parameters)
+    end
 
-      ApiCall.new(@configuration).get("#{endpoint_path}/search", search_parameters)
+    def [](document_id)
+      @documents[document_id] ||= Document.new(@configuration, @collection_name, document_id)
     end
 
     private
-    def endpoint_path
-      "#{Collections::ENDPOINT_PATH}/#{@collection_name}/documents"
-    end
-
-    def validate_absence_of_document_id!(method)
-      if !@document_id.nil?
-        raise Error::NoMethodError.new("#{method} cannot be called on a specific document")
-      end
+    def endpoint_path(operation = nil)
+      "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Documents::RESOURCE_PATH}#{operation.nil? ? '' : '/' + operation}"
     end
   end
 end
