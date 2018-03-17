@@ -97,12 +97,14 @@ describe Typesense::Documents do
   end
 
   describe '#search' do
-    it 'search the documents in a collection' do
-      search_parameters     = {
+    let(:search_parameters) do
+      {
           'q'        => 'Stark',
           'query_by' => 'company_name'
       }
-      stubbed_search_result = {
+    end
+    let(:stubbed_search_result) do
+      {
           'facet_counts'   => [],
           'found'          => 0,
           'search_time_ms' => 0,
@@ -121,6 +123,8 @@ describe Typesense::Documents do
               }
           ]
       }
+    end
+    it 'search the documents in a collection' do
       stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/search')).
           with(headers: {
               'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
@@ -132,7 +136,12 @@ describe Typesense::Documents do
 
       expect(result).to eq(stubbed_search_result)
     end
-  end
 
+    it 'throws an error if a document_id is set' do
+      expect {
+        Typesense::Documents.new(typesense.configuration, 'companies', '124').search(search_parameters)
+      }.to raise_exception Typesense::Error::NoMethodError
+    end
+  end
 end
 

@@ -46,6 +46,12 @@ describe Typesense::Collections do
 
       expect(result).to eq(company_schema)
     end
+
+    it 'throws an error if a collection name is set' do
+      expect {
+        Typesense::Collections.new(typesense.configuration, 'companies').create(company_schema)
+      }.to raise_exception Typesense::Error::NoMethodError
+    end
   end
 
   describe '#retrieve' do
@@ -88,6 +94,12 @@ describe Typesense::Collections do
 
       expect(result).to eq([company_schema])
     end
+
+    it 'throws an error if a collection name is set' do
+      expect {
+        Typesense::Collections.new(typesense.configuration, 'companies').retrieve_all
+      }.to raise_exception Typesense::Error::NoMethodError
+    end
   end
 
   describe '#documents' do
@@ -107,6 +119,12 @@ describe Typesense::Collections do
         expect(result).to be_a_kind_of(Typesense::Documents)
         expect(result.instance_variable_get(:@document_id)).to eq('124')
       end
+    end
+
+    it 'throws an error if a collection name is not set' do
+      expect {
+        Typesense::Collections.new(typesense.configuration, nil).documents
+      }.to raise_exception Typesense::Error::NoMethodError
     end
   end
 
