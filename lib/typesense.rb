@@ -1,5 +1,6 @@
-module Typesense
+# frozen_string_literal: true
 
+module Typesense
 end
 
 require 'typesense/version'

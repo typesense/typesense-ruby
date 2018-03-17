@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Typesense
   class Documents
     RESOURCE_PATH = '/documents'
@@ -25,6 +27,7 @@ module Typesense
     end
 
     private
+
     def endpoint_path(operation = nil)
       "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Documents::RESOURCE_PATH}#{operation.nil? ? '' : '/' + operation}"
     end

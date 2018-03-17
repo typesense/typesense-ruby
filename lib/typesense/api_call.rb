@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'httparty'
 
 module Typesense
@@ -11,13 +13,12 @@ module Typesense
     end
 
     def post(endpoint, parameters = {})
-      perform_http_call_with_error_handling(:do_not_use_read_replicas) do
+      perform_with_error_handling(:do_not_use_read_replicas) do
         self.class.post(uri_for(endpoint),
                         default_options.merge(
-                            body:    parameters.to_json,
-                            headers: default_headers.merge('Content-Type' => 'application/json')
-                        )
-        )
+                          body:    parameters.to_json,
+                          headers: default_headers.merge('Content-Type' => 'application/json')
+                        ))
       end.parsed_response
     end
 
@@ -26,28 +27,27 @@ module Typesense
     end
 
     def get_unparsed_response(endpoint, parameters = {})
-      perform_http_call_with_error_handling(:use_read_replicas) do |node, node_index|
+      perform_with_error_handling(:use_read_replicas) do |node, node_index|
         self.class.get(uri_for(endpoint, node, node_index),
                        default_options.merge(
-                           query:   parameters,
-                           headers: default_headers
-                       )
-        )
+                         query:   parameters,
+                         headers: default_headers
+                       ))
       end
     end
 
     def delete(endpoint, parameters = {})
-      perform_http_call_with_error_handling(:do_not_use_read_replicas) do
+      perform_with_error_handling(:do_not_use_read_replicas) do
         self.class.delete(uri_for(endpoint),
                           default_options.merge(
-                              query:   parameters,
-                              headers: default_headers
-                          )
-        )
+                            query:   parameters,
+                            headers: default_headers
+                          ))
       end.parsed_response
     end
 
     private
+
     def uri_for(endpoint, node = :master, node_index = 0)
       if node == :read_replica
         "#{@configuration.read_replica_nodes[node_index][:protocol]}://#{@configuration.read_replica_nodes[node_index][:host]}:#{@configuration.read_replica_nodes[node_index][:port]}#{endpoint}"
@@ -56,7 +56,7 @@ module Typesense
       end
     end
 
-    def perform_http_call_with_error_handling(use_read_replicas = :do_not_use_read_replicas)
+    def perform_with_error_handling(use_read_replicas = :do_not_use_read_replicas)
       @configuration.validate!
 
       node       = :master
@@ -83,17 +83,18 @@ module Typesense
                         Error
                       end
 
-        raise error_klass.new(response_object.parsed_response['message'])
-      rescue Net::ReadTimeout, Net::OpenTimeout, Error::ServerError, HTTParty::ResponseError,
-          Timeout::Error, EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
-          Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
-          Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH => e
+        raise error_klass, response_object.parsed_response['message']
+      rescue Net::ReadTimeout, Net::OpenTimeout,
+             EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
+             Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
+             Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
+             Timeout::Error, Error::ServerError, HTTParty::ResponseError
         if (use_read_replicas == :use_read_replicas || use_read_replicas == true) &&
-            !@configuration.read_replica_nodes.nil?
-          node       = :read_replica
+           !@configuration.read_replica_nodes.nil?
+          node = :read_replica
           node_index += 1
 
-          retry if !@configuration.read_replica_nodes[node_index].nil?
+          retry unless @configuration.read_replica_nodes[node_index].nil?
         end
 
         raise
@@ -102,13 +103,13 @@ module Typesense
 
     def default_options
       {
-          timeout: @configuration.timeout_seconds
+        timeout: @configuration.timeout_seconds
       }
     end
 
     def default_headers
       {
-          "#{API_KEY_HEADER_NAME}" => @configuration.master_node[:api_key]
+        API_KEY_HEADER_NAME.to_s => @configuration.master_node[:api_key]
       }
     end
   end

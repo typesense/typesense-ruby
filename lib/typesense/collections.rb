@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Typesense
   class Collections
     RESOURCE_PATH = '/collections'
@@ -12,7 +14,7 @@ module Typesense
     end
 
     def retrieve_all
-      ApiCall.new(@configuration).get("#{RESOURCE_PATH}")
+      ApiCall.new(@configuration).get(RESOURCE_PATH)
     end
 
     def [](collection_name)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Typesense
   class Error < StandardError
     class MissingConfiguration < Error
@@ -22,7 +24,6 @@ module Typesense
     end
 
     class NoMethodError < ::NoMethodError
-
     end
   end
 end

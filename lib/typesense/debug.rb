@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Typesense
   class Debug
     RESOURCE_PATH = '/debug'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Typesense
   class Collection
     attr_reader :documents
@@ -17,6 +19,7 @@ module Typesense
     end
 
     private
+
     def uri
       "#{Collections::RESOURCE_PATH}/#{@name}"
     end

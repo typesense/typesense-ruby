@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Typesense
   class Client
     attr_reader :configuration
@@ -7,7 +9,7 @@ module Typesense
     def initialize(configuration = {})
       @configuration ||= Configuration.new(configuration)
       @collections   = Collections.new(@configuration)
-      @debug         = Debug.new(configuration)
+      @debug         = Debug.new(@configuration)
     end
   end
 end

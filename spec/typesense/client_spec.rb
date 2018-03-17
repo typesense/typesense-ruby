@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Typesense::Client do
   include_context 'Typesense configuration'
 
-  subject { typesense }
+  subject(:typesence) { typesense }
 
   describe '#collections' do
     it 'creates a collections object and returns it' do

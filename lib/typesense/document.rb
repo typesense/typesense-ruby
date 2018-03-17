@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Typesense
   class Document
     def initialize(configuration, collection_name, document_id)
@@ -15,6 +17,7 @@ module Typesense
     end
 
     private
+
     def endpoint_path
       "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Documents::RESOURCE_PATH}/#{@document_id}"
     end
