@@ -24,7 +24,7 @@ Or install it yourself as:
 
 ## Usage
 
-Read the documentation here: [todo]
+Read the documentation here: [https://typesense.org/api/](https://typesense.org/api/)
 
 ## Development
 
