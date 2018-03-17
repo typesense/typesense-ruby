@@ -41,6 +41,11 @@ jobs:
 #            - ./vendor/bundle
 #          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
 
+      - run:
+          name: lint
+          command: |
+            rubocop
+
       # run tests!
       - run:
           name: run tests
