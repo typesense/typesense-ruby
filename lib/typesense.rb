@@ -3,13 +3,13 @@
 module Typesense
 end
 
-require 'typesense/version'
-require 'typesense/configuration'
-require 'typesense/client'
-require 'typesense/api_call'
-require 'typesense/collections'
-require 'typesense/collection'
-require 'typesense/documents'
-require 'typesense/document'
-require 'typesense/debug'
-require 'typesense/error'
+require_relative 'typesense/version'
+require_relative 'typesense/configuration'
+require_relative 'typesense/client'
+require_relative 'typesense/api_call'
+require_relative 'typesense/collections'
+require_relative 'typesense/collection'
+require_relative 'typesense/documents'
+require_relative 'typesense/document'
+require_relative 'typesense/debug'
+require_relative 'typesense/error'
