@@ -13,7 +13,7 @@ module Typesense
       ApiCall.new(@configuration).post(RESOURCE_PATH, schema)
     end
 
-    def retrieve_all
+    def retrieve
       ApiCall.new(@configuration).get(RESOURCE_PATH)
     end
 

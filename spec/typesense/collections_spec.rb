@@ -52,7 +52,7 @@ describe Typesense::Collections do
     end
   end
 
-  describe '#retrieve_all' do
+  describe '#retrieve' do
     it 'returns all collections' do
       stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections'))
         .with(headers: {
@@ -60,7 +60,7 @@ describe Typesense::Collections do
               })
         .to_return(status: 200, body: JSON.dump([company_schema]), headers: { 'Content-Type': 'application/json' })
 
-      result = collections.retrieve_all
+      result = collections.retrieve
 
       expect(result).to eq([company_schema])
     end
