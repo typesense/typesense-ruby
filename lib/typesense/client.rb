@@ -6,8 +6,8 @@ module Typesense
     attr_reader :collections
     attr_reader :debug
 
-    def initialize(configuration = {})
-      @configuration ||= Configuration.new(configuration)
+    def initialize(options = {})
+      @configuration ||= Configuration.new(options)
       @collections   = Collections.new(@configuration)
       @debug         = Debug.new(@configuration)
     end
