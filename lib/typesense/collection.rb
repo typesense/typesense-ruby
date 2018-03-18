@@ -11,16 +11,16 @@ module Typesense
     end
 
     def retrieve
-      ApiCall.new(@configuration).get(uri)
+      ApiCall.new(@configuration).get(endpoint_path)
     end
 
     def delete
-      ApiCall.new(@configuration).delete(uri)
+      ApiCall.new(@configuration).delete(endpoint_path)
     end
 
     private
 
-    def uri
+    def endpoint_path
       "#{Collections::RESOURCE_PATH}/#{@name}"
     end
   end
