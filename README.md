@@ -1,4 +1,4 @@
-# Typesense Ruby Gem [![CircleCI](https://circleci.com/gh/wreally/typesense-ruby.svg?style=shield&circle-token=063f2179925b0b37d540126f6c96f6e1fe23f1b9)](https://circleci.com/gh/wreally/typesense-ruby)
+# Typesense Ruby Library [![CircleCI](https://circleci.com/gh/wreally/typesense-ruby.svg?style=shield&circle-token=063f2179925b0b37d540126f6c96f6e1fe23f1b9)](https://circleci.com/gh/wreally/typesense-ruby)
 
 
 Ruby client library for accessing the [Typesense HTTP API](https://github.com/wreally/typesense).
@@ -23,7 +23,11 @@ Or install it yourself as:
 
 ## Usage
 
-Read the documentation here: [https://typesense.org/api/](https://typesense.org/api/)
+You'll find detailed documentation here: [https://typesense.org/api/](https://typesense.org/api/)
+
+Here are some examples that show you how the Ruby client works: [examples](examples)
+
+Tests are also a good place to know how the the library works internally: [spec](spec)
 
 ## Development
 
