@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Ruby Library for Typesense'
   spec.description   = 'Typesense is an open source search engine for building a delightful search experience.'
-  spec.homepage      = 'https://github.com/typesense/typesense-ruby'
+  spec.homepage      = 'https://typesense.org'
   spec.license       = 'Apache-2.0'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
