@@ -1,4 +1,4 @@
-# Typesense Ruby Library [![CircleCI](https://circleci.com/gh/wreally/typesense-ruby.svg?style=shield&circle-token=063f2179925b0b37d540126f6c96f6e1fe23f1b9)](https://circleci.com/gh/wreally/typesense-ruby)
+# Typesense Ruby Library [![CircleCI](https://circleci.com/gh/typesense/typesense-ruby.svg?style=shield&circle-token=063f2179925b0b37d540126f6c96f6e1fe23f1b9)](https://circleci.com/gh/typesense/typesense-ruby)
 
 
 Ruby client library for accessing the [Typesense HTTP API](https://github.com/wreally/typesense).
