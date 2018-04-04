@@ -1,9 +1,9 @@
 # Typesense Ruby Library [![CircleCI](https://circleci.com/gh/typesense/typesense-ruby.svg?style=shield&circle-token=063f2179925b0b37d540126f6c96f6e1fe23f1b9)](https://circleci.com/gh/typesense/typesense-ruby)
 
 
-Ruby client library for accessing the [Typesense HTTP API](https://github.com/wreally/typesense).
+Ruby client library for accessing the [Typesense HTTP API](https://github.com/typesense/typesense).
 
-Follows the API spec [here](https://github.com/wreally/typesense-api-spec).
+Follows the API spec [here](https://github.com/typesense/typesense-api-spec).
 
 ## Installation
 
@@ -37,4 +37,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at [wreally/typesense-ruby](https://github.com/wreally/typesense-ruby).
+Bug reports and pull requests are welcome on GitHub at [typesense/typesense-ruby](https://github.com/typesense/typesense-ruby).
