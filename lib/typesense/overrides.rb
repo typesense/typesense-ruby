@@ -10,16 +10,8 @@ module Typesense
       @overrides       = {}
     end
 
-    def create(override_id, query, match_type, includes = [], excludes = [])
-      ApiCall.new(@configuration).put(endpoint_path,
-                                      "id":       override_id,
-                                      "rule":     {
-                                        "query": query,
-                                        "match": match_type
-                                      },
-                                      "includes": includes,
-                                      "excludes": excludes
-      )
+    def create(params)
+      ApiCall.new(@configuration).put(endpoint_path, params)
     end
 
     def retrieve

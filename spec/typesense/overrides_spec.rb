@@ -30,7 +30,7 @@ describe Typesense::Overrides do
               })
         .to_return(status: 201, body: JSON.dump(override), headers: { 'Content-Type': 'application/json' })
 
-      result = companies_overrides.create('lex-exact', 'lex luthor', 'exact', [{ 'id': '125', 'position': 1 }], [{ 'id': '124' }])
+      result = companies_overrides.create(override)
 
       expect(result).to eq(override)
     end
