@@ -3,11 +3,13 @@
 module Typesense
   class Collection
     attr_reader :documents
+    attr_reader :overrides
 
     def initialize(configuration, name)
       @configuration = configuration
       @name          = name
       @documents     = Documents.new(@configuration, @name)
+      @overrides     = Overrides.new(@configuration, @name)
     end
 
     def retrieve

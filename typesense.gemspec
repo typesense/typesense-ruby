@@ -7,7 +7,7 @@ require 'typesense/version'
 Gem::Specification.new do |spec|
   spec.name          = 'typesense'
   spec.version       = Typesense::VERSION
-  spec.authors       = ['Wreally Studios']
+  spec.authors       = ['Typesense, Inc.']
   spec.email         = ['contact@typesense.org']
 
   spec.summary       = 'Ruby Library for Typesense'

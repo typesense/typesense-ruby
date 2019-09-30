@@ -22,6 +22,16 @@ module Typesense
       end.parsed_response
     end
 
+    def put(endpoint, parameters = {})
+      perform_with_error_handling(:do_not_use_read_replicas) do
+        self.class.put(uri_for(endpoint),
+                       default_options.merge(
+                         body:    parameters.to_json,
+                         headers: default_headers.merge('Content-Type' => 'application/json')
+                       ))
+      end.parsed_response
+    end
+
     def get(endpoint, parameters = {})
       get_unparsed_response(endpoint, parameters).parsed_response
     end
@@ -85,13 +95,13 @@ module Typesense
 
         raise error_klass, response_object.parsed_response['message']
       rescue Net::ReadTimeout, Net::OpenTimeout,
-             EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
-             Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
-             Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
-             Timeout::Error, Error::ServerError, HTTParty::ResponseError
+        EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
+        Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
+        Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
+        Timeout::Error, Error::ServerError, HTTParty::ResponseError
         if (use_read_replicas == :use_read_replicas || use_read_replicas == true) &&
-           !@configuration.read_replica_nodes.nil?
-          node = :read_replica
+          !@configuration.read_replica_nodes.nil?
+          node       = :read_replica
           node_index += 1
 
           retry unless @configuration.read_replica_nodes[node_index].nil?
