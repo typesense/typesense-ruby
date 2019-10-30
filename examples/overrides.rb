@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 ##
-# These examples walk you through operations specifically related to search
+# These examples walk you through operations specifically related to overrides
+# This is a Typesense Premium feature (see: https://typesense.org/premium)
 
 require_relative '../lib/typesense'
 require 'awesome_print'
@@ -14,10 +15,7 @@ AwesomePrint.defaults = {
 # Setup
 #
 # Start the master
-#   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108
-#
-# Start the read replica
-#   $ docker run -p 8109:8109  -it -v/tmp/typesense-data-read-replica-1/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=wxyz --listen-port 8109 --master http://localhost:8108
+#   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108 --license-key=<>
 
 ##
 # Create a client

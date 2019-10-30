@@ -40,6 +40,8 @@ RSpec/ExampleLength:
     - 'spec/typesense/documents_spec.rb'
     - 'spec/typesense/override_spec.rb'
     - 'spec/typesense/overrides_spec.rb'
+    - 'spec/typesense/alias_spec.rb'
+    - 'spec/typesense/aliases_spec.rb'
 
 # Offense count: 2
 # Configuration parameters: AggregateFailuresByDefault.
@@ -62,6 +64,8 @@ Style/Documentation:
     - 'lib/typesense/documents.rb'
     - 'lib/typesense/override.rb'
     - 'lib/typesense/overrides.rb'
+    - 'lib/typesense/alias.rb'
+    - 'lib/typesense/aliases.rb'
 
 # Offense count: 92
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
