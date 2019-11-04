@@ -4,28 +4,28 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Document do
-  include_context 'Typesense configuration'
+  include_context 'with Typesense configuration'
 
   subject(:document_124) { typesense.collections['companies'].documents['124'] }
 
   let(:company_schema) do
     {
       'name' => 'companies',
-      'num_documents'       => 0,
-      'fields'              => [
+      'num_documents' => 0,
+      'fields' => [
         {
-          'name'  => 'company_name',
-          'type'  => 'string',
+          'name' => 'company_name',
+          'type' => 'string',
           'facet' => false
         },
         {
-          'name'  => 'num_employees',
-          'type'  => 'int32',
+          'name' => 'num_employees',
+          'type' => 'int32',
           'facet' => false
         },
         {
-          'name'  => 'country',
-          'type'  => 'string',
+          'name' => 'country',
+          'type' => 'string',
           'facet' => true
         }
       ],
@@ -36,9 +36,9 @@ describe Typesense::Document do
   let(:document) do
     {
       'id' => '124',
-      'company_name'  => 'Stark Industries',
+      'company_name' => 'Stark Industries',
       'num_employees' => 5215,
-      'country'       => 'USA'
+      'country' => 'USA'
     }
   end
 

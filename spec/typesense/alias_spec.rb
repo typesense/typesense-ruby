@@ -4,7 +4,7 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Alias do
-  include_context 'Typesense configuration'
+  include_context 'with Typesense configuration'
 
   subject(:books_alias) { typesense.aliases['books'] }
 

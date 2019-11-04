@@ -4,28 +4,28 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Collection do
-  include_context 'Typesense configuration'
+  include_context 'with Typesense configuration'
 
   subject(:companies_collection) { typesense.collections['companies'] }
 
   let(:company_schema) do
     {
       'name' => 'companies',
-      'num_documents'       => 0,
-      'fields'              => [
+      'num_documents' => 0,
+      'fields' => [
         {
-          'name'  => 'company_name',
-          'type'  => 'string',
+          'name' => 'company_name',
+          'type' => 'string',
           'facet' => false
         },
         {
-          'name'  => 'num_employees',
-          'type'  => 'int32',
+          'name' => 'num_employees',
+          'type' => 'int32',
           'facet' => false
         },
         {
-          'name'  => 'country',
-          'type'  => 'string',
+          'name' => 'country',
+          'type' => 'string',
           'facet' => true
         }
       ],

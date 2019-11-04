@@ -21,18 +21,18 @@ AwesomePrint.defaults = {
 # Create a client
 typesense = Typesense::Client.new(
   master_node: {
-    host:     'localhost',
-    port:     8108,
+    host: 'localhost',
+    port: 8108,
     protocol: 'http',
-    api_key:  'abcd'
+    api_key: 'abcd'
   }
 )
 
 ##
 # Create a collection
 schema = {
-  'name'                  => 'companies',
-  'fields'                => [
+  'name' => 'companies',
+  'fields' => [
     {
       'name' => 'company_name',
       'type' => 'string'
@@ -42,8 +42,8 @@ schema = {
       'type' => 'int32'
     },
     {
-      'name'  => 'country',
-      'type'  => 'string',
+      'name' => 'country',
+      'type' => 'string',
       'facet' => true
     }
   ],
@@ -54,47 +54,47 @@ typesense.collections.create(schema)
 
 # Let's create a couple documents for us to use in our search examples
 typesense.collections['companies'].documents.create(
-  'id'            => '124',
-  'company_name'  => 'Stark Industries',
+  'id' => '124',
+  'company_name' => 'Stark Industries',
   'num_employees' => 5215,
-  'country'       => 'USA'
+  'country' => 'USA'
 )
 
 typesense.collections['companies'].documents.create(
-  'id'            => '127',
-  'company_name'  => 'Stark Corp',
+  'id' => '127',
+  'company_name' => 'Stark Corp',
   'num_employees' => 1031,
-  'country'       => 'USA'
+  'country' => 'USA'
 )
 
 typesense.collections['companies'].documents.create(
-  'id'            => '125',
-  'company_name'  => 'Acme Corp',
+  'id' => '125',
+  'company_name' => 'Acme Corp',
   'num_employees' => 1002,
-  'country'       => 'France'
+  'country' => 'France'
 )
 
 typesense.collections['companies'].documents.create(
-  'id'            => '126',
-  'company_name'  => 'Doofenshmirtz Inc',
+  'id' => '126',
+  'company_name' => 'Doofenshmirtz Inc',
   'num_employees' => 2,
-  'country'       => 'Tri-State Area'
+  'country' => 'Tri-State Area'
 )
 
 ##
 # Create overrides
 
 typesense.collections['companies'].overrides.create(
-  "id":       'promote-doofenshmirtz',
-  "rule":     {
+  "id": 'promote-doofenshmirtz',
+  "rule": {
     "query": 'doofen',
     "match": 'exact'
   },
   "includes": [{ 'id' => '126', 'position' => 1 }]
 )
 typesense.collections['companies'].overrides.create(
-  "id":       'promote-acme',
-  "rule":     {
+  "id": 'promote-acme',
+  "rule": {
     "query": 'stark',
     "match": 'exact'
   },
@@ -104,22 +104,22 @@ typesense.collections['companies'].overrides.create(
 ##
 # Search for documents
 results = typesense.collections['companies'].documents.search(
-  'q'        => 'doofen',
+  'q' => 'doofen',
   'query_by' => 'company_name'
 )
 ap results
 
 results = typesense.collections['companies'].documents.search(
-  'q'        => 'stark',
+  'q' => 'stark',
   'query_by' => 'company_name'
 )
 ap results
 
 results = typesense.collections['companies'].documents.search(
-  'q'         => 'Inc',
-  'query_by'  => 'company_name',
+  'q' => 'Inc',
+  'query_by' => 'company_name',
   'filter_by' => 'num_employees:<100',
-  'sort_by'   => 'num_employees:desc'
+  'sort_by' => 'num_employees:desc'
 )
 ap results
 

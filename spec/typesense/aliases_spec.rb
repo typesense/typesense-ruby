@@ -4,7 +4,7 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Aliases do
-  include_context 'Typesense configuration'
+  include_context 'with Typesense configuration'
 
   subject(:aliases) { typesense.aliases }
 
@@ -14,7 +14,7 @@ describe Typesense::Aliases do
         .with(body: JSON.dump('collection_name' => 'books_january'),
               headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key],
-                'Content-Type'        => 'application/json'
+                'Content-Type' => 'application/json'
               })
         .to_return(status: 200, body: JSON.dump('collection_name' => 'books_january'), headers: { 'Content-Type': 'application/json' })
 

@@ -8,8 +8,8 @@ module Typesense
 
     def initialize(options = {})
       @master_node = options[:master_node] || {
-        host:     'localhost',
-        port:     '8108',
+        host: 'localhost',
+        port: '8108',
         protocol: 'http'
       }
 

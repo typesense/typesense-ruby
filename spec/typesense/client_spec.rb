@@ -3,7 +3,7 @@
 require_relative '../spec_helper'
 
 describe Typesense::Client do
-  include_context 'Typesense configuration'
+  include_context 'with Typesense configuration'
 
   subject(:typesence) { typesense }
 

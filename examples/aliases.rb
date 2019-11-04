@@ -22,10 +22,10 @@ AwesomePrint.defaults = {
 # Create a client
 typesense = Typesense::Client.new(
   master_node: {
-    host:     'localhost',
-    port:     8108,
+    host: 'localhost',
+    port: 8108,
     protocol: 'http',
-    api_key:  'abcd'
+    api_key: 'abcd'
   }
 )
 

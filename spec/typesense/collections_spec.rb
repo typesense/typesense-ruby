@@ -4,28 +4,28 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Collections do
-  include_context 'Typesense configuration'
+  include_context 'with Typesense configuration'
 
   subject(:collections) { typesense.collections }
 
   let(:company_schema) do
     {
       'name' => 'companies',
-      'num_documents'       => 0,
-      'fields'              => [
+      'num_documents' => 0,
+      'fields' => [
         {
-          'name'  => 'company_name',
-          'type'  => 'string',
+          'name' => 'company_name',
+          'type' => 'string',
           'facet' => false
         },
         {
-          'name'  => 'num_employees',
-          'type'  => 'int32',
+          'name' => 'num_employees',
+          'type' => 'int32',
           'facet' => false
         },
         {
-          'name'  => 'country',
-          'type'  => 'string',
+          'name' => 'country',
+          'type' => 'string',
           'facet' => true
         }
       ],
@@ -39,7 +39,7 @@ describe Typesense::Collections do
       schema_for_creation = company_schema.reject { |key, _| key == 'num_documents' }
 
       stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections'))
-        .with(body:    schema_for_creation,
+        .with(body: schema_for_creation,
               headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key],
                 'Content-Type' => 'application/json'

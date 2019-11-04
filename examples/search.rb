@@ -22,39 +22,39 @@ AwesomePrint.defaults = {
 ##
 # Create a client
 typesense = Typesense::Client.new(
-  master_node:        {
-    host:     'localhost',
-    port:     8108,
+  master_node: {
+    host: 'localhost',
+    port: 8108,
     protocol: 'http',
-    api_key:  'abcd'
+    api_key: 'abcd'
   },
   read_replica_nodes: [
     {
-      host:     'localhost',
-      port:     8109,
+      host: 'localhost',
+      port: 8109,
       protocol: 'http',
-      api_key:  'wxyz'
+      api_key: 'wxyz'
     }
   ],
-  timeout_seconds:    10
+  timeout_seconds: 10
 )
 
 ##
 # Create a collection
 schema = {
-  'name'      => 'companies',
-  'fields'    => [
+  'name' => 'companies',
+  'fields' => [
     {
       'name' => 'company_name',
       'type' => 'string'
     },
     {
-      'name'  => 'num_employees',
-      'type'  => 'int32'
+      'name' => 'num_employees',
+      'type' => 'int32'
     },
     {
-      'name'  => 'country',
-      'type'  => 'string',
+      'name' => 'country',
+      'type' => 'string',
       'facet' => true
     }
   ],
@@ -135,9 +135,9 @@ ap results
 # Search for more documents
 results = typesense.collections['companies'].documents.search(
   'q' => 'Inc',
-  'query_by'  => 'company_name',
+  'query_by' => 'company_name',
   'filter_by' => 'num_employees:<100',
-  'sort_by'   => 'num_employees:desc'
+  'sort_by' => 'num_employees:desc'
 )
 ap results
 
@@ -164,7 +164,7 @@ ap results
 ##
 # Search for more documents
 results = typesense.collections['companies'].documents.search(
-  'q'        => 'Non-existent',
+  'q' => 'Non-existent',
   'query_by' => 'company_name'
 )
 ap results
