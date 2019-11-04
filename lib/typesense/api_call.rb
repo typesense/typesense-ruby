@@ -16,9 +16,19 @@ module Typesense
       perform_with_error_handling(:do_not_use_read_replicas) do
         self.class.post(uri_for(endpoint),
                         default_options.merge(
-                          body:    parameters.to_json,
+                          body: parameters.to_json,
                           headers: default_headers.merge('Content-Type' => 'application/json')
                         ))
+      end.parsed_response
+    end
+
+    def put(endpoint, parameters = {})
+      perform_with_error_handling(:do_not_use_read_replicas) do
+        self.class.put(uri_for(endpoint),
+                       default_options.merge(
+                         body: parameters.to_json,
+                         headers: default_headers.merge('Content-Type' => 'application/json')
+                       ))
       end.parsed_response
     end
 
@@ -30,7 +40,7 @@ module Typesense
       perform_with_error_handling(:use_read_replicas) do |node, node_index|
         self.class.get(uri_for(endpoint, node, node_index),
                        default_options.merge(
-                         query:   parameters,
+                         query: parameters,
                          headers: default_headers
                        ))
       end
@@ -40,7 +50,7 @@ module Typesense
       perform_with_error_handling(:do_not_use_read_replicas) do
         self.class.delete(uri_for(endpoint),
                           default_options.merge(
-                            query:   parameters,
+                            query: parameters,
                             headers: default_headers
                           ))
       end.parsed_response
@@ -89,7 +99,7 @@ module Typesense
              Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
              Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
              Timeout::Error, Error::ServerError, HTTParty::ResponseError
-        if (use_read_replicas == :use_read_replicas || use_read_replicas == true) &&
+        if ([:use_read_replicas, true].include? use_read_replicas) &&
            !@configuration.read_replica_nodes.nil?
           node = :read_replica
           node_index += 1

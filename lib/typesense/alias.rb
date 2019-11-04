@@ -1,15 +1,10 @@
 # frozen_string_literal: true
 
 module Typesense
-  class Collection
-    attr_reader :documents
-    attr_reader :overrides
-
+  class Alias
     def initialize(configuration, name)
       @configuration = configuration
       @name          = name
-      @documents     = Documents.new(@configuration, @name)
-      @overrides     = Overrides.new(@configuration, @name)
     end
 
     def retrieve
@@ -23,7 +18,7 @@ module Typesense
     private
 
     def endpoint_path
-      "#{Collections::RESOURCE_PATH}/#{@name}"
+      "#{Aliases::RESOURCE_PATH}/#{@name}"
     end
   end
 end
