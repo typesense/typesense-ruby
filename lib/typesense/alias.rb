@@ -2,17 +2,17 @@
 
 module Typesense
   class Alias
-    def initialize(configuration, name)
-      @configuration = configuration
-      @name          = name
+    def initialize(name, api_call)
+      @name     = name
+      @api_call = api_call
     end
 
     def retrieve
-      ApiCall.new(@configuration).get(endpoint_path)
+      @api_call.get(endpoint_path)
     end
 
     def delete
-      ApiCall.new(@configuration).delete(endpoint_path)
+      @api_call.delete(endpoint_path)
     end
 
     private

@@ -25,5 +25,8 @@ module Typesense
 
     class NoMethodError < ::NoMethodError
     end
+
+    class HTTPError < Error
+    end
   end
 end

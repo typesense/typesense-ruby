@@ -13,30 +13,42 @@ AwesomePrint.defaults = {
 ##
 # Setup
 #
-# Start the master
-#   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108
+# Create file in present working directory called typesense-server-peers (update IP Addresses appropriately to your local network):
+#   $ echo '172.17.0.2:8107:8108,172.17.0.3:8107:7108,172.17.0.4:8107:9108' > `pwd`/typesense-server-peers
 #
-# Start the read replica
-#   $ docker run -p 8109:8109  -it -v/tmp/typesense-data-read-replica-1/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=wxyz --listen-port 8109 --master http://localhost:8108
+# Start node 1:
+#   $ docker run -i -p 8108:8108 -p 8107:8107 -v/tmp/typesense-server-data-1b/:/data -v`pwd`/typesense-server-peers:/typesense-server-peers typesense/typesense:0.12.rc8 --data-dir /data --api-key=xyz --search-only-api-key=abcd --listen-port 8108 --peering-port 8107 --enable-cors --nodes=/typesense-server-peers
+#
+# Start node 2:
+#   $ docker run -i -p 7108:7108 -p 7107:7107 -v/tmp/.typesense-server-data-2b/:/data -v`pwd`/typesense-server-peers:/typesense-server-peers typesense/typesense:0.12.rc8 --data-dir /data --api-key=xyz --search-only-api-key=abcd --listen-port 7108 --peering-port 7107 --enable-cors --nodes=/typesense-server-peers
+#
+# Start node 3:
+#   $ docker run -i -p 9108:9108 -p 9107:9107 -v/tmp/.typesense-server-data-3b/:/data -v`pwd`/typesense-server-peers:/typesense-server-peers typesense/typesense:0.12.rc8 --data-dir /data --api-key=xyz --search-only-api-key=abcd --listen-port 9108 --peering-port 9107 --enable-cors --nodes=/typesense-server-peers
 
 ##
 # Create a client
 typesense = Typesense::Client.new(
-  master_node: {
-    host: 'localhost',
-    port: 8108,
-    protocol: 'http',
-    api_key: 'abcd'
-  },
-  read_replica_nodes: [
+  nodes: [
     {
       host: 'localhost',
-      port: 8109,
-      protocol: 'http',
-      api_key: 'wxyz'
+      port: 8108,
+      protocol: 'http'
+    },
+    {
+      host: 'localhost',
+      port: 7108,
+      protocol: 'http'
+    },
+    {
+      host: 'localhost',
+      port: 9108,
+      protocol: 'http'
     }
   ],
-  timeout_seconds: 10
+  api_key: 'xyz',
+  connection_timeout_seconds: 10,
+  logger: Logger.new(STDOUT),
+  log_level: Logger::DEBUG
 )
 
 ##
@@ -61,9 +73,17 @@ schema = {
   'default_sorting_field' => 'num_employees'
 }
 
+# Delete the collection if it already exists
+begin
+  typesense.collections['companies'].delete
+rescue Typesense::Error::ObjectNotFound
+end
+
+# Now create the collection
 typesense.collections.create(schema)
 
 # Let's create a couple documents for us to use in our search examples
+gets
 typesense.collections['companies'].documents.create(
   'id' => '124',
   'company_name' => 'Stark Industries',
@@ -71,6 +91,7 @@ typesense.collections['companies'].documents.create(
   'country' => 'USA'
 )
 
+gets
 typesense.collections['companies'].documents.create(
   'id' => '127',
   'company_name' => 'Stark Corp',
@@ -78,6 +99,7 @@ typesense.collections['companies'].documents.create(
   'country' => 'USA'
 )
 
+gets
 typesense.collections['companies'].documents.create(
   'id' => '125',
   'company_name' => 'Acme Corp',
@@ -85,6 +107,7 @@ typesense.collections['companies'].documents.create(
   'country' => 'France'
 )
 
+gets
 typesense.collections['companies'].documents.create(
   'id' => '126',
   'company_name' => 'Doofenshmirtz Inc',
@@ -94,6 +117,7 @@ typesense.collections['companies'].documents.create(
 
 ##
 # Search for documents
+gets
 results = typesense.collections['companies'].documents.search(
   'q' => 'Stark',
   'query_by' => 'company_name'
@@ -133,6 +157,7 @@ ap results
 
 ##
 # Search for more documents
+gets
 results = typesense.collections['companies'].documents.search(
   'q' => 'Inc',
   'query_by' => 'company_name',
@@ -163,6 +188,7 @@ ap results
 
 ##
 # Search for more documents
+gets
 results = typesense.collections['companies'].documents.search(
   'q' => 'Non-existent',
   'query_by' => 'company_name'
@@ -179,4 +205,5 @@ ap results
 ##
 # Cleanup
 # Drop the collection
+gets
 typesense.collections['companies'].delete

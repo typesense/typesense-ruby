@@ -4,21 +4,21 @@ module Typesense
   class Collections
     RESOURCE_PATH = '/collections'
 
-    def initialize(configuration)
-      @configuration = configuration
-      @collections   = {}
+    def initialize(api_call)
+      @api_call    = api_call
+      @collections = {}
     end
 
     def create(schema)
-      ApiCall.new(@configuration).post(RESOURCE_PATH, schema)
+      @api_call.post(RESOURCE_PATH, schema)
     end
 
     def retrieve
-      ApiCall.new(@configuration).get(RESOURCE_PATH)
+      @api_call.get(RESOURCE_PATH)
     end
 
     def [](collection_name)
-      @collections[collection_name] ||= Collection.new(@configuration, collection_name)
+      @collections[collection_name] ||= Collection.new(collection_name, @api_call)
     end
   end
 end

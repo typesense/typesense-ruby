@@ -15,7 +15,7 @@ AwesomePrint.defaults = {
 # Setup
 #
 # Start the master
-#   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108 --license-key=<>
+#   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.12.rc7 --data-dir /data --api-key=abcd --listen-port 8108 --license-key=<>
 
 ##
 # Create a client

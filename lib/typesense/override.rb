@@ -2,18 +2,18 @@
 
 module Typesense
   class Override
-    def initialize(configuration, collection_name, override_id)
-      @configuration   = configuration
+    def initialize(collection_name, override_id, api_call)
       @collection_name = collection_name
       @override_id     = override_id
+      @api_call        = api_call
     end
 
     def retrieve
-      ApiCall.new(@configuration).get(endpoint_path)
+      @api_call.get(endpoint_path)
     end
 
     def delete
-      ApiCall.new(@configuration).delete(endpoint_path)
+      @api_call.delete(endpoint_path)
     end
 
     private

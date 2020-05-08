@@ -4,26 +4,26 @@ module Typesense
   class Documents
     RESOURCE_PATH = '/documents'
 
-    def initialize(configuration, collection_name)
-      @configuration   = configuration
+    def initialize(collection_name, api_call)
       @collection_name = collection_name
+      @api_call        = api_call
       @documents       = {}
     end
 
     def create(document)
-      ApiCall.new(@configuration).post(endpoint_path, document)
+      @api_call.post(endpoint_path, document)
     end
 
     def export
-      ApiCall.new(@configuration).get_unparsed_response(endpoint_path('export')).split("\n")
+      @api_call.get_unparsed_response(endpoint_path('export')).split("\n")
     end
 
     def search(search_parameters)
-      ApiCall.new(@configuration).get(endpoint_path('search'), search_parameters)
+      @api_call.get(endpoint_path('search'), search_parameters)
     end
 
     def [](document_id)
-      @documents[document_id] ||= Document.new(@configuration, @collection_name, document_id)
+      @documents[document_id] ||= Document.new(@collection_name, document_id, @api_call)
     end
 
     private
