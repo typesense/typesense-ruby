@@ -83,7 +83,7 @@ describe Typesense::ApiCall do
                                headers: { 'Content-Type' => 'application/json' })
 
       expect { subject.send(method, '/') }.to raise_error(Typesense::Error::ServerError)
-      expect(node_0_stub).to have_been_requested.times(2)  # 4 tries, for 3 nodes by default
+      expect(node_0_stub).to have_been_requested.times(2) # 4 tries, for 3 nodes by default
       expect(node_1_stub).to have_been_requested
       expect(node_2_stub).to have_been_requested
     end
@@ -114,9 +114,9 @@ describe Typesense::ApiCall do
       node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 0)).to_timeout
       node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 1)).to_timeout
       node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 2))
-                                 .to_return(status: 200,
-                                            body: JSON.dump('message' => 'Success'),
-                                            headers: { 'Content-Type' => 'application/json' })
+                    .to_return(status: 200,
+                               body: JSON.dump('message' => 'Success'),
+                               headers: { 'Content-Type' => 'application/json' })
 
       expect { subject.send(method, '/') }.not_to raise_error
       expect(node_0_stub).to have_been_requested
@@ -128,9 +128,9 @@ describe Typesense::ApiCall do
       node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 0)).to_timeout
       node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 1)).to_timeout
       node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 2))
-                                 .to_return(status: 200,
-                                            body: JSON.dump('message' => 'Success'),
-                                            headers: { 'Content-Type' => 'application/json' })
+                    .to_return(status: 200,
+                               body: JSON.dump('message' => 'Success'),
+                               headers: { 'Content-Type' => 'application/json' })
       Timecop.freeze(Time.now) do
         subject.send(method, '/') # Two nodes are unhealthy after this
         subject.send(method, '/') # Request should have been made to node 2
@@ -139,7 +139,7 @@ describe Typesense::ApiCall do
       Timecop.freeze(Time.now + 5) do
         subject.send(method, '/') # Request should have been made to node 2
       end
-      node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 0))
+      stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 0))
       Timecop.freeze(Time.now + 65) do
         subject.send(method, '/') # Request should have been made to node 0, since the unhealthy threshold was exceeded
       end
