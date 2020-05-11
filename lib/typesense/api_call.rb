@@ -53,13 +53,43 @@ module Typesense
     end
 
     def perform_request(method, endpoint, options = {})
-      response = perform_with_retries do
-        @logger.debug "#{method.to_s.upcase} request to Node #{@current_node_index}: #{uri_for(endpoint)}"
-        self.class.send(method,
-                        uri_for(endpoint),
-                        default_options.merge(options))
+      @configuration.validate!
+      last_exception = nil
+      @logger.debug "Performing #{method.to_s.upcase} request: #{uri_for(endpoint)}"
+      (1..@num_retries_per_request).each do |num_tries|
+        update_current_node
+
+        @logger.debug "Attempting #{method.to_s.upcase} request Try ##{num_tries} to Node #{@current_node_index}"
+
+        set_node_healthcheck(current_node, is_healthy: false) # Guilty until proven innocent
+        begin
+          response_object = self.class.send(method,
+                                            uri_for(endpoint),
+                                            default_options.merge(options))
+
+          @logger.debug "Request to Node #{@current_node_index} was successfully made (at the network layer). Response Code was #{response_object.response.code}."
+          set_node_healthcheck(current_node, is_healthy: true) if (1..499).include? response_object.response.code.to_i
+
+          # If response is 2xx return the object, else raise the response as an exception
+          return response_object.parsed_response if response_object.response.code_type <= Net::HTTPSuccess # 2xx
+
+          raise custom_exception_klass_for(response_object.response), response_object.parsed_response['message'] || 'Error message not available'
+        rescue Net::ReadTimeout, Net::OpenTimeout,
+               EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
+               Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
+               Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
+               Timeout::Error, HTTParty::ResponseError, Typesense::Error::ServerError, Typesense::Error::HTTPStatus0Error => e
+          # Rescue network layer exceptions and HTTP 5xx errors, so the loop can continue.
+          # Using loops for retries instead of rescue...retry to maintain consistency with client libraries in
+          #   other languages that might not support the same construct.
+          last_exception = e
+          @logger.debug "Request to Node #{@current_node_index} failed due to \"#{e.class}: #{e.message}\""
+          @logger.debug "Sleeping for #{@retry_interval_seconds}s and then retrying request..."
+          sleep @retry_interval_seconds
+        end
       end
-      response.parsed_response
+      @logger.debug "No retries left. Raising last error \"#{last_exception.class}: #{last_exception.message}\"..."
+      raise last_exception
     end
 
     private
@@ -70,44 +100,6 @@ module Typesense
 
     def uri_for(endpoint)
       "#{current_node[:protocol]}://#{current_node[:host]}:#{current_node[:port]}#{endpoint}"
-    end
-
-    def perform_with_retries
-      @configuration.validate!
-      @num_tries = 0
-
-      begin
-        update_current_node
-        @num_tries += 1
-        @logger.debug "Attempting request Try ##{@num_tries} to Node #{@current_node_index}..."
-
-        response_object = yield
-
-        response_code_type = response_object.response.code_type
-        @logger.debug "Request to Node #{@current_node_index} was successfully made. Response Code was #{response_object.response.code}."
-        set_node_healthcheck(current_node, is_healthy: true)
-
-        return response_object if response_code_type <= Net::HTTPSuccess # 2xx
-
-        raise get_exception_for(response_code_type), response_object.parsed_response['message'] || 'Error message not available'
-      rescue Net::ReadTimeout, Net::OpenTimeout,
-             EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
-             Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
-             Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
-             Timeout::Error, HTTParty::ResponseError, Typesense::Error::ServerError, Typesense::Error::HTTPError => e
-        # In addition to exceptions in the network layer, also rescue Typesense server errors
-        #   (Typesense::Error::ServerError and Typesense::Error::HTTPError) so they trigger a retry. Pass all other errors up to the caller.
-        @logger.debug "Request to Node #{@current_node_index} failed due to \"#{e.class}: #{e.message}\". Setting it as unhealthy."
-        set_node_healthcheck(current_node, is_healthy: false)
-
-        if @num_tries <= @num_retries_per_request
-          @logger.debug "Sleeping for #{@retry_interval_seconds}s and then retrying request..."
-          sleep @retry_interval_seconds
-          retry
-        end
-        @logger.debug "No retries left. Raising last error \"#{e.class}: #{e.message}\"..."
-        raise
-      end
     end
 
     ## Attempts to find the next healthy node, looping through the list of nodes once.
@@ -139,7 +131,8 @@ module Typesense
       node[:last_healthcheck_timestamp] = Time.now.to_i
     end
 
-    def get_exception_for(response_code_type)
+    def custom_exception_klass_for(response)
+      response_code_type = response.code_type
       if response_code_type <= Net::HTTPBadRequest # 400
         Typesense::Error::RequestMalformed
       elsif response_code_type <= Net::HTTPUnauthorized # 401
