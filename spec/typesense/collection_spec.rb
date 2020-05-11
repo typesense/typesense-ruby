@@ -35,9 +35,10 @@ describe Typesense::Collection do
 
   describe '#retrieve' do
     it 'returns the specified collection' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies'))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies', 0))
         .with(headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type' => 'application/json'
               })
         .to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
 
@@ -49,9 +50,9 @@ describe Typesense::Collection do
 
   describe '#delete' do
     it 'deletes the specified collection' do
-      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies'))
+      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies', 0))
         .with(headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
+                'X-Typesense-Api-Key' => typesense.configuration.api_key
               })
         .to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
 

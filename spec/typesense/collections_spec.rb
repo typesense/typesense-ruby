@@ -38,10 +38,10 @@ describe Typesense::Collections do
       # since num_documents is a read-only attribute
       schema_for_creation = company_schema.reject { |key, _| key == 'num_documents' }
 
-      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections'))
+      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections', 0))
         .with(body: schema_for_creation,
               headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key],
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
               })
         .to_return(status: 200, body: JSON.dump(company_schema), headers: { 'Content-Type': 'application/json' })
@@ -54,9 +54,10 @@ describe Typesense::Collections do
 
   describe '#retrieve' do
     it 'returns all collections' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections'))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections', 0))
         .with(headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type' => 'application/json'
               })
         .to_return(status: 200, body: JSON.dump([company_schema]), headers: { 'Content-Type': 'application/json' })
 

@@ -15,7 +15,7 @@ module Typesense
     end
 
     def export
-      @api_call.get_unparsed_response(endpoint_path('export')).split("\n")
+      @api_call.get(endpoint_path('export')).split("\n")
     end
 
     def search(search_parameters)

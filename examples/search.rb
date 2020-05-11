@@ -3,53 +3,7 @@
 ##
 # These examples walk you through operations specifically related to search
 
-require_relative '../lib/typesense'
-require 'awesome_print'
-
-AwesomePrint.defaults = {
-  indent: -2
-}
-
-##
-# Setup
-#
-# Create file in present working directory called typesense-server-peers (update IP Addresses appropriately to your local network):
-#   $ echo '172.17.0.2:8107:8108,172.17.0.3:8107:7108,172.17.0.4:8107:9108' > `pwd`/typesense-server-peers
-#
-# Start node 1:
-#   $ docker run -i -p 8108:8108 -p 8107:8107 -v/tmp/typesense-server-data-1b/:/data -v`pwd`/typesense-server-peers:/typesense-server-peers typesense/typesense:0.12.rc8 --data-dir /data --api-key=xyz --search-only-api-key=abcd --listen-port 8108 --peering-port 8107 --enable-cors --nodes=/typesense-server-peers
-#
-# Start node 2:
-#   $ docker run -i -p 7108:7108 -p 7107:7107 -v/tmp/.typesense-server-data-2b/:/data -v`pwd`/typesense-server-peers:/typesense-server-peers typesense/typesense:0.12.rc8 --data-dir /data --api-key=xyz --search-only-api-key=abcd --listen-port 7108 --peering-port 7107 --enable-cors --nodes=/typesense-server-peers
-#
-# Start node 3:
-#   $ docker run -i -p 9108:9108 -p 9107:9107 -v/tmp/.typesense-server-data-3b/:/data -v`pwd`/typesense-server-peers:/typesense-server-peers typesense/typesense:0.12.rc8 --data-dir /data --api-key=xyz --search-only-api-key=abcd --listen-port 9108 --peering-port 9107 --enable-cors --nodes=/typesense-server-peers
-
-##
-# Create a client
-typesense = Typesense::Client.new(
-  nodes: [
-    {
-      host: 'localhost',
-      port: 8108,
-      protocol: 'http'
-    },
-    {
-      host: 'localhost',
-      port: 7108,
-      protocol: 'http'
-    },
-    {
-      host: 'localhost',
-      port: 9108,
-      protocol: 'http'
-    }
-  ],
-  api_key: 'xyz',
-  connection_timeout_seconds: 10,
-  logger: Logger.new(STDOUT),
-  log_level: Logger::DEBUG
-)
+require_relative './client_initialization'
 
 ##
 # Create a collection
@@ -75,40 +29,36 @@ schema = {
 
 # Delete the collection if it already exists
 begin
-  typesense.collections['companies'].delete
+  @typesense.collections['companies'].delete
 rescue Typesense::Error::ObjectNotFound
 end
 
 # Now create the collection
-typesense.collections.create(schema)
+@typesense.collections.create(schema)
 
 # Let's create a couple documents for us to use in our search examples
-gets
-typesense.collections['companies'].documents.create(
+@typesense.collections['companies'].documents.create(
   'id' => '124',
   'company_name' => 'Stark Industries',
   'num_employees' => 5215,
   'country' => 'USA'
 )
 
-gets
-typesense.collections['companies'].documents.create(
+@typesense.collections['companies'].documents.create(
   'id' => '127',
   'company_name' => 'Stark Corp',
   'num_employees' => 1031,
   'country' => 'USA'
 )
 
-gets
-typesense.collections['companies'].documents.create(
+@typesense.collections['companies'].documents.create(
   'id' => '125',
   'company_name' => 'Acme Corp',
   'num_employees' => 1002,
   'country' => 'France'
 )
 
-gets
-typesense.collections['companies'].documents.create(
+@typesense.collections['companies'].documents.create(
   'id' => '126',
   'company_name' => 'Doofenshmirtz Inc',
   'num_employees' => 2,
@@ -117,8 +67,7 @@ typesense.collections['companies'].documents.create(
 
 ##
 # Search for documents
-gets
-results = typesense.collections['companies'].documents.search(
+results = @typesense.collections['companies'].documents.search(
   'q' => 'Stark',
   'query_by' => 'company_name'
 )
@@ -157,8 +106,7 @@ ap results
 
 ##
 # Search for more documents
-gets
-results = typesense.collections['companies'].documents.search(
+results = @typesense.collections['companies'].documents.search(
   'q' => 'Inc',
   'query_by' => 'company_name',
   'filter_by' => 'num_employees:<100',
@@ -188,8 +136,7 @@ ap results
 
 ##
 # Search for more documents
-gets
-results = typesense.collections['companies'].documents.search(
+results = @typesense.collections['companies'].documents.search(
   'q' => 'Non-existent',
   'query_by' => 'company_name'
 )
@@ -205,5 +152,4 @@ ap results
 ##
 # Cleanup
 # Drop the collection
-gets
-typesense.collections['companies'].delete
+@typesense.collections['companies'].delete

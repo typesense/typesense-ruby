@@ -13,9 +13,10 @@ describe Typesense::Debug do
       debug_info = {
         'version' => '0.8.0'
       }
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/debug'))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/debug', 0))
         .with(headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type' => 'application/json'
               })
         .to_return(status: 200, body: JSON.dump(debug_info), headers: { 'Content-Type': 'application/json' })
 

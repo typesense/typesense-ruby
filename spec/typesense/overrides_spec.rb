@@ -22,10 +22,10 @@ describe Typesense::Overrides do
 
   describe '#create' do
     it 'creates an override rule and returns it' do
-      stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides'))
+      stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides', 0))
         .with(body: override,
               headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key],
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
               })
         .to_return(status: 201, body: JSON.dump(override), headers: { 'Content-Type': 'application/json' })

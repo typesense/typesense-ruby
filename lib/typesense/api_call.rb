@@ -55,8 +55,8 @@ module Typesense
     def perform_request(method, endpoint, options = {})
       @configuration.validate!
       last_exception = nil
-      @logger.debug "Performing #{method.to_s.upcase} request: #{uri_for(endpoint)}"
-      (1..@num_retries_per_request).each do |num_tries|
+      @logger.debug "Performing #{method.to_s.upcase} request: #{endpoint}"
+      (1..(@num_retries_per_request + 1)).each do |num_tries|
         update_current_node
 
         @logger.debug "Attempting #{method.to_s.upcase} request Try ##{num_tries} to Node #{@current_node_index}"
@@ -98,8 +98,8 @@ module Typesense
       @nodes[@current_node_index]
     end
 
-    def uri_for(endpoint)
-      "#{current_node[:protocol]}://#{current_node[:host]}:#{current_node[:port]}#{endpoint}"
+    def uri_for(endpoint, node_index = @current_node_index)
+      "#{@nodes[node_index][:protocol]}://#{@nodes[node_index][:host]}:#{@nodes[node_index][:port]}#{endpoint}"
     end
 
     ## Attempts to find the next healthy node, looping through the list of nodes once.

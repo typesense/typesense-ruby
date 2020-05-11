@@ -22,9 +22,10 @@ describe Typesense::Override do
 
   describe '#retrieve' do
     it 'returns the specified override' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides/lex-exact'))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides/lex-exact', 0))
         .with(headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type': 'application/json'
               })
         .to_return(status: 200, body: JSON.dump(override_data), headers: { 'Content-Type': 'application/json' })
 
@@ -36,9 +37,9 @@ describe Typesense::Override do
 
   describe '#delete' do
     it 'deletes the specified override' do
-      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides/lex-exact'))
+      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides/lex-exact', 0))
         .with(headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
+                'X-Typesense-Api-Key' => typesense.configuration.api_key
               })
         .to_return(status: 200, body: JSON.dump('id' => 'lex-exact'), headers: { 'Content-Type': 'application/json' })
 

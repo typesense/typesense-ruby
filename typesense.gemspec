@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 0.76'
   spec.add_development_dependency 'rubocop-rspec', '~> 1.36'
   spec.add_development_dependency 'simplecov', '~> 0.17'
+  spec.add_development_dependency 'timecop', '~> 0.9.1'
   spec.add_development_dependency 'webmock', '~> 3.7'
 
   spec.add_dependency 'httparty', '~> 0.17'
