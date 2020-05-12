@@ -162,6 +162,7 @@ module Typesense
     def reset_node_healthcheck_if_expired(node)
       return unless node[:is_healthy] == false && (Time.now.to_i - node[:last_healthcheck_timestamp] > @healthcheck_interval_seconds)
 
+      @logger.debug "Node #{@current_node_index} has exceeded healthcheck_interval_seconds of #{@healthcheck_interval_seconds}. Adding it back into rotation."
       set_node_healthcheck(node, is_healthy: true)
     end
 

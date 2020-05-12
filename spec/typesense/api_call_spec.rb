@@ -40,31 +40,6 @@ describe Typesense::ApiCall do
     end
   end
 
-  shared_examples 'Node selection for write operations' do |method|
-    def common_expectations(method, master_node_stub, exception)
-      expect { subject.send(method, '') }.to raise_error exception
-
-      expect(master_node_stub).to have_been_requested
-
-      expect(a_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :read_replica))).not_to have_been_made
-    end
-
-    it 'does not use any read replicas and fails immediately when there is a server error' do
-      master_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :master))
-                         .to_return(status: 500,
-                                    body: JSON.dump('message' => 'Error Message'),
-                                    headers: { 'Content-Type' => 'application/json' })
-
-      common_expectations(method, master_node_stub, Typesense::Error::ServerError)
-    end
-
-    it 'does not use any read replicas and fails immediately when there is a connection timeout' do
-      master_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :master)).to_timeout
-
-      common_expectations(method, master_node_stub, Net::OpenTimeout)
-    end
-  end
-
   shared_examples 'Node selection' do |method|
     it 'raises an error when no nodes are healthy' do
       node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 0))
@@ -131,21 +106,26 @@ describe Typesense::ApiCall do
                     .to_return(status: 200,
                                body: JSON.dump('message' => 'Success'),
                                headers: { 'Content-Type' => 'application/json' })
-      Timecop.freeze(Time.now) do
+      current_time = Time.now
+      Timecop.freeze(current_time) do
         subject.send(method, '/') # Two nodes are unhealthy after this
         subject.send(method, '/') # Request should have been made to node 2
         subject.send(method, '/') # Request should have been made to node 2
       end
-      Timecop.freeze(Time.now + 5) do
+      Timecop.freeze(current_time + 5) do
         subject.send(method, '/') # Request should have been made to node 2
       end
-      stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 0))
-      Timecop.freeze(Time.now + 65) do
-        subject.send(method, '/') # Request should have been made to node 0, since the unhealthy threshold was exceeded
+      Timecop.freeze(current_time + 65) do
+        subject.send(method, '/') # Request should have been made to node 2, since node 0 and node 1 are still unhealthy, though they were added back into rotation
       end
-      expect(node_0_stub).to have_been_requested.times(2)
-      expect(node_1_stub).to have_been_requested
-      expect(node_2_stub).to have_been_requested.times(4)
+      stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', 0))
+      Timecop.freeze(current_time + 125) do
+        subject.send(method, '/') # Request should have been made to node 0, since it is now healthy and the unhealthy threshold was exceeded
+      end
+
+      expect(node_0_stub).to have_been_requested.times(3)
+      expect(node_1_stub).to have_been_requested.times(2)
+      expect(node_2_stub).to have_been_requested.times(5)
     end
   end
 
