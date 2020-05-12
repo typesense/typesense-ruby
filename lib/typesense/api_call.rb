@@ -189,6 +189,8 @@ module Typesense
         Typesense::Error::ObjectUnprocessable
       elsif response_code_type <= Net::HTTPServerError # 5xx
         Typesense::Error::ServerError
+      elsif response.code.to_i.zero?
+        Typesense::Error::HTTPStatus0Error
       else
         Typesense::Error::HTTPError
       end
