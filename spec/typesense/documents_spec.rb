@@ -58,6 +58,21 @@ describe Typesense::Documents do
     end
   end
 
+  describe '#create_many' do
+    it 'creates creates/indexes documents in bulk' do
+      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', 0))
+        .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
+              headers: {
+                'X-Typesense-Api-Key' => typesense.configuration.api_key
+              })
+        .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
+
+      result = companies_documents.create_many([document, document])
+
+      expect(result).to eq({})
+    end
+  end
+
   describe '#export' do
     it 'exports all documents in a collection as an array' do
       stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/export', 0))

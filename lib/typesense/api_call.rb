@@ -25,31 +25,39 @@ module Typesense
     end
 
     def post(endpoint, parameters = {})
+      headers, body = extract_headers_and_body_from(parameters)
+
       perform_request :post,
                       endpoint,
-                      body: parameters.to_json,
-                      headers: default_headers.merge('Content-Type' => 'application/json')
+                      body: body,
+                      headers: default_headers.merge(headers)
     end
 
     def put(endpoint, parameters = {})
+      headers, body = extract_headers_and_body_from(parameters)
+
       perform_request :put,
                       endpoint,
-                      body: parameters.to_json,
-                      headers: default_headers.merge('Content-Type' => 'application/json')
+                      body: body,
+                      headers: default_headers.merge(headers)
     end
 
     def get(endpoint, parameters = {})
+      headers, query = extract_headers_and_query_from(parameters)
+
       perform_request :get,
                       endpoint,
-                      query: parameters,
-                      headers: default_headers.merge('Content-Type' => 'application/json')
+                      query: query,
+                      headers: default_headers.merge(headers)
     end
 
     def delete(endpoint, parameters = {})
+      headers, query = extract_headers_and_query_from(parameters)
+
       perform_request :delete,
                       endpoint,
-                      query: parameters,
-                      headers: default_headers
+                      query: query,
+                      headers: default_headers.merge(headers)
     end
 
     def perform_request(method, endpoint, options = {})
@@ -93,6 +101,41 @@ module Typesense
     end
 
     private
+
+    def extract_headers_and_body_from(parameters)
+      if json_request?(parameters)
+        headers = { 'Content-Type' => 'application/json' }
+        body = sanitize_parameters(parameters).to_json
+      else
+        headers = {}
+        body = parameters[:body]
+      end
+      [headers, body]
+    end
+
+    def extract_headers_and_query_from(parameters)
+      if json_request?(parameters)
+        headers = { 'Content-Type' => 'application/json' }
+        query = sanitize_parameters(parameters)
+      else
+        headers = {}
+        query = parameters[:query]
+      end
+      [headers, query]
+    end
+
+    def json_request?(parameters)
+      parameters[:as_json].nil? ? true : parameters[:as_json]
+    end
+
+    def sanitize_parameters(parameters)
+      sanitized_parameters = parameters.dup
+      sanitized_parameters.delete(:as_json)
+      sanitized_parameters.delete(:body)
+      sanitized_parameters.delete(:query)
+
+      sanitized_parameters
+    end
 
     def current_node
       @nodes[@current_node_index]

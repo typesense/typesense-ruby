@@ -191,20 +191,22 @@ ap document
 #   "num_employees" => 5215
 # }
 
-# Let's create two documents again for use in our remaining examples
-@typesense.collections['companies'].documents.create(
-  'id' => '124',
-  'company_name' => 'Stark Industries',
-  'num_employees' => 5215,
-  'country' => 'USA'
-)
-
-@typesense.collections['companies'].documents.create(
-  'id' => '125',
-  'company_name' => 'Acme Corp',
-  'num_employees' => 1002,
-  'country' => 'France'
-)
+# Let's bulk create two documents again for use in our remaining examples
+documents = [
+  {
+    'id' => '124',
+    'company_name' => 'Stark Industries',
+    'num_employees' => 5215,
+    'country' => 'USA'
+  },
+  {
+    'id' => '125',
+    'company_name' => 'Acme Corp',
+    'num_employees' => 1002,
+    'country' => 'France'
+  }
+]
+ap @typesense.collections['companies'].documents.create_many(documents)
 
 ##
 # Export all documents in a collection in JSON Lines format

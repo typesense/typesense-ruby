@@ -14,8 +14,13 @@ module Typesense
       @api_call.post(endpoint_path, document)
     end
 
+    def create_many(documents)
+      documents_in_jsonl_format = documents.map { |document| JSON.dump(document) }.join("\n")
+      @api_call.post(endpoint_path('import'), as_json: false, body: documents_in_jsonl_format)
+    end
+
     def export
-      @api_call.get(endpoint_path('export')).split("\n")
+      (@api_call.get(endpoint_path('export')) || '').split("\n")
     end
 
     def search(search_parameters)
