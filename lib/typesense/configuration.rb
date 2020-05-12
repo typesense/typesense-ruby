@@ -24,6 +24,7 @@ module Typesense
       @logger.level = @log_level
 
       show_deprecation_warnings(options)
+      validate!
     end
 
     def validate!
