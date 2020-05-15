@@ -37,21 +37,21 @@ AwesomePrint.defaults = {
       host: 'localhost',
       port: 8108,
       protocol: 'http'
-    }
+    },
     # Uncomment if starting a 3-node cluster, using Option 2 under Setup instructions above
-    # {
-    #   host: 'localhost',
-    #   port: 7108,
-    #   protocol: 'http'
-    # },
-    # {
-    #   host: 'localhost',
-    #   port: 9108,
-    #   protocol: 'http'
-    # }
+    {
+      host: 'localhost',
+      port: 7108,
+      protocol: 'http'
+    },
+    {
+      host: 'localhost',
+      port: 9108,
+      protocol: 'http'
+    }
   ],
   api_key: 'xyz',
-  num_retries: 3, # A total of 4 tries (1 original try + 3 retries)
+  # num_retries: 3, # A total of 4 tries (1 original try + 3 retries)
   connection_timeout_seconds: 10,
   logger: Logger.new(STDOUT),
   log_level: Logger::DEBUG

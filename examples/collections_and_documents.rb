@@ -59,6 +59,7 @@ ap collection
 
 ##
 # Retrieve a collection
+sleep 0.5 # Give Typesense cluster a few hundred ms to create the collection on all nodes, before reading it right after (eventually consistent)
 collection = @typesense.collections['companies'].retrieve
 ap collection
 
@@ -168,6 +169,7 @@ ap document
 
 ##
 # Retrieve a document
+sleep 0.5 # Give Typesense cluster a few hundred ms to create the document on all nodes, before reading it right after (eventually consistent)
 document = @typesense.collections['companies'].documents['124'].retrieve
 ap document
 
@@ -211,6 +213,7 @@ ap @typesense.collections['companies'].documents.create_many(documents)
 ##
 # Export all documents in a collection in JSON Lines format
 #   We use JSON Lines format for performance reasons. You can choose to parse selected lines (elements in the array) as needed.
+sleep 0.5 # Give Typesense cluster a few hundred ms to create the document on all nodes, before reading it right after (eventually consistent)
 array_of_json_strings = @typesense.collections['companies'].documents.export
 ap array_of_json_strings
 
