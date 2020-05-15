@@ -12,13 +12,13 @@ module Typesense
       @configuration = configuration
 
       @api_key = @configuration.api_key
-      @nodes = @configuration.nodes
+      @nodes = @configuration.nodes.dup # Make a copy, since we'll be adding additional metadata to the nodes
       @connection_timeout_seconds = @configuration.connection_timeout_seconds
       @healthcheck_interval_seconds = @configuration.healthcheck_interval_seconds
       @num_retries_per_request = @configuration.num_retries
       @retry_interval_seconds = @configuration.retry_interval_seconds
 
-      @logger = configuration.logger
+      @logger = @configuration.logger
 
       initialize_metadata_for_nodes
       @current_node_index = -1
@@ -66,17 +66,17 @@ module Typesense
       @logger.debug "Performing #{method.to_s.upcase} request: #{endpoint}"
       (1..(@num_retries_per_request + 1)).each do |num_tries|
         update_current_node
+        set_node_healthcheck(current_node, is_healthy: false) # Guilty until proven innocent
 
         @logger.debug "Attempting #{method.to_s.upcase} request Try ##{num_tries} to Node #{@current_node_index}"
 
-        set_node_healthcheck(current_node, is_healthy: false) # Guilty until proven innocent
         begin
           response_object = self.class.send(method,
                                             uri_for(endpoint),
                                             default_options.merge(options))
+          set_node_healthcheck(current_node, is_healthy: true) if (1..499).include? response_object.response.code.to_i
 
           @logger.debug "Request to Node #{@current_node_index} was successfully made (at the network layer). Response Code was #{response_object.response.code}."
-          set_node_healthcheck(current_node, is_healthy: true) if (1..499).include? response_object.response.code.to_i
 
           # If response is 2xx return the object, else raise the response as an exception
           return response_object.parsed_response if response_object.response.code_type <= Net::HTTPSuccess # 2xx
@@ -91,8 +91,8 @@ module Typesense
           # Using loops for retries instead of rescue...retry to maintain consistency with client libraries in
           #   other languages that might not support the same construct.
           last_exception = e
-          @logger.debug "Request to Node #{@current_node_index} failed due to \"#{e.class}: #{e.message}\""
-          @logger.debug "Sleeping for #{@retry_interval_seconds}s and then retrying request..."
+          @logger.warn "Request to Node #{@current_node_index} failed due to \"#{e.class}: #{e.message}\""
+          @logger.warn "Sleeping for #{@retry_interval_seconds}s and then retrying request..."
           sleep @retry_interval_seconds
         end
       end
@@ -149,10 +149,13 @@ module Typesense
     #   But if no healthy nodes are found, it will just return the next node, even if it's unhealthy
     #     so we can try the request for good measure, in case that node has become healthy since
     def update_current_node
-      (0..@nodes.length).each do |_i|
+      @logger.debug "Nodes health: #{@nodes.each_with_index.map { |node, i| "Node #{i} is #{node[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}" }.join(' || ')}"
+      (0..@nodes.length).each do |i|
         @current_node_index = (@current_node_index + 1) % @nodes.length
         reset_node_healthcheck_if_expired(current_node)
         break if current_node[:is_healthy] == true
+
+        @logger.debug "No healthy nodes were found. Returning the next node, Node #{@current_node_index}" if i == @nodes.length
       end
       @logger.debug "Updated current node to Node #{@current_node_index}"
 
@@ -164,6 +167,7 @@ module Typesense
 
       @logger.debug "Node #{@current_node_index} has exceeded healthcheck_interval_seconds of #{@healthcheck_interval_seconds}. Adding it back into rotation."
       set_node_healthcheck(node, is_healthy: true)
+      @logger.debug "Nodes health: #{@nodes.each_with_index.map { |node, i| "Node #{i} is #{node[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}" }.join(' || ')}"
     end
 
     def initialize_metadata_for_nodes
