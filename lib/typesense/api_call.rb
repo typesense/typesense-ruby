@@ -66,7 +66,6 @@ module Typesense
       @logger.debug "Performing #{method.to_s.upcase} request: #{endpoint}"
       (1..(@num_retries_per_request + 1)).each do |num_tries|
         update_current_node
-        set_node_healthcheck(current_node, is_healthy: false) # Guilty until proven innocent
 
         @logger.debug "Attempting #{method.to_s.upcase} request Try ##{num_tries} to Node #{@current_node_index}"
 
@@ -90,6 +89,7 @@ module Typesense
           # Rescue network layer exceptions and HTTP 5xx errors, so the loop can continue.
           # Using loops for retries instead of rescue...retry to maintain consistency with client libraries in
           #   other languages that might not support the same construct.
+          set_node_healthcheck(current_node, is_healthy: false)
           last_exception = e
           @logger.warn "Request to Node #{@current_node_index} failed due to \"#{e.class}: #{e.message}\""
           @logger.warn "Sleeping for #{@retry_interval_seconds}s and then retrying request..."
@@ -167,7 +167,7 @@ module Typesense
 
       @logger.debug "Node #{@current_node_index} has exceeded healthcheck_interval_seconds of #{@healthcheck_interval_seconds}. Adding it back into rotation."
       set_node_healthcheck(node, is_healthy: true)
-      @logger.debug "Nodes health: #{@nodes.each_with_index.map { |node, i| "Node #{i} is #{node[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}" }.join(' || ')}"
+      @logger.debug "Nodes health: #{@nodes.each_with_index.map { |n, i| "Node #{i} is #{n[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}" }.join(' || ')}"
     end
 
     def initialize_metadata_for_nodes
