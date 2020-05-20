@@ -44,7 +44,7 @@ describe Typesense::Document do
 
   describe '#retrieve' do
     it 'returns the specified document' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/124', 0))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/124', typesense.configuration.nodes[0]))
         .with(headers: {
                 'Content-Type' => 'application/json',
                 'X-Typesense-Api-Key' => typesense.configuration.api_key
@@ -59,7 +59,7 @@ describe Typesense::Document do
 
   describe '#delete' do
     it 'deletes the specified document' do
-      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/124', 0))
+      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/124', typesense.configuration.nodes[0]))
         .with(headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key
               })

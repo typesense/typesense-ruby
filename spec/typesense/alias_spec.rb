@@ -10,7 +10,7 @@ describe Typesense::Alias do
 
   describe '#retrieve' do
     it 'returns the specified alias' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases/books', 0))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases/books', typesense.configuration.nodes[0]))
         .with(headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
@@ -25,7 +25,7 @@ describe Typesense::Alias do
 
   describe '#delete' do
     it 'deletes the specified collection' do
-      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases/books', 0))
+      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases/books', typesense.configuration.nodes[0]))
         .with(headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key
               })

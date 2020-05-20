@@ -50,8 +50,17 @@ AwesomePrint.defaults = {
       protocol: 'http'
     }
   ],
+  # If this optional key is specified, requests are always sent to this node first if it is healthy
+  #   before falling back on the nodes mentioned in the `nodes` key. This is useful when running a distributed set of search clusters.
+  'distributed_search_node': {
+    'host': 'localhost',
+    'port': '8108',
+    'protocol': 'http'
+  },
   api_key: 'xyz',
-  # num_retries: 3, # A total of 4 tries (1 original try + 3 retries)
+  num_retries: 10,
+  healthcheck_interval_seconds: 1,
+  retry_interval_seconds: 0.01,
   connection_timeout_seconds: 10,
   logger: Logger.new(STDOUT),
   log_level: Logger::DEBUG

@@ -44,7 +44,7 @@ describe Typesense::Documents do
 
   describe '#create' do
     it 'creates creates/indexes a document and returns it' do
-      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents', 0))
+      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents', typesense.configuration.nodes[0]))
         .with(body: document,
               headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
@@ -60,7 +60,7 @@ describe Typesense::Documents do
 
   describe '#create_many' do
     it 'creates creates/indexes documents in bulk' do
-      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', 0))
+      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
         .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
               headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key
@@ -75,7 +75,7 @@ describe Typesense::Documents do
 
   describe '#export' do
     it 'exports all documents in a collection as an array' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/export', 0))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/export', typesense.configuration.nodes[0]))
         .with(headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
@@ -119,7 +119,7 @@ describe Typesense::Documents do
     end
 
     it 'search the documents in a collection' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/search', 0))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/search', typesense.configuration.nodes[0]))
         .with(headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
