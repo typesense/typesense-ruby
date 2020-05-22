@@ -74,9 +74,10 @@ module Typesense
           response_object = self.class.send(method,
                                             uri_for(endpoint, node),
                                             default_options.merge(options))
-          set_node_healthcheck(node, is_healthy: true) if (1..499).include? response_object.response.code.to_i
+          response_code = response_object.response.code.to_i
+          set_node_healthcheck(node, is_healthy: true) if response_code >= 1 && response_code <= 499
 
-          @logger.debug "Request to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response_object.response.code}."
+          @logger.debug "Request to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response_code}."
 
           # If response is 2xx return the object, else raise the response as an exception
           return response_object.parsed_response if response_object.response.code_type <= Net::HTTPSuccess # 2xx
