@@ -128,12 +128,12 @@ describe Typesense::ApiCall do
       expect(node_2_stub).to have_been_requested.times(5)
     end
 
-    describe 'when distributed_search_node is specified' do
+    describe 'when nearest_node is specified' do
       let(:typesense) do
         Typesense::Client.new(
           api_key: 'abcd',
-          distributed_search_node: {
-            host: 'distributedSearchNode',
+          nearest_node: {
+            host: 'nearestNode',
             port: 6108,
             protocol: 'http'
           },
@@ -160,8 +160,8 @@ describe Typesense::ApiCall do
         )
       end
 
-      it 'uses the distributedSearchNode if it is present and healthy, otherwise fallsback to regular nodes' do
-        distributed_search_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.distributed_search_node)).to_timeout
+      it 'uses the nearest_node if it is present and healthy, otherwise fallsback to regular nodes' do
+        nearest_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nearest_node)).to_timeout
         node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0])).to_timeout
         node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1])).to_timeout
         node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
@@ -170,7 +170,7 @@ describe Typesense::ApiCall do
                                  headers: { 'Content-Type' => 'application/json' })
         current_time = Time.now
         Timecop.freeze(current_time) do
-          subject.send(method, '/') # Node distributed_search_node, Node 0 and Node 1 are marked as unhealthy after this, request should have been made to Node 2
+          subject.send(method, '/') # Node nearest_node, Node 0 and Node 1 are marked as unhealthy after this, request should have been made to Node 2
           subject.send(method, '/') # Request should have been made to node 2
           subject.send(method, '/') # Request should have been made to node 2
         end
@@ -178,27 +178,27 @@ describe Typesense::ApiCall do
           subject.send(method, '/') # Request should have been made to node 2
         end
         Timecop.freeze(current_time + 65) do
-          subject.send(method, '/') # Request should have been attempted to distributed_search_node, Node 0 and Node 1, but finally made to Node 2 (since distributed_search_node, Node 0 and Node 1 are still unhealthy, though they were added back into rotation after the threshold)
+          subject.send(method, '/') # Request should have been attempted to nearest_node, Node 0 and Node 1, but finally made to Node 2 (since nearest_node, Node 0 and Node 1 are still unhealthy, though they were added back into rotation after the threshold)
         end
-        # Let request to distributed_search_node succeed
-        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.distributed_search_node))
+        # Let request to nearest_node succeed
+        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nearest_node))
         Timecop.freeze(current_time + 125) do
-          subject.send(method, '/') # Request should have been made to node distributed_search_node, since it is now healthy and the unhealthy threshold was exceeded
-          subject.send(method, '/') # Request should have been made to node distributed_search_node, since no roundrobin if it is present and healthy
-          subject.send(method, '/') # Request should have been made to node distributed_search_node, since no roundrobin if it is present and healthy
+          subject.send(method, '/') # Request should have been made to node nearest_node, since it is now healthy and the unhealthy threshold was exceeded
+          subject.send(method, '/') # Request should have been made to node nearest_node, since no roundrobin if it is present and healthy
+          subject.send(method, '/') # Request should have been made to node nearest_node, since no roundrobin if it is present and healthy
         end
 
-        expect(distributed_search_node_stub).to have_been_requested.times(5)
+        expect(nearest_node_stub).to have_been_requested.times(5)
         expect(node_0_stub).to have_been_requested.times(2)
         expect(node_1_stub).to have_been_requested.times(2)
         expect(node_2_stub).to have_been_requested.times(5)
       end
 
       it 'raises an error when no nodes are healthy' do
-        distributed_search_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.distributed_search_node))
-                                       .to_return(status: 500,
-                                                  body: JSON.dump('message' => 'Error Message'),
-                                                  headers: { 'Content-Type' => 'application/json' })
+        nearest_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nearest_node))
+                            .to_return(status: 500,
+                                       body: JSON.dump('message' => 'Error Message'),
+                                       headers: { 'Content-Type' => 'application/json' })
 
         node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0]))
                       .to_return(status: 500,
@@ -216,7 +216,7 @@ describe Typesense::ApiCall do
                                  headers: { 'Content-Type' => 'application/json' })
 
         expect { subject.send(method, '/') }.to raise_error(Typesense::Error::ServerError)
-        expect(distributed_search_node_stub).to have_been_requested
+        expect(nearest_node_stub).to have_been_requested
         expect(node_0_stub).to have_been_requested.times(2)
         expect(node_1_stub).to have_been_requested
         expect(node_2_stub).to have_been_requested

@@ -13,7 +13,7 @@ module Typesense
 
       @api_key = @configuration.api_key
       @nodes = @configuration.nodes.dup # Make a copy, since we'll be adding additional metadata to the nodes
-      @distributed_search_node = @configuration.distributed_search_node.dup
+      @nearest_node = @configuration.nearest_node.dup
       @connection_timeout_seconds = @configuration.connection_timeout_seconds
       @healthcheck_interval_seconds = @configuration.healthcheck_interval_seconds
       @num_retries_per_request = @configuration.num_retries
@@ -147,50 +147,44 @@ module Typesense
     #   But if no healthy nodes are found, it will just return the next node, even if it's unhealthy
     #     so we can try the request for good measure, in case that node has become healthy since
     def next_node
-      # Check if distributed_search_node is set and is healthy, if so return it
-      unless @distributed_search_node.nil?
-        candidate_node = @distributed_search_node
-        reset_node_healthcheck_if_expired(candidate_node)
-        @logger.debug "Nodes health: Node #{candidate_node[:index]} is #{candidate_node[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}"
-        if candidate_node[:is_healthy] == true
+      # Check if nearest_node is set and is healthy, if so return it
+      unless @nearest_node.nil?
+        @logger.debug "Nodes health: Node #{@nearest_node[:index]} is #{@nearest_node[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}"
+        if @nearest_node[:is_healthy] == true || node_due_for_healthcheck?(@nearest_node)
+          @logger.debug "Updated current node to Node #{@nearest_node[:index]}"
+          return @nearest_node
+        end
+        @logger.debug 'Falling back to individual nodes'
+      end
+
+      # Fallback to nodes as usual
+      @logger.debug "Nodes health: #{@nodes.each_with_index.map { |node, i| "Node #{i} is #{node[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}" }.join(' || ')}"
+      candidate_node = nil
+      (0..@nodes.length).each do |_i|
+        @current_node_index = (@current_node_index + 1) % @nodes.length
+        candidate_node = @nodes[@current_node_index]
+        if candidate_node[:is_healthy] == true || node_due_for_healthcheck?(candidate_node)
           @logger.debug "Updated current node to Node #{candidate_node[:index]}"
           return candidate_node
-        else
-          @logger.debug 'Falling back to individual nodes'
         end
       end
 
-      # Fallback to node as usual
-      @logger.debug "Nodes health: #{@nodes.each_with_index.map { |node, i| "Node #{i} is #{node[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}" }.join(' || ')}"
-      candidate_node_index = @current_node_index
-      candidate_node = @nodes[candidate_node_index]
-      (0..@nodes.length).each do |i|
-        candidate_node_index = (candidate_node_index + 1) % @nodes.length
-        candidate_node = @nodes[candidate_node_index]
-        reset_node_healthcheck_if_expired(candidate_node)
-        break if candidate_node[:is_healthy] == true
-
-        @logger.debug "No healthy nodes were found. Returning the next node, Node #{candidate_node[:index]}" if i == @nodes.length
-      end
-
-      @current_node_index = candidate_node_index
-      @logger.debug "Updated current node to Node #{candidate_node[:index]}"
-
+      # None of the nodes are marked healthy, but some of them could have become healthy since last health check.
+      # So we will just return the next node.
+      @logger.debug "No healthy nodes were found. Returning the next node, Node #{candidate_node[:index]}"
       candidate_node
     end
 
-    def reset_node_healthcheck_if_expired(node)
-      return unless node[:is_healthy] == false && (Time.now.to_i - node[:last_healthcheck_timestamp] > @healthcheck_interval_seconds)
-
-      @logger.debug "Node #{node[:index]} has exceeded healthcheck_interval_seconds of #{@healthcheck_interval_seconds}. Adding it back into rotation."
-      set_node_healthcheck(node, is_healthy: true)
-      @logger.debug "Nodes health: #{@nodes.each_with_index.map { |n, i| "Node #{i} is #{n[:is_healthy] == true ? 'Healthy' : 'Unhealthy'}" }.join(' || ')}"
+    def node_due_for_healthcheck?(node)
+      is_due_for_check = Time.now.to_i - node[:last_access_timestamp] > @healthcheck_interval_seconds
+      @logger.debug "Node #{node[:index]} has exceeded healthcheck_interval_seconds of #{@healthcheck_interval_seconds}. Adding it back into rotation." if is_due_for_check
+      is_due_for_check
     end
 
     def initialize_metadata_for_nodes
-      unless @distributed_search_node.nil?
-        @distributed_search_node[:index] = 'DistributedSearch'
-        set_node_healthcheck(@distributed_search_node, is_healthy: true)
+      unless @nearest_node.nil?
+        @nearest_node[:index] = 'nearest_node'
+        set_node_healthcheck(@nearest_node, is_healthy: true)
       end
       @nodes.each_with_index do |node, index|
         node[:index] = index
@@ -200,7 +194,7 @@ module Typesense
 
     def set_node_healthcheck(node, is_healthy:)
       node[:is_healthy] = is_healthy
-      node[:last_healthcheck_timestamp] = Time.now.to_i
+      node[:last_access_timestamp] = Time.now.to_i
     end
 
     def custom_exception_klass_for(response)

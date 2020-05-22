@@ -3,7 +3,7 @@
 module Typesense
   class Configuration
     attr_accessor :nodes
-    attr_accessor :distributed_search_node
+    attr_accessor :nearest_node
     attr_accessor :connection_timeout_seconds
     attr_accessor :healthcheck_interval_seconds
     attr_accessor :num_retries
@@ -14,10 +14,10 @@ module Typesense
 
     def initialize(options = {})
       @nodes = options[:nodes] || []
-      @distributed_search_node = options[:distributed_search_node]
+      @nearest_node = options[:nearest_node]
       @connection_timeout_seconds = options[:connection_timeout_seconds] || options[:timeout_seconds] || 10
       @healthcheck_interval_seconds = options[:healthcheck_interval_seconds] || 15
-      @num_retries = options[:num_retries] || @nodes.length + (@distributed_search_node.nil? ? 0 : 1) || 3
+      @num_retries = options[:num_retries] || @nodes.length + (@nearest_node.nil? ? 0 : 1) || 3
       @retry_interval_seconds = options[:retry_interval_seconds] || 0.1
       @api_key = options[:api_key]
 
