@@ -4,21 +4,21 @@ module Typesense
   class Aliases
     RESOURCE_PATH = '/aliases'
 
-    def initialize(configuration)
-      @configuration = configuration
+    def initialize(api_call)
+      @api_call = api_call
       @aliases = {}
     end
 
     def upsert(alias_name, mapping)
-      ApiCall.new(@configuration).put(endpoint_path(alias_name), mapping)
+      @api_call.put(endpoint_path(alias_name), mapping)
     end
 
     def retrieve
-      ApiCall.new(@configuration).get(RESOURCE_PATH)
+      @api_call.get(RESOURCE_PATH)
     end
 
     def [](alias_name)
-      @aliases[alias_name] ||= Alias.new(@configuration, alias_name)
+      @aliases[alias_name] ||= Alias.new(alias_name, @api_call)
     end
 
     private

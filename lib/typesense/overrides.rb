@@ -4,22 +4,22 @@ module Typesense
   class Overrides
     RESOURCE_PATH = '/overrides'
 
-    def initialize(configuration, collection_name)
-      @configuration   = configuration
+    def initialize(collection_name, api_call)
       @collection_name = collection_name
+      @api_call        = api_call
       @overrides       = {}
     end
 
     def create(params)
-      ApiCall.new(@configuration).put(endpoint_path, params)
+      @api_call.put(endpoint_path, params)
     end
 
     def retrieve
-      ApiCall.new(@configuration).get(endpoint_path)
+      @api_call.get(endpoint_path)
     end
 
     def [](override_id)
-      @overrides[override_id] ||= Override.new(@configuration, @collection_name, override_id)
+      @overrides[override_id] ||= Override.new(@collection_name, override_id, @api_call)
     end
 
     private

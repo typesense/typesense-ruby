@@ -5,19 +5,19 @@ module Typesense
     attr_reader :documents
     attr_reader :overrides
 
-    def initialize(configuration, name)
-      @configuration = configuration
-      @name          = name
-      @documents     = Documents.new(@configuration, @name)
-      @overrides     = Overrides.new(@configuration, @name)
+    def initialize(name, api_call)
+      @name      = name
+      @api_call  = api_call
+      @documents = Documents.new(@name, @api_call)
+      @overrides = Overrides.new(@name, @api_call)
     end
 
     def retrieve
-      ApiCall.new(@configuration).get(endpoint_path)
+      @api_call.get(endpoint_path)
     end
 
     def delete
-      ApiCall.new(@configuration).delete(endpoint_path)
+      @api_call.delete(endpoint_path)
     end
 
     private

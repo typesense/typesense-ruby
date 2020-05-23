@@ -5,27 +5,27 @@ require_relative '../spec_helper'
 shared_context 'with Typesense configuration', shared_context: :metadata do
   let(:typesense) do
     Typesense::Client.new(
-      master_node: {
-        host: 'localhost',
-        port: 8108,
-        protocol: 'http',
-        api_key: 'abcd'
-      },
-      read_replica_nodes: [
+      api_key: 'abcd',
+      nodes: [
         {
-          host: 'read_replica_1',
+          host: 'node0',
           port: 8108,
-          protocol: 'http',
-          api_key: 'abcd'
+          protocol: 'http'
         },
         {
-          host: 'read_replica_2',
+          host: 'node1',
           port: 8108,
-          protocol: 'http',
-          api_key: 'abcd'
+          protocol: 'http'
+        },
+        {
+          host: 'node2',
+          port: 8108,
+          protocol: 'http'
         }
       ],
-      timeout_seconds: 10
+      connection_timeout_seconds: 10,
+      retry_interval_seconds: 0.01
+      # log_level: Logger::DEBUG
     )
   end
 end

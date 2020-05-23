@@ -10,10 +10,10 @@ describe Typesense::Aliases do
 
   describe '#upsert' do
     it 'upserts an alias and returns it' do
-      stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases/books'))
+      stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases/books', typesense.configuration.nodes[0]))
         .with(body: JSON.dump('collection_name' => 'books_january'),
               headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key],
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
               })
         .to_return(status: 200, body: JSON.dump('collection_name' => 'books_january'), headers: { 'Content-Type': 'application/json' })
@@ -26,9 +26,10 @@ describe Typesense::Aliases do
 
   describe '#retrieve' do
     it 'returns all aliases' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases'))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases', typesense.configuration.nodes[0]))
         .with(headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.master_node[:api_key]
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type' => 'application/json'
               })
         .to_return(status: 200,
                    body: JSON.dump(['collection_name' => 'books_january']),

@@ -4,41 +4,7 @@
 # These examples walk you through all the operations you can do on a collection and a document
 # Search is specifically covered in another file in the examples folder
 
-require_relative '../lib/typesense'
-require 'awesome_print'
-
-AwesomePrint.defaults = {
-  indent: -2
-}
-
-##
-# Setup
-#
-# Start the master
-#   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108
-#
-# Start the read replica
-#   $ docker run -p 8109:8109  -it -v/tmp/typesense-data-read-replica-1/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=wxyz --listen-port 8109 --master http://localhost:8108
-
-##
-# Create a client
-typesense = Typesense::Client.new(
-  master_node: {
-    host: 'localhost',
-    port: 8108,
-    protocol: 'http',
-    api_key: 'abcd'
-  },
-  read_replica_nodes: [
-    {
-      host: 'localhost',
-      port: 8109,
-      protocol: 'http',
-      api_key: 'wxyz'
-    }
-  ],
-  timeout_seconds: 10
-)
+require_relative './client_initialization'
 
 ##
 # Create a collection
@@ -62,7 +28,13 @@ schema = {
   'default_sorting_field' => 'num_employees'
 }
 
-collection = typesense.collections.create(schema)
+# Delete the collection if it already exists
+begin
+  @typesense.collections['companies'].delete
+rescue Typesense::Error::ObjectNotFound
+end
+
+collection = @typesense.collections.create(schema)
 ap collection
 
 # {
@@ -87,7 +59,8 @@ ap collection
 
 ##
 # Retrieve a collection
-collection = typesense.collections['companies'].retrieve
+sleep 0.5 # Give Typesense cluster a few hundred ms to create the collection on all nodes, before reading it right after (eventually consistent)
+collection = @typesense.collections['companies'].retrieve
 ap collection
 
 # {
@@ -115,7 +88,7 @@ ap collection
 
 ##
 # Retrieve all collections
-collections = typesense.collections.retrieve
+collections = @typesense.collections.retrieve
 ap collections
 
 # [
@@ -146,7 +119,7 @@ ap collections
 ##
 # Delete a collection
 #   Deletion returns the schema of the collection after deletion
-collection = typesense.collections['companies'].delete
+collection = @typesense.collections['companies'].delete
 ap collection
 
 # {
@@ -173,7 +146,7 @@ ap collection
 # }
 
 # Let's create the collection again for use in our remaining examples
-typesense.collections.create(schema)
+@typesense.collections.create(schema)
 
 ##
 # Create (index) a document
@@ -184,7 +157,7 @@ document = {
   'country' => 'USA'
 }
 
-document = typesense.collections['companies'].documents.create(document)
+document = @typesense.collections['companies'].documents.create(document)
 ap document
 
 # {
@@ -196,7 +169,8 @@ ap document
 
 ##
 # Retrieve a document
-document = typesense.collections['companies'].documents['124'].retrieve
+sleep 0.5 # Give Typesense cluster a few hundred ms to create the document on all nodes, before reading it right after (eventually consistent)
+document = @typesense.collections['companies'].documents['124'].retrieve
 ap document
 
 # {
@@ -209,7 +183,7 @@ ap document
 ##
 # Delete a document
 #   Deleting a document, returns the document after deletion
-document = typesense.collections['companies'].documents['124'].delete
+document = @typesense.collections['companies'].documents['124'].delete
 ap document
 
 # {
@@ -219,25 +193,28 @@ ap document
 #   "num_employees" => 5215
 # }
 
-# Let's create two documents again for use in our remaining examples
-typesense.collections['companies'].documents.create(
-  'id' => '124',
-  'company_name' => 'Stark Industries',
-  'num_employees' => 5215,
-  'country' => 'USA'
-)
-
-typesense.collections['companies'].documents.create(
-  'id' => '125',
-  'company_name' => 'Acme Corp',
-  'num_employees' => 1002,
-  'country' => 'France'
-)
+# Let's bulk create two documents again for use in our remaining examples
+documents = [
+  {
+    'id' => '124',
+    'company_name' => 'Stark Industries',
+    'num_employees' => 5215,
+    'country' => 'USA'
+  },
+  {
+    'id' => '125',
+    'company_name' => 'Acme Corp',
+    'num_employees' => 1002,
+    'country' => 'France'
+  }
+]
+ap @typesense.collections['companies'].documents.create_many(documents)
 
 ##
 # Export all documents in a collection in JSON Lines format
 #   We use JSON Lines format for performance reasons. You can choose to parse selected lines (elements in the array) as needed.
-array_of_json_strings = typesense.collections['companies'].documents.export
+sleep 0.5 # Give Typesense cluster a few hundred ms to create the document on all nodes, before reading it right after (eventually consistent)
+array_of_json_strings = @typesense.collections['companies'].documents.export
 ap array_of_json_strings
 
 # [
@@ -248,4 +225,4 @@ ap array_of_json_strings
 ##
 # Cleanup
 # Drop the collection
-typesense.collections['companies'].delete
+@typesense.collections['companies'].delete

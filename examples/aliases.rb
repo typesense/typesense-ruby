@@ -3,34 +3,12 @@
 ##
 # These examples walk you through operations specifically related to aliases
 # # This is a Typesense Premium feature (see: https://typesense.org/premium)
+# Be sure to add `--license-key=<>` as a parameter, when starting a Typesense Premium server
 
-require_relative '../lib/typesense'
-require 'awesome_print'
-
-AwesomePrint.defaults = {
-  indent: -2
-}
-
-##
-# Setup
-#
-# Start the master
-#   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108 --license-key=<>
-#
-
-##
-# Create a client
-typesense = Typesense::Client.new(
-  master_node: {
-    host: 'localhost',
-    port: 8108,
-    protocol: 'http',
-    api_key: 'abcd'
-  }
-)
+require_relative './client_initialization'
 
 # Create a collection
-create_response = typesense.collections.create(
+create_response = @typesense.collections.create(
   "name": 'books_january',
   "fields": [
     { "name": 'title', "type": 'string' },
@@ -48,8 +26,8 @@ create_response = typesense.collections.create(
 ap create_response
 
 # Create or update an existing alias
-create_alias_response = typesense.aliases.upsert('books',
-                                                 "collection_name": 'books_january')
+create_alias_response = @typesense.aliases.upsert('books',
+                                                  "collection_name": 'books_january')
 ap create_alias_response
 
 # Add a book using the alias name `books`
@@ -61,20 +39,20 @@ hunger_games_book = {
   'ratings_count': 4_780_653
 }
 
-typesense.collections['books'].documents.create(hunger_games_book)
+@typesense.collections['books'].documents.create(hunger_games_book)
 
 # Search using the alias
-ap typesense.collections['books'].documents.search(
+ap @typesense.collections['books'].documents.search(
   'q': 'hunger',
   'query_by': 'title',
   'sort_by': 'ratings_count:desc'
 )
 
 # List all aliases
-ap typesense.aliases.retrieve
+ap @typesense.aliases.retrieve
 
 # Retrieve the configuration of a specific alias
-ap typesense.aliases['books'].retrieve
+ap @typesense.aliases['books'].retrieve
 
 # Delete an alias
-ap typesense.aliases['books'].delete
+ap @typesense.aliases['books'].delete

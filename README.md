@@ -29,6 +29,13 @@ Here are some examples that show you how the Ruby client works: [examples](examp
 
 Tests are also a good place to know how the the library works internally: [spec](spec)
 
+## Compatibility
+
+| Typesense Server | typesense-ruby |
+|------------------|----------------|
+| <= v0.11 | <= v0.3.0 |
+| \>= v0.12 | \>= v0.4.0 |
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

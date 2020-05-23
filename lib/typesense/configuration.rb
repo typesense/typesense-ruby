@@ -2,37 +2,53 @@
 
 module Typesense
   class Configuration
-    attr_accessor :master_node
-    attr_accessor :read_replica_nodes
-    attr_accessor :timeout_seconds
+    attr_accessor :nodes
+    attr_accessor :nearest_node
+    attr_accessor :connection_timeout_seconds
+    attr_accessor :healthcheck_interval_seconds
+    attr_accessor :num_retries
+    attr_accessor :retry_interval_seconds
+    attr_accessor :api_key
+    attr_accessor :logger
+    attr_accessor :log_level
 
     def initialize(options = {})
-      @master_node = options[:master_node] || {
-        host: 'localhost',
-        port: '8108',
-        protocol: 'http'
-      }
+      @nodes = options[:nodes] || []
+      @nearest_node = options[:nearest_node]
+      @connection_timeout_seconds = options[:connection_timeout_seconds] || options[:timeout_seconds] || 10
+      @healthcheck_interval_seconds = options[:healthcheck_interval_seconds] || 15
+      @num_retries = options[:num_retries] || @nodes.length + (@nearest_node.nil? ? 0 : 1) || 3
+      @retry_interval_seconds = options[:retry_interval_seconds] || 0.1
+      @api_key = options[:api_key]
 
-      @read_replica_nodes = options[:read_replica_nodes] || []
-      @timeout_seconds    = options[:timeout_seconds] || 10
+      @logger = options[:logger] || Logger.new(STDOUT)
+      @log_level = options[:log_level] || Logger::WARN
+      @logger.level = @log_level
+
+      show_deprecation_warnings(options)
+      validate!
     end
 
     def validate!
-      if @master_node.nil? ||
-         node_missing_parameters?(@master_node)
-        raise Error::MissingConfiguration, 'Missing required configuration. Ensure that master_node[:protocol], master_node[:host], master_node[:port] and master_node[:api_key] are set.'
+      if @nodes.nil? ||
+         @nodes.empty? ||
+         @nodes.any? { |node| node_missing_parameters?(node) }
+        raise Error::MissingConfiguration, 'Missing required configuration. Ensure that nodes[][:protocol], nodes[][:host] and nodes[][:port] are set.'
       end
 
-      if !@read_replica_nodes.nil? &&
-         @read_replica_nodes.any? { |node| node_missing_parameters?(node) }
-        raise Error::MissingConfiguration, 'Missing required configuration for read_replica_nodes. Ensure that read_replica_nodes[][:protocol], read_replica_nodes[][:host], read_replica_nodes[][:port] and read_replica_nodes[][:api_key] are set.'
-      end
+      raise Error::MissingConfiguration, 'Missing required configuration. Ensure that api_key is set.' if @api_key.nil?
     end
 
     private
 
     def node_missing_parameters?(node)
-      %i[protocol host port api_key].any? { |attr| node.send(:[], attr).nil? }
+      %i[protocol host port].any? { |attr| node.send(:[], attr).nil? }
+    end
+
+    def show_deprecation_warnings(options)
+      @logger.warn 'Deprecation warning: timeout_seconds is now renamed to connection_timeout_seconds' unless options[:timeout_seconds].nil?
+      @logger.warn 'Deprecation warning: master_node is now consolidated to nodes, starting with Typesense Server v0.12' unless options[:master_node].nil?
+      @logger.warn 'Deprecation warning: read_replica_nodes is now consolidated to nodes, starting with Typesense Server v0.12' unless options[:read_replica_nodes].nil?
     end
   end
 end

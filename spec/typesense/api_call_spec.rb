@@ -2,6 +2,7 @@
 
 require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
+require 'timecop'
 
 describe Typesense::ApiCall do
   include_context 'with Typesense configuration'
@@ -19,17 +20,17 @@ describe Typesense::ApiCall do
       300 => Typesense::Error
     }.each do |response_code, error|
       it "throws #{error} for a #{response_code} response" do
-        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/'))
+        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0]))
           .to_return(status: response_code,
                      body: JSON.dump('message' => 'Error Message'),
                      headers: { 'Content-Type' => 'application/json' })
 
-        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :read_replica, 0))
+        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1]))
           .to_return(status: response_code,
                      body: JSON.dump('message' => 'Error Message'),
                      headers: { 'Content-Type' => 'application/json' })
 
-        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :read_replica, 1))
+        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
           .to_return(status: response_code,
                      body: JSON.dump('message' => 'Error Message'),
                      headers: { 'Content-Type' => 'application/json' })
@@ -39,88 +40,202 @@ describe Typesense::ApiCall do
     end
   end
 
-  shared_examples 'Read Replica selection for write operations' do |method|
-    def common_expectations(method, master_node_stub, exception)
-      expect { subject.send(method, '') }.to raise_error exception
+  shared_examples 'Node selection' do |method|
+    it 'raises an error when no nodes are healthy' do
+      node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0]))
+                    .to_return(status: 500,
+                               body: JSON.dump('message' => 'Error Message'),
+                               headers: { 'Content-Type' => 'application/json' })
 
-      expect(master_node_stub).to have_been_requested
+      node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1]))
+                    .to_return(status: 500,
+                               body: JSON.dump('message' => 'Error Message'),
+                               headers: { 'Content-Type' => 'application/json' })
 
-      expect(a_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :read_replica))).not_to have_been_made
+      node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
+                    .to_return(status: 500,
+                               body: JSON.dump('message' => 'Error Message'),
+                               headers: { 'Content-Type' => 'application/json' })
+
+      expect { subject.send(method, '/') }.to raise_error(Typesense::Error::ServerError)
+      expect(node_0_stub).to have_been_requested.times(2) # 4 tries, for 3 nodes by default
+      expect(node_1_stub).to have_been_requested
+      expect(node_2_stub).to have_been_requested
     end
 
-    it 'does not use any read replicas and fails immediately when there is a server error' do
-      master_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :master))
-                         .to_return(status: 500,
-                                    body: JSON.dump('message' => 'Error Message'),
-                                    headers: { 'Content-Type' => 'application/json' })
+    it 'selects the next available node when there is a server error' do
+      node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0]))
+                    .to_return(status: 500,
+                               body: JSON.dump('message' => 'Error Message'),
+                               headers: { 'Content-Type' => 'application/json' })
 
-      common_expectations(method, master_node_stub, Typesense::Error::ServerError)
+      node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1]))
+                    .to_return(status: 500,
+                               body: JSON.dump('message' => 'Error Message'),
+                               headers: { 'Content-Type' => 'application/json' })
+
+      node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
+                    .to_return(status: 200,
+                               body: JSON.dump('message' => 'Success'),
+                               headers: { 'Content-Type' => 'application/json' })
+
+      expect { subject.send(method, '/') }.not_to raise_error
+      expect(node_0_stub).to have_been_requested
+      expect(node_1_stub).to have_been_requested
+      expect(node_2_stub).to have_been_requested
     end
 
-    it 'does not use any read replicas and fails immediately when there is a connection timeout' do
-      master_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :master)).to_timeout
+    it 'selects the next available node when there is a connection timeout' do
+      node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0])).to_timeout
+      node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1])).to_timeout
+      node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
+                    .to_return(status: 200,
+                               body: JSON.dump('message' => 'Success'),
+                               headers: { 'Content-Type' => 'application/json' })
 
-      common_expectations(method, master_node_stub, Net::OpenTimeout)
-    end
-  end
-
-  shared_examples 'Read Replica selection for read operations' do |method|
-    def common_expectations(method, master_node_stub, read_replica_0_node_stub, read_replica_1_node_stub)
-      expect { subject.send(method, '') }.not_to raise_error
-
-      expect(master_node_stub).to have_been_requested
-      expect(read_replica_0_node_stub).to have_been_requested
-      expect(read_replica_1_node_stub).to have_been_requested
+      expect { subject.send(method, '/') }.not_to raise_error
+      expect(node_0_stub).to have_been_requested
+      expect(node_1_stub).to have_been_requested
+      expect(node_2_stub).to have_been_requested
     end
 
-    it 'selects the next available read replica when there is a server error' do
-      master_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :master))
-                         .to_return(status: 500,
-                                    body: JSON.dump('message' => 'Error Message'),
-                                    headers: { 'Content-Type' => 'application/json' })
+    it 'remove unhealthy nodes out of rotation, until threshold' do
+      node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0])).to_timeout
+      node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1])).to_timeout
+      node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
+                    .to_return(status: 200,
+                               body: JSON.dump('message' => 'Success'),
+                               headers: { 'Content-Type' => 'application/json' })
+      current_time = Time.now
+      Timecop.freeze(current_time) do
+        subject.send(method, '/') # Two nodes are unhealthy after this
+        subject.send(method, '/') # Request should have been made to node 2
+        subject.send(method, '/') # Request should have been made to node 2
+      end
+      Timecop.freeze(current_time + 5) do
+        subject.send(method, '/') # Request should have been made to node 2
+      end
+      Timecop.freeze(current_time + 65) do
+        subject.send(method, '/') # Request should have been made to node 2, since node 0 and node 1 are still unhealthy, though they were added back into rotation
+      end
+      stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0]))
+      Timecop.freeze(current_time + 125) do
+        subject.send(method, '/') # Request should have been made to node 0, since it is now healthy and the unhealthy threshold was exceeded
+      end
 
-      read_replica_0_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :read_replica, 0))
-                                 .to_return(status: 500,
-                                            body: JSON.dump('message' => 'Error Message'),
-                                            headers: { 'Content-Type' => 'application/json' })
-
-      read_replica_1_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :read_replica, 1))
-                                 .to_return(status: 200,
-                                            body: JSON.dump('message' => 'Success'),
-                                            headers: { 'Content-Type' => 'application/json' })
-
-      common_expectations(method, master_node_stub, read_replica_0_node_stub, read_replica_1_node_stub)
+      expect(node_0_stub).to have_been_requested.times(3)
+      expect(node_1_stub).to have_been_requested.times(2)
+      expect(node_2_stub).to have_been_requested.times(5)
     end
 
-    it 'selects the next available read replica when there is a connection timeout' do
-      master_node_stub         = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/')).to_timeout
-      read_replica_0_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :read_replica, 0)).to_timeout
-      read_replica_1_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', :read_replica, 1))
-                                 .to_return(status: 200,
-                                            body: JSON.dump('message' => 'Success'),
-                                            headers: { 'Content-Type' => 'application/json' })
+    describe 'when nearest_node is specified' do
+      let(:typesense) do
+        Typesense::Client.new(
+          api_key: 'abcd',
+          nearest_node: {
+            host: 'nearestNode',
+            port: 6108,
+            protocol: 'http'
+          },
+          nodes: [
+            {
+              host: 'node0',
+              port: 8108,
+              protocol: 'http'
+            },
+            {
+              host: 'node1',
+              port: 8108,
+              protocol: 'http'
+            },
+            {
+              host: 'node2',
+              port: 8108,
+              protocol: 'http'
+            }
+          ],
+          connection_timeout_seconds: 10,
+          retry_interval_seconds: 0.01
+          # log_level: Logger::DEBUG
+        )
+      end
 
-      common_expectations(method, master_node_stub, read_replica_0_node_stub, read_replica_1_node_stub)
+      it 'uses the nearest_node if it is present and healthy, otherwise fallsback to regular nodes' do
+        nearest_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nearest_node)).to_timeout
+        node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0])).to_timeout
+        node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1])).to_timeout
+        node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
+                      .to_return(status: 200,
+                                 body: JSON.dump('message' => 'Success'),
+                                 headers: { 'Content-Type' => 'application/json' })
+        current_time = Time.now
+        Timecop.freeze(current_time) do
+          subject.send(method, '/') # Node nearest_node, Node 0 and Node 1 are marked as unhealthy after this, request should have been made to Node 2
+          subject.send(method, '/') # Request should have been made to node 2
+          subject.send(method, '/') # Request should have been made to node 2
+        end
+        Timecop.freeze(current_time + 5) do
+          subject.send(method, '/') # Request should have been made to node 2
+        end
+        Timecop.freeze(current_time + 65) do
+          subject.send(method, '/') # Request should have been attempted to nearest_node, Node 0 and Node 1, but finally made to Node 2 (since nearest_node, Node 0 and Node 1 are still unhealthy, though they were added back into rotation after the threshold)
+        end
+        # Let request to nearest_node succeed
+        stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nearest_node))
+        Timecop.freeze(current_time + 125) do
+          subject.send(method, '/') # Request should have been made to node nearest_node, since it is now healthy and the unhealthy threshold was exceeded
+          subject.send(method, '/') # Request should have been made to node nearest_node, since no roundrobin if it is present and healthy
+          subject.send(method, '/') # Request should have been made to node nearest_node, since no roundrobin if it is present and healthy
+        end
+
+        expect(nearest_node_stub).to have_been_requested.times(5)
+        expect(node_0_stub).to have_been_requested.times(2)
+        expect(node_1_stub).to have_been_requested.times(2)
+        expect(node_2_stub).to have_been_requested.times(5)
+      end
+
+      it 'raises an error when no nodes are healthy' do
+        nearest_node_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nearest_node))
+                            .to_return(status: 500,
+                                       body: JSON.dump('message' => 'Error Message'),
+                                       headers: { 'Content-Type' => 'application/json' })
+
+        node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0]))
+                      .to_return(status: 500,
+                                 body: JSON.dump('message' => 'Error Message'),
+                                 headers: { 'Content-Type' => 'application/json' })
+
+        node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1]))
+                      .to_return(status: 500,
+                                 body: JSON.dump('message' => 'Error Message'),
+                                 headers: { 'Content-Type' => 'application/json' })
+
+        node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
+                      .to_return(status: 500,
+                                 body: JSON.dump('message' => 'Error Message'),
+                                 headers: { 'Content-Type' => 'application/json' })
+
+        expect { subject.send(method, '/') }.to raise_error(Typesense::Error::ServerError)
+        expect(nearest_node_stub).to have_been_requested
+        expect(node_0_stub).to have_been_requested.times(2)
+        expect(node_1_stub).to have_been_requested
+        expect(node_2_stub).to have_been_requested
+      end
     end
   end
 
   describe '#post' do
     include_examples 'General error handling', :post
-    include_examples 'Read Replica selection for write operations', :post
+    include_examples 'Node selection', :post
   end
 
   describe '#get' do
     include_examples 'General error handling', :get
-    include_examples 'Read Replica selection for read operations', :get
-  end
-
-  describe '#get_unparsed_response' do
-    include_examples 'General error handling', :get_unparsed_response
-    include_examples 'Read Replica selection for read operations', :get_unparsed_response
+    include_examples 'Node selection', :get
   end
 
   describe '#delete' do
     include_examples 'General error handling', :delete
-    include_examples 'Read Replica selection for write operations', :delete
+    include_examples 'Node selection', :delete
   end
 end

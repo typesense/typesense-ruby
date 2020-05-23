@@ -3,30 +3,9 @@
 ##
 # These examples walk you through operations specifically related to overrides
 # This is a Typesense Premium feature (see: https://typesense.org/premium)
+# Be sure to add `--license-key=<>` as a parameter, when starting a Typesense Premium server
 
-require_relative '../lib/typesense'
-require 'awesome_print'
-
-AwesomePrint.defaults = {
-  indent: -2
-}
-
-##
-# Setup
-#
-# Start the master
-#   $ docker run -p 8108:8108  -it -v/tmp/typesense-data-master/:/data -it typesense/typesense:0.8.0-rc1 --data-dir /data --api-key=abcd --listen-port 8108 --license-key=<>
-
-##
-# Create a client
-typesense = Typesense::Client.new(
-  master_node: {
-    host: 'localhost',
-    port: 8108,
-    protocol: 'http',
-    api_key: 'abcd'
-  }
-)
+require_relative './client_initialization'
 
 ##
 # Create a collection
@@ -50,31 +29,31 @@ schema = {
   'default_sorting_field' => 'num_employees'
 }
 
-typesense.collections.create(schema)
+@typesense.collections.create(schema)
 
 # Let's create a couple documents for us to use in our search examples
-typesense.collections['companies'].documents.create(
+@typesense.collections['companies'].documents.create(
   'id' => '124',
   'company_name' => 'Stark Industries',
   'num_employees' => 5215,
   'country' => 'USA'
 )
 
-typesense.collections['companies'].documents.create(
+@typesense.collections['companies'].documents.create(
   'id' => '127',
   'company_name' => 'Stark Corp',
   'num_employees' => 1031,
   'country' => 'USA'
 )
 
-typesense.collections['companies'].documents.create(
+@typesense.collections['companies'].documents.create(
   'id' => '125',
   'company_name' => 'Acme Corp',
   'num_employees' => 1002,
   'country' => 'France'
 )
 
-typesense.collections['companies'].documents.create(
+@typesense.collections['companies'].documents.create(
   'id' => '126',
   'company_name' => 'Doofenshmirtz Inc',
   'num_employees' => 2,
@@ -84,7 +63,7 @@ typesense.collections['companies'].documents.create(
 ##
 # Create overrides
 
-typesense.collections['companies'].overrides.create(
+@typesense.collections['companies'].overrides.create(
   "id": 'promote-doofenshmirtz',
   "rule": {
     "query": 'doofen',
@@ -92,7 +71,7 @@ typesense.collections['companies'].overrides.create(
   },
   "includes": [{ 'id' => '126', 'position' => 1 }]
 )
-typesense.collections['companies'].overrides.create(
+@typesense.collections['companies'].overrides.create(
   "id": 'promote-acme',
   "rule": {
     "query": 'stark',
@@ -103,19 +82,19 @@ typesense.collections['companies'].overrides.create(
 
 ##
 # Search for documents
-results = typesense.collections['companies'].documents.search(
+results = @typesense.collections['companies'].documents.search(
   'q' => 'doofen',
   'query_by' => 'company_name'
 )
 ap results
 
-results = typesense.collections['companies'].documents.search(
+results = @typesense.collections['companies'].documents.search(
   'q' => 'stark',
   'query_by' => 'company_name'
 )
 ap results
 
-results = typesense.collections['companies'].documents.search(
+results = @typesense.collections['companies'].documents.search(
   'q' => 'Inc',
   'query_by' => 'company_name',
   'filter_by' => 'num_employees:<100',
@@ -126,4 +105,4 @@ ap results
 ##
 # Cleanup
 # Drop the collection
-typesense.collections['companies'].delete
+@typesense.collections['companies'].delete
