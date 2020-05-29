@@ -17,6 +17,7 @@ Lint/SuppressedException:
   Exclude:
     - 'examples/collections_and_documents.rb'
     - 'examples/search.rb'
+    - 'examples/keys.rb'
 
 # Offense count: 3
 # Configuration parameters: IgnoredMethods.
@@ -49,6 +50,8 @@ RSpec/ExampleLength:
   Exclude:
     - 'spec/typesense/alias_spec.rb'
     - 'spec/typesense/aliases_spec.rb'
+    - 'spec/typesense/key_spec.rb'
+    - 'spec/typesense/keys_spec.rb'
     - 'spec/typesense/api_call_spec.rb'
     - 'spec/typesense/collection_spec.rb'
     - 'spec/typesense/collections_spec.rb'
