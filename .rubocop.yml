@@ -11,3 +11,6 @@ Metrics/BlockLength:
     - 'spec/**/*'
     - 'Gemfile'
     - 'typesense.gemspec'
+
+Style/Documentation:
+  Enabled: false
