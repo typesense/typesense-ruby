@@ -7,6 +7,7 @@ module Typesense
     attr_reader :aliases
     attr_reader :keys
     attr_reader :debug
+    attr_reader :health
 
     def initialize(options = {})
       @configuration = Configuration.new(options)
@@ -15,6 +16,7 @@ module Typesense
       @aliases = Aliases.new(@api_call)
       @keys = Keys.new(@api_call)
       @debug = Debug.new(@api_call)
+      @health = Health.new(@api_call)
     end
   end
 end

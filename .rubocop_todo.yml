@@ -44,23 +44,6 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Max: 11
 
-# Offense count: 25
-# Configuration parameters: Max.
-RSpec/ExampleLength:
-  Exclude:
-    - 'spec/typesense/alias_spec.rb'
-    - 'spec/typesense/aliases_spec.rb'
-    - 'spec/typesense/key_spec.rb'
-    - 'spec/typesense/keys_spec.rb'
-    - 'spec/typesense/api_call_spec.rb'
-    - 'spec/typesense/collection_spec.rb'
-    - 'spec/typesense/collections_spec.rb'
-    - 'spec/typesense/debug_spec.rb'
-    - 'spec/typesense/document_spec.rb'
-    - 'spec/typesense/documents_spec.rb'
-    - 'spec/typesense/override_spec.rb'
-    - 'spec/typesense/overrides_spec.rb'
-
 # Offense count: 10
 RSpec/MultipleExpectations:
   Max: 5
