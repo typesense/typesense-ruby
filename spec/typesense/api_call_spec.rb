@@ -31,9 +31,7 @@ describe Typesense::ApiCall do
                      headers: { 'Content-Type' => 'application/json' })
 
         stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
-          .to_return(status: response_code,
-                     body: JSON.dump('message' => 'Error Message'),
-                     headers: { 'Content-Type' => 'application/json' })
+          .to_return(status: response_code)
 
         expect { api_call.send(method, '') }.to raise_error error
       end

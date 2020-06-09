@@ -82,7 +82,8 @@ module Typesense
           # If response is 2xx return the object, else raise the response as an exception
           return response_object.parsed_response if response_object.response.code_type <= Net::HTTPSuccess # 2xx
 
-          raise custom_exception_klass_for(response_object.response), response_object.parsed_response['message'] || 'Error message not available'
+          exception_message = (response_object.parsed_response && response_object.parsed_response['message']) || 'Error'
+          raise custom_exception_klass_for(response_object.response), exception_message
         rescue Net::ReadTimeout, Net::OpenTimeout,
                EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
                Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
