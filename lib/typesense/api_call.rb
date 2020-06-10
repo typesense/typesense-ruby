@@ -84,7 +84,7 @@ module Typesense
 
           exception_message = (response_object.parsed_response && response_object.parsed_response['message']) || 'Error'
           raise custom_exception_klass_for(response_object.response), exception_message
-        rescue Net::ReadTimeout, Net::OpenTimeout,
+        rescue SocketError, Net::ReadTimeout, Net::OpenTimeout,
                EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
                Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
                Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
