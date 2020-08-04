@@ -73,6 +73,21 @@ describe Typesense::Documents do
     end
   end
 
+  describe '#import' do
+    it 'imports documents in JSONL format' do
+      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
+        .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
+              headers: {
+                'X-Typesense-Api-Key' => typesense.configuration.api_key
+              })
+        .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
+
+      result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}")
+
+      expect(result).to eq({})
+    end
+  end
+
   describe '#export' do
     it 'exports all documents in a collection as an array' do
       stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/export', typesense.configuration.nodes[0]))

@@ -16,6 +16,10 @@ module Typesense
 
     def create_many(documents)
       documents_in_jsonl_format = documents.map { |document| JSON.dump(document) }.join("\n")
+      import(documents_in_jsonl_format)
+    end
+
+    def import(documents_in_jsonl_format)
       @api_call.post(endpoint_path('import'), as_json: false, body: documents_in_jsonl_format)
     end
 
