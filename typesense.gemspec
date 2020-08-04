@@ -28,9 +28,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry-byebug', '~> 3.9'
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.9'
-  spec.add_development_dependency 'rspec-legacy_formatters', '~> 1.0' # For codecov formatter
   spec.add_development_dependency 'rspec_junit_formatter', '~> 0.4'
-  spec.add_development_dependency 'rubocop', '~> 0.83'
+  spec.add_development_dependency 'rspec-legacy_formatters', '~> 1.0' # For codecov formatter
+  spec.add_development_dependency 'rubocop', '~> 0.88'
   spec.add_development_dependency 'rubocop-rspec', '~> 1.39'
   spec.add_development_dependency 'simplecov', '~> 0.18'
   spec.add_development_dependency 'timecop', '~> 0.9'

@@ -2,13 +2,7 @@
 
 module Typesense
   class Client
-    attr_reader :configuration
-    attr_reader :collections
-    attr_reader :aliases
-    attr_reader :keys
-    attr_reader :debug
-    attr_reader :health
-    attr_reader :metrics
+    attr_reader :configuration, :collections, :aliases, :keys, :debug, :health, :metrics
 
     def initialize(options = {})
       @configuration = Configuration.new(options)

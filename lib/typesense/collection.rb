@@ -2,8 +2,7 @@
 
 module Typesense
   class Collection
-    attr_reader :documents
-    attr_reader :overrides
+    attr_reader :documents, :overrides
 
     def initialize(name, api_call)
       @name      = name

@@ -2,15 +2,7 @@
 
 module Typesense
   class Configuration
-    attr_accessor :nodes
-    attr_accessor :nearest_node
-    attr_accessor :connection_timeout_seconds
-    attr_accessor :healthcheck_interval_seconds
-    attr_accessor :num_retries
-    attr_accessor :retry_interval_seconds
-    attr_accessor :api_key
-    attr_accessor :logger
-    attr_accessor :log_level
+    attr_accessor :nodes, :nearest_node, :connection_timeout_seconds, :healthcheck_interval_seconds, :num_retries, :retry_interval_seconds, :api_key, :logger, :log_level
 
     def initialize(options = {})
       @nodes = options[:nodes] || []

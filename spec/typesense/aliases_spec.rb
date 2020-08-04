@@ -32,14 +32,14 @@ describe Typesense::Aliases do
                 'Content-Type' => 'application/json'
               })
         .to_return(status: 200,
-                   body: JSON.dump(['collection_name' => 'books_january']),
+                   body: JSON.dump([{ 'collection_name' => 'books_january' }]),
                    headers: {
                      'Content-Type': 'application/json'
                    })
 
       result = aliases.retrieve
 
-      expect(result).to eq(['collection_name' => 'books_january'])
+      expect(result).to eq([{ 'collection_name' => 'books_january' }])
     end
   end
 
