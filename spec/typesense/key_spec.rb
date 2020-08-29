@@ -4,9 +4,9 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Key do
-  include_context 'with Typesense configuration'
-
   subject(:key) { typesense.keys['123'] }
+
+  include_context 'with Typesense configuration'
 
   describe '#retrieve' do
     it 'returns the specified key' do

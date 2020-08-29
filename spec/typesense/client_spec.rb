@@ -3,9 +3,9 @@
 require_relative '../spec_helper'
 
 describe Typesense::Client do
-  include_context 'with Typesense configuration'
-
   subject(:typesence) { typesense }
+
+  include_context 'with Typesense configuration'
 
   describe '#collections' do
     it 'creates a collections object and returns it' do

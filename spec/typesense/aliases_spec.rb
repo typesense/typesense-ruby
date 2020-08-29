@@ -4,9 +4,9 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Aliases do
-  include_context 'with Typesense configuration'
-
   subject(:aliases) { typesense.aliases }
+
+  include_context 'with Typesense configuration'
 
   describe '#upsert' do
     it 'upserts an alias and returns it' do

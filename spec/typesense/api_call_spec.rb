@@ -5,9 +5,9 @@ require_relative 'shared_configuration_context'
 require 'timecop'
 
 describe Typesense::ApiCall do
-  include_context 'with Typesense configuration'
-
   subject(:api_call) { described_class.new(typesense.configuration) }
+
+  include_context 'with Typesense configuration'
 
   shared_examples 'General error handling' do |method|
     {

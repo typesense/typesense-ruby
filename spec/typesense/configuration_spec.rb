@@ -4,9 +4,9 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Configuration do
-  include_context 'with Typesense configuration'
-
   subject(:configuration) { typesense.configuration }
+
+  include_context 'with Typesense configuration'
 
   describe '#validate!' do
     it 'throws an Error if the nodes config is not set' do

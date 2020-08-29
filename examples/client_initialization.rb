@@ -2,6 +2,7 @@
 
 require_relative '../lib/typesense'
 require 'awesome_print'
+require 'logger'
 
 AwesomePrint.defaults = {
   indent: -2
@@ -62,6 +63,6 @@ AwesomePrint.defaults = {
   healthcheck_interval_seconds: 1,
   retry_interval_seconds: 0.01,
   connection_timeout_seconds: 10,
-  logger: Logger.new(STDOUT),
+  logger: Logger.new($stdout),
   log_level: Logger::DEBUG
 )

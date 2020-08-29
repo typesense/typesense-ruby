@@ -4,9 +4,9 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Debug do
-  include_context 'with Typesense configuration'
-
   subject(:debug) { typesense.debug }
+
+  include_context 'with Typesense configuration'
 
   describe '#retrieve' do
     it 'retrieves debugging information' do

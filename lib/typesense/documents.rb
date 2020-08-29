@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'oj'
+
 module Typesense
   class Documents
     RESOURCE_PATH = '/documents'
@@ -15,7 +17,7 @@ module Typesense
     end
 
     def create_many(documents)
-      documents_in_jsonl_format = documents.map { |document| JSON.dump(document) }.join("\n")
+      documents_in_jsonl_format = documents.map { |document| Oj.dump(document) }.join("\n")
       import(documents_in_jsonl_format)
     end
 
@@ -38,7 +40,7 @@ module Typesense
     private
 
     def endpoint_path(operation = nil)
-      "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Documents::RESOURCE_PATH}#{operation.nil? ? '' : '/' + operation}"
+      "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Documents::RESOURCE_PATH}#{operation.nil? ? '' : "/#{operation}"}"
     end
   end
 end
