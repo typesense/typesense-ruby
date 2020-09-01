@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'logger'
+
 module Typesense
   class Configuration
     attr_accessor :nodes, :nearest_node, :connection_timeout_seconds, :healthcheck_interval_seconds, :num_retries, :retry_interval_seconds, :api_key, :logger, :log_level
@@ -13,7 +15,7 @@ module Typesense
       @retry_interval_seconds = options[:retry_interval_seconds] || 0.1
       @api_key = options[:api_key]
 
-      @logger = options[:logger] || Logger.new(STDOUT)
+      @logger = options[:logger] || Logger.new($stdout)
       @log_level = options[:log_level] || Logger::WARN
       @logger.level = @log_level
 

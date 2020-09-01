@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require 'httparty'
+require 'typhoeus'
+require 'oj'
 
 module Typesense
   class ApiCall
-    include HTTParty
-
     API_KEY_HEADER_NAME = 'X-TYPESENSE-API-KEY'
 
     def initialize(configuration)
@@ -30,8 +29,8 @@ module Typesense
 
       perform_request :post,
                       endpoint,
-                      body: body,
-                      headers: default_headers.merge(headers)
+                      headers,
+                      body: body
     end
 
     def put(endpoint, parameters = {})
@@ -39,8 +38,8 @@ module Typesense
 
       perform_request :put,
                       endpoint,
-                      body: body,
-                      headers: default_headers.merge(headers)
+                      headers,
+                      body: body
     end
 
     def get(endpoint, parameters = {})
@@ -48,8 +47,8 @@ module Typesense
 
       perform_request :get,
                       endpoint,
-                      query: query,
-                      headers: default_headers.merge(headers)
+                      headers,
+                      params: query
     end
 
     def delete(endpoint, parameters = {})
@@ -57,11 +56,11 @@ module Typesense
 
       perform_request :delete,
                       endpoint,
-                      query: query,
-                      headers: default_headers.merge(headers)
+                      headers,
+                      params: query
     end
 
-    def perform_request(method, endpoint, options = {})
+    def perform_request(method, endpoint, headers = {}, options = {})
       @configuration.validate!
       last_exception = nil
       @logger.debug "Performing #{method.to_s.upcase} request: #{endpoint}"
@@ -71,24 +70,31 @@ module Typesense
         @logger.debug "Attempting #{method.to_s.upcase} request Try ##{num_tries} to Node #{node[:index]}"
 
         begin
-          response_object = self.class.send(method,
-                                            uri_for(endpoint, node),
-                                            default_options.merge(options))
-          response_code = response_object.response.code.to_i
-          set_node_healthcheck(node, is_healthy: true) if response_code >= 1 && response_code <= 499
+          response = Typhoeus::Request.new(uri_for(endpoint, node),
+                                           {
+                                             method: method,
+                                             headers: default_headers.merge(headers),
+                                             timeout: @connection_timeout_seconds
+                                           }.merge(options)).run
+          set_node_healthcheck(node, is_healthy: true) if response.code >= 1 && response.code <= 499
 
-          @logger.debug "Request to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response_code}."
+          @logger.debug "Request to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response.code}."
+
+          parsed_response = if response.headers && (response.headers['content-type'] || '').include?('application/json')
+                              Oj.load(response.body)
+                            else
+                              response.body
+                            end
 
           # If response is 2xx return the object, else raise the response as an exception
-          return response_object.parsed_response if response_object.response.code_type <= Net::HTTPSuccess # 2xx
+          return parsed_response if response.code >= 200 && response.code <= 299
 
-          exception_message = (response_object.parsed_response && response_object.parsed_response['message']) || 'Error'
-          raise custom_exception_klass_for(response_object.response), exception_message
-        rescue SocketError, Net::ReadTimeout, Net::OpenTimeout,
-               EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
+          exception_message = (parsed_response && parsed_response['message']) || 'Error'
+          raise custom_exception_klass_for(response), exception_message
+        rescue SocketError, EOFError,
                Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
                Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
-               Timeout::Error, HTTParty::ResponseError, Typesense::Error::ServerError, Typesense::Error::HTTPStatus0Error => e
+               Typesense::Error::TimeoutError, Typesense::Error::ServerError, Typesense::Error::HTTPStatus0Error => e
           # Rescue network layer exceptions and HTTP 5xx errors, so the loop can continue.
           # Using loops for retries instead of rescue...retry to maintain consistency with client libraries in
           #   other languages that might not support the same construct.
@@ -108,7 +114,7 @@ module Typesense
     def extract_headers_and_body_from(parameters)
       if json_request?(parameters)
         headers = { 'Content-Type' => 'application/json' }
-        body = sanitize_parameters(parameters).to_json
+        body = Oj.dump(sanitize_parameters(parameters))
       else
         headers = {}
         body = parameters[:body]
@@ -199,35 +205,31 @@ module Typesense
     end
 
     def custom_exception_klass_for(response)
-      response_code_type = response.code_type
-      if response_code_type <= Net::HTTPBadRequest # 400
+      if response.code == 400
         Typesense::Error::RequestMalformed
-      elsif response_code_type <= Net::HTTPUnauthorized # 401
+      elsif response.code == 401
         Typesense::Error::RequestUnauthorized
-      elsif response_code_type <= Net::HTTPNotFound # 404
+      elsif response.code == 404
         Typesense::Error::ObjectNotFound
-      elsif response_code_type <= Net::HTTPConflict # 409
+      elsif response.code == 409
         Typesense::Error::ObjectAlreadyExists
-      elsif response_code_type <= Net::HTTPUnprocessableEntity # 422
+      elsif response.code == 422
         Typesense::Error::ObjectUnprocessable
-      elsif response_code_type <= Net::HTTPServerError # 5xx
+      elsif response.code >= 500 && response.code <= 599
         Typesense::Error::ServerError
-      elsif response.code.to_i.zero?
+      elsif response.timed_out?
+        Typesense::Error::TimeoutError
+      elsif response.code.zero?
         Typesense::Error::HTTPStatus0Error
       else
         Typesense::Error::HTTPError
       end
     end
 
-    def default_options
-      {
-        timeout: @connection_timeout_seconds
-      }
-    end
-
     def default_headers
       {
-        API_KEY_HEADER_NAME.to_s => @api_key
+        API_KEY_HEADER_NAME.to_s => @api_key,
+        'User-Agent' => 'Typesense Ruby Client'
       }
     end
   end

@@ -1,30 +1,10 @@
-inherit_from: .rubocop_todo.yml
-
-require: rubocop-rspec
-
 AllCops:
-  TargetRubyVersion: "2.4"
   NewCops: enable
-
-Metrics/BlockLength:
-  Exclude:
-    - 'spec/**/*'
-    - 'Gemfile'
-    - 'typesense.gemspec'
 
 Style/Documentation:
   Enabled: false
 
-RSpec/ExampleLength:
-  Enabled: false
-
-Metrics/MethodLength:
-  Enabled: false
-
 Metrics/AbcSize:
-  Enabled: false
-
-Metrics/ClassLength:
   Enabled: false
 
 Metrics/CyclomaticComplexity:
@@ -32,3 +12,28 @@ Metrics/CyclomaticComplexity:
 
 Metrics/PerceivedComplexity:
   Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: always_true
+
+Layout/LineLength:
+  Max: 300
+
+Lint/SuppressedException:
+  Exclude:
+    - examples/**

@@ -4,9 +4,9 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Override do
-  include_context 'with Typesense configuration'
-
   subject(:override) { typesense.collections['companies'].overrides['lex-exact'] }
+
+  include_context 'with Typesense configuration'
 
   let(:override_data) do
     {

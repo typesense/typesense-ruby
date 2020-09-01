@@ -4,21 +4,21 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Keys do
-  include_context 'with Typesense configuration'
-
   subject(:keys) { typesense.keys }
+
+  include_context 'with Typesense configuration'
 
   describe '#create' do
     it 'creates a key and returns it' do
       stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/keys', typesense.configuration.nodes[0]))
-        .with(body: JSON.dump(description: 'Search-only key.', actions: ['documents:search'], collections: ['*']),
+        .with(body: JSON.dump('description' => 'Search-only key.', 'actions' => ['documents:search'], 'collections' => ['*']),
               headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
               })
         .to_return(status: 200, body: JSON.dump({}), headers: { 'Content-Type': 'application/json' })
 
-      result = keys.create(description: 'Search-only key.', actions: ['documents:search'], collections: ['*'])
+      result = keys.create('description' => 'Search-only key.', 'actions' => ['documents:search'], 'collections' => ['*'])
 
       expect(result).to eq({})
     end
@@ -32,7 +32,7 @@ describe Typesense::Keys do
                 'Content-Type' => 'application/json'
               })
         .to_return(status: 200,
-                   body: JSON.dump([{ description: 'Search-only key.', actions: ['documents:search'], collections: ['*'] }]),
+                   body: JSON.dump([{ 'description' => 'Search-only key.', 'actions' => ['documents:search'], 'collections' => ['*'] }]),
                    headers: {
                      'Content-Type': 'application/json'
                    })

@@ -26,6 +26,9 @@ module Typesense
     class HTTPStatus0Error < Error
     end
 
+    class TimeoutError < Error
+    end
+
     class NoMethodError < ::NoMethodError
     end
 

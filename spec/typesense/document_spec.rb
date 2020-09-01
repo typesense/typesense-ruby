@@ -4,9 +4,9 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Document do
-  include_context 'with Typesense configuration'
-
   subject(:document_124) { typesense.collections['companies'].documents['124'] }
+
+  include_context 'with Typesense configuration'
 
   let(:company_schema) do
     {
