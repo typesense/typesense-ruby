@@ -65,11 +65,11 @@ describe Typesense::Documents do
               headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key
               })
-        .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
+        .to_return(status: 200, body: JSON.dump({ 'success' => true }), headers: { 'Content-Type': 'text/plain' })
 
       result = companies_documents.create_many([document, document])
 
-      expect(result).to eq({})
+      expect(result).to eq([{ 'success' => true }])
     end
   end
 
@@ -99,7 +99,7 @@ describe Typesense::Documents do
 
       result = companies_documents.export
 
-      expect(result).to eq(%W[#{JSON.dump(document)} #{JSON.dump(document)}])
+      expect(result).to eq("#{JSON.dump(document)}\n#{JSON.dump(document)}")
     end
   end
 

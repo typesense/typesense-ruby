@@ -24,8 +24,8 @@ shared_context 'with Typesense configuration', shared_context: :metadata do
         }
       ],
       connection_timeout_seconds: 10,
-      retry_interval_seconds: 0.01
-      # log_level: Logger::DEBUG
+      retry_interval_seconds: 0.01,
+      log_level: Logger::ERROR
     )
   end
 end

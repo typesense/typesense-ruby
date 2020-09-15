@@ -18,7 +18,8 @@ module Typesense
 
     def create_many(documents)
       documents_in_jsonl_format = documents.map { |document| Oj.dump(document) }.join("\n")
-      import(documents_in_jsonl_format)
+      results_in_jsonl_format = import(documents_in_jsonl_format)
+      results_in_jsonl_format.split("\n").map { |r| Oj.load(r) }
     end
 
     def import(documents_in_jsonl_format)
@@ -26,7 +27,7 @@ module Typesense
     end
 
     def export
-      (@api_call.get(endpoint_path('export')) || '').split("\n")
+      @api_call.get(endpoint_path('export'))
     end
 
     def search(search_parameters)
