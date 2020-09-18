@@ -39,6 +39,28 @@ describe Typesense::ApiCall do
   end
 
   shared_examples 'Node selection' do |method|
+    it 'does not retry requests when nodes are healthy' do
+      node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0]))
+                    .to_return(status: 422,
+                               body: JSON.dump('message' => 'Object unprocessable'),
+                               headers: { 'Content-Type' => 'application/json' })
+
+      node_1_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[1]))
+                    .to_return(status: 409,
+                               body: JSON.dump('message' => 'Object already exists'),
+                               headers: { 'Content-Type' => 'application/json' })
+
+      node_2_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[2]))
+                    .to_return(status: 500,
+                               body: JSON.dump('message' => 'Error Message'),
+                               headers: { 'Content-Type' => 'application/json' })
+
+      expect { subject.send(method, '/') }.to raise_error(Typesense::Error::ObjectUnprocessable)
+      expect(node_0_stub).to have_been_requested
+      expect(node_1_stub).not_to have_been_requested
+      expect(node_2_stub).not_to have_been_requested
+    end
+
     it 'raises an error when no nodes are healthy' do
       node_0_stub = stub_request(:any, described_class.new(typesense.configuration).send(:uri_for, '/', typesense.configuration.nodes[0]))
                     .to_return(status: 500,
