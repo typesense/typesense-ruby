@@ -210,17 +210,17 @@ documents = [
 ]
 ap @typesense.collections['companies'].documents.create_many(documents)
 
+## If you already have documents in JSONL format, you can also use #import instead, to avoid the JSON parsing overhead:
+# @typesense.collections['companies'].documents.import(documents_in_jsonl_format)
+
 ##
 # Export all documents in a collection in JSON Lines format
-#   We use JSON Lines format for performance reasons. You can choose to parse selected lines (elements in the array) as needed.
+#   We use JSON Lines format for performance reasons. You can choose to parse selected lines as needed, by splitting on \n.
 sleep 0.5 # Give Typesense cluster a few hundred ms to create the document on all nodes, before reading it right after (eventually consistent)
-array_of_json_strings = @typesense.collections['companies'].documents.export
-ap array_of_json_strings
+jsonl_data = @typesense.collections['companies'].documents.export
+ap jsonl_data
 
-# [
-# [0] "{\"company_name\":\"Stark Industries\",\"country\":\"USA\",\"id\":\"124\",\"num_employees\":5215}",
-# [1] "{\"company_name\":\"Acme Corp\",\"country\":\"France\",\"id\":\"125\",\"num_employees\":1002}"
-# ]
+# "{\"company_name\":\"Stark Industries\",\"country\":\"USA\",\"id\":\"124\",\"num_employees\":5215}\n{\"company_name\":\"Acme Corp\",\"country\":\"France\",\"id\":\"125\",\"num_employees\":1002}"
 
 ##
 # Cleanup

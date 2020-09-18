@@ -25,7 +25,7 @@ Or install it yourself as:
 
 You'll find detailed documentation here: [https://typesense.org/api/](https://typesense.org/api/)
 
-Here are some examples that show you how the Ruby client works: [examples](examples)
+Here are some examples with inline comments that walk you through how to use the Ruby client: [examples](examples)
 
 Tests are also a good place to know how the the library works internally: [spec](spec)
 
