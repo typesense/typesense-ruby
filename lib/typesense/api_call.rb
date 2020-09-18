@@ -91,8 +91,7 @@ module Typesense
 
           exception_message = (parsed_response && parsed_response['message']) || 'Error'
           raise custom_exception_klass_for(response), exception_message
-        rescue SocketError, EOFError,
-               Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
+        rescue Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
                Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
                Typesense::Error::TimeoutError, Typesense::Error::ServerError, Typesense::Error::HTTPStatus0Error => e
           # Rescue network layer exceptions and HTTP 5xx errors, so the loop can continue.
