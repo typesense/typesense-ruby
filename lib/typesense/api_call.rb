@@ -25,20 +25,22 @@ module Typesense
     end
 
     def post(endpoint, parameters = {})
-      headers, body = extract_headers_and_body_from(parameters)
+      headers, query, body = split_post_put_parameters(parameters)
 
       perform_request :post,
                       endpoint,
                       headers,
+                      params: query,
                       body: body
     end
 
     def put(endpoint, parameters = {})
-      headers, body = extract_headers_and_body_from(parameters)
+      headers, query, body = split_post_put_parameters(parameters)
 
       perform_request :put,
                       endpoint,
                       headers,
+                      params: query,
                       body: body
     end
 
@@ -110,15 +112,17 @@ module Typesense
 
     private
 
-    def extract_headers_and_body_from(parameters)
+    def split_post_put_parameters(parameters)
       if json_request?(parameters)
         headers = { 'Content-Type' => 'application/json' }
+        query = parameters[:query]
         body = Oj.dump(sanitize_parameters(parameters))
       else
         headers = {}
+        query = parameters[:query]
         body = parameters[:body]
       end
-      [headers, body]
+      [headers, query, body]
     end
 
     def extract_headers_and_query_from(parameters)

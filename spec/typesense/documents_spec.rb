@@ -74,17 +74,37 @@ describe Typesense::Documents do
   end
 
   describe '#import' do
-    it 'imports documents in JSONL format' do
-      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
-        .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
-              headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.api_key
-              })
-        .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
+    context 'when upsert is not specified' do
+      it 'imports documents in JSONL format' do
+        stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
+          .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
+                headers: {
+                  'X-Typesense-Api-Key' => typesense.configuration.api_key
+                })
+          .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
 
-      result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}")
+        result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}")
 
-      expect(result).to eq({})
+        expect(result).to eq({})
+      end
+    end
+
+    context 'when upsert is true' do
+      it 'imports documents in JSONL format, with upsert query parameter' do
+        stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
+          .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
+                headers: {
+                  'X-Typesense-Api-Key' => typesense.configuration.api_key
+                },
+                query: {
+                  'upsert' => 'true'
+                })
+          .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
+
+        result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}", upsert: true)
+
+        expect(result).to eq({})
+      end
     end
   end
 

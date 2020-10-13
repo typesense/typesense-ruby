@@ -22,8 +22,11 @@ module Typesense
       results_in_jsonl_format.split("\n").map { |r| Oj.load(r) }
     end
 
-    def import(documents_in_jsonl_format)
-      @api_call.post(endpoint_path('import'), as_json: false, body: documents_in_jsonl_format)
+    def import(documents_in_jsonl_format, query_parameters = {})
+      @api_call.post(endpoint_path('import'),
+                     as_json: false,
+                     query: query_parameters,
+                     body: documents_in_jsonl_format)
     end
 
     def export
