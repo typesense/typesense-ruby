@@ -12,21 +12,24 @@ module Typesense
       @documents       = {}
     end
 
-    def create(document)
-      @api_call.post(endpoint_path, document)
+    def create(document, options = {})
+      @api_call.post(endpoint_path, document, options)
     end
 
-    def create_many(documents)
+    def create_many(documents, options = {})
       documents_in_jsonl_format = documents.map { |document| Oj.dump(document) }.join("\n")
-      results_in_jsonl_format = import(documents_in_jsonl_format)
+      results_in_jsonl_format = import(documents_in_jsonl_format, options)
       results_in_jsonl_format.split("\n").map { |r| Oj.load(r) }
     end
 
-    def import(documents_in_jsonl_format, query_parameters = {})
-      @api_call.post(endpoint_path('import'),
-                     as_json: false,
-                     query: query_parameters,
-                     body: documents_in_jsonl_format)
+    def import(documents_in_jsonl_format, options = {})
+      @api_call.perform_request(
+        'post',
+        endpoint_path('import'),
+        query_parameters: options,
+        body_parameters: documents_in_jsonl_format,
+        additional_headers: { 'Content-Type' => 'text/plain' }
+      )
     end
 
     def export

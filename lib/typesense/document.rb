@@ -16,6 +16,10 @@ module Typesense
       @api_call.delete(endpoint_path)
     end
 
+    def update(partial_document)
+      @api_call.put(endpoint_path, partial_document)
+    end
+
     private
 
     def endpoint_path

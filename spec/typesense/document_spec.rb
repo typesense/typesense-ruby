@@ -57,6 +57,25 @@ describe Typesense::Document do
     end
   end
 
+  describe '#update' do
+    it 'updates the specified document' do
+      partial_document = {
+        'id' => '124',
+        'num_employees' => 5200
+      }
+      stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/124', typesense.configuration.nodes[0]))
+        .with(headers: {
+                'Content-Type' => 'application/json',
+                'X-Typesense-Api-Key' => typesense.configuration.api_key
+              })
+        .to_return(status: 200, body: JSON.dump(partial_document), headers: { 'Content-Type': 'application/json' })
+
+      result = document_124.update(partial_document)
+
+      expect(result).to eq(partial_document)
+    end
+  end
+
   describe '#delete' do
     it 'deletes the specified document' do
       stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/124', typesense.configuration.nodes[0]))
