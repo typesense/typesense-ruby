@@ -167,6 +167,10 @@ ap document
 #   "num_employees" => 5215
 # }
 
+# You can also upsert a document, by providing it as an option
+# document = @typesense.collections['companies'].documents.create(document, upsert: true)
+# ap document
+
 ##
 # Retrieve a document
 sleep 0.5 # Give Typesense cluster a few hundred ms to create the document on all nodes, before reading it right after (eventually consistent)
@@ -178,6 +182,19 @@ ap document
 #   "country"       => "USA",
 #   "id"            => "124",
 #   "num_employees" => 5215
+# }
+
+##
+# Update a document
+document = @typesense.collections['companies'].documents['124'].update(
+  'id' => '124',
+  'num_employees' => 550
+)
+ap document
+
+# {
+#   "id"            => "124",
+#   "num_employees" => 5500
 # }
 
 ##
@@ -212,6 +229,10 @@ ap @typesense.collections['companies'].documents.create_many(documents)
 
 ## If you already have documents in JSONL format, you can also use #import instead, to avoid the JSON parsing overhead:
 # @typesense.collections['companies'].documents.import(documents_in_jsonl_format)
+
+## You can also bulk upsert documents, by adding an upsert option to #create_many or #import
+# @typesense.collections['companies'].documents.create_many(documents, upsert: true)
+# @typesense.collections['companies'].documents.import(documents_in_jsonl_format, upsert: true)
 
 ##
 # Export all documents in a collection in JSON Lines format
