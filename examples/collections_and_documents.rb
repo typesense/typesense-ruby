@@ -235,11 +235,11 @@ ap @typesense.collections['companies'].documents.import(documents)
 # @typesense.collections['companies'].documents.import(documents_in_jsonl_format)
 
 ## You can bulk upsert documents, by adding an upsert mode option to #import
-@typesense.collections['companies'].documents.import(documents, mode: :upsert)
+ap @typesense.collections['companies'].documents.import(documents, mode: :upsert)
 
 ## You can bulk upsert documents, by adding an update mode option to #import
 # `mode: update` will throw an error if the document doesn't already exist
-@typesense.collections['companies'].documents.import(documents, mode: :update)
+ap @typesense.collections['companies'].documents.import(documents, mode: :update)
 
 ##
 # Export all documents in a collection in JSON Lines format
