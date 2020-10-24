@@ -7,6 +7,8 @@ module Typesense
   class ApiCall
     API_KEY_HEADER_NAME = 'X-TYPESENSE-API-KEY'
 
+    attr_reader :logger
+
     def initialize(configuration)
       @configuration = configuration
 
@@ -26,6 +28,13 @@ module Typesense
 
     def post(endpoint, body_parameters = {}, query_parameters = {})
       perform_request :post,
+                      endpoint,
+                      query_parameters: query_parameters,
+                      body_parameters: body_parameters
+    end
+
+    def patch(endpoint, body_parameters = {}, query_parameters = {})
+      perform_request :patch,
                       endpoint,
                       query_parameters: query_parameters,
                       body_parameters: body_parameters
@@ -76,7 +85,7 @@ module Typesense
           response = Typhoeus::Request.new(uri_for(endpoint, node), request_options).run
           set_node_healthcheck(node, is_healthy: true) if response.code >= 1 && response.code <= 499
 
-          @logger.debug "Request to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response.code}."
+          @logger.debug "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response.code}."
 
           parsed_response = if response.headers && (response.headers['content-type'] || '').include?('application/json')
                               Oj.load(response.body)
@@ -97,7 +106,7 @@ module Typesense
           #   other languages that might not support the same construct.
           set_node_healthcheck(node, is_healthy: false)
           last_exception = e
-          @logger.warn "Request to Node #{node[:index]} failed due to \"#{e.class}: #{e.message}\""
+          @logger.warn "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} failed due to \"#{e.class}: #{e.message}\""
           @logger.warn "Sleeping for #{@retry_interval_seconds}s and then retrying request..."
           sleep @retry_interval_seconds
         end

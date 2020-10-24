@@ -17,7 +17,7 @@ module Typesense
     end
 
     def update(partial_document)
-      @api_call.put(endpoint_path, partial_document)
+      @api_call.patch(endpoint_path, partial_document)
     end
 
     private

@@ -167,8 +167,8 @@ ap document
 #   "num_employees" => 5215
 # }
 
-# You can also upsert a document, by providing it as an option
-# document = @typesense.collections['companies'].documents.create(document, upsert: true)
+# You can also upsert a document, which will update the document if it already exists or create a new one if it doesn't exist
+# document = @typesense.collections['companies'].documents.upsert(document)
 # ap document
 
 ##
@@ -185,12 +185,16 @@ ap document
 # }
 
 ##
-# Update a document
+# Update a document. Unlike upsert, update will error out if the doc doesn't already exist.
 document = @typesense.collections['companies'].documents['124'].update(
-  'id' => '124',
-  'num_employees' => 550
+  'num_employees' => 5500
 )
 ap document
+
+# This should error out, since document 145 doesn't exist
+# document = @typesense.collections['companies'].documents['145'].update(
+#   'num_employees' => 5500
+# )
 
 # {
 #   "id"            => "124",
@@ -225,14 +229,17 @@ documents = [
     'country' => 'France'
   }
 ]
-ap @typesense.collections['companies'].documents.create_many(documents)
+ap @typesense.collections['companies'].documents.import(documents)
 
-## If you already have documents in JSONL format, you can also use #import instead, to avoid the JSON parsing overhead:
+## If you already have documents in JSONL format, you can also pass it directly to #import, to avoid the JSON parsing overhead:
 # @typesense.collections['companies'].documents.import(documents_in_jsonl_format)
 
-## You can also bulk upsert documents, by adding an upsert option to #create_many or #import
-# @typesense.collections['companies'].documents.create_many(documents, upsert: true)
-# @typesense.collections['companies'].documents.import(documents_in_jsonl_format, upsert: true)
+## You can bulk upsert documents, by adding an upsert mode option to #import
+@typesense.collections['companies'].documents.import(documents, mode: :upsert)
+
+## You can bulk upsert documents, by adding an update mode option to #import
+# `mode: update` will throw an error if the document doesn't already exist
+@typesense.collections['companies'].documents.import(documents, mode: :update)
 
 ##
 # Export all documents in a collection in JSON Lines format

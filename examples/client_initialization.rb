@@ -38,26 +38,26 @@ AwesomePrint.defaults = {
       host: 'localhost',
       port: 8108,
       protocol: 'http'
-    },
-    # Uncomment if starting a 3-node cluster, using Option 2 under Setup instructions above
-    {
-      host: 'localhost',
-      port: 7108,
-      protocol: 'http'
-    },
-    {
-      host: 'localhost',
-      port: 9108,
-      protocol: 'http'
     }
+    # Uncomment if starting a 3-node cluster, using Option 2 under Setup instructions above
+    # {
+    #   host: 'localhost',
+    #   port: 7108,
+    #   protocol: 'http'
+    # },
+    # {
+    #   host: 'localhost',
+    #   port: 9108,
+    #   protocol: 'http'
+    # }
   ],
   # If this optional key is specified, requests are always sent to this node first if it is healthy
   #   before falling back on the nodes mentioned in the `nodes` key. This is useful when running a distributed set of search clusters.
-  'nearest_node': {
-    'host': 'localhost',
-    'port': '8108',
-    'protocol': 'http'
-  },
+  # 'nearest_node': {
+  #   'host': 'localhost',
+  #   'port': '8108',
+  #   'protocol': 'http'
+  # },
   api_key: 'xyz',
   num_retries: 10,
   healthcheck_interval_seconds: 1,
