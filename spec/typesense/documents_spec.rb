@@ -67,7 +67,7 @@ describe Typesense::Documents do
                 'Content-Type' => 'application/json'
               },
               query: {
-                'mode' => 'update'
+                'action' => 'update'
               })
         .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
@@ -86,7 +86,7 @@ describe Typesense::Documents do
                 'Content-Type' => 'application/json'
               },
               query: {
-                'mode' => 'upsert'
+                'action' => 'upsert'
               })
         .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
@@ -140,11 +140,11 @@ describe Typesense::Documents do
                   'X-Typesense-Api-Key' => typesense.configuration.api_key
                 },
                 query: {
-                  'mode' => 'upsert'
+                  'action' => 'upsert'
                 })
           .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'text/plain' })
 
-        result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}", mode: :upsert)
+        result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}", action: :upsert)
 
         expect(result).to eq('{}')
       end

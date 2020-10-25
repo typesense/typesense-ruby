@@ -168,8 +168,8 @@ ap document
 # }
 
 # You can also upsert a document, which will update the document if it already exists or create a new one if it doesn't exist
-# document = @typesense.collections['companies'].documents.upsert(document)
-# ap document
+document = @typesense.collections['companies'].documents.upsert(document)
+ap document
 
 ##
 # Retrieve a document
@@ -187,19 +187,21 @@ ap document
 ##
 # Update a document. Unlike upsert, update will error out if the doc doesn't already exist.
 document = @typesense.collections['companies'].documents['124'].update(
+  'id' => 1,
   'num_employees' => 5500
 )
 ap document
-
-# This should error out, since document 145 doesn't exist
-# document = @typesense.collections['companies'].documents['145'].update(
-#   'num_employees' => 5500
-# )
 
 # {
 #   "id"            => "124",
 #   "num_employees" => 5500
 # }
+
+# This should error out, since document 145 doesn't exist
+# document = @typesense.collections['companies'].documents['145'].update(
+#   'num_employees' => 5500
+# )
+# ap document
 
 ##
 # Delete a document
@@ -234,12 +236,27 @@ ap @typesense.collections['companies'].documents.import(documents)
 ## If you already have documents in JSONL format, you can also pass it directly to #import, to avoid the JSON parsing overhead:
 # @typesense.collections['companies'].documents.import(documents_in_jsonl_format)
 
-## You can bulk upsert documents, by adding an upsert mode option to #import
-ap @typesense.collections['companies'].documents.import(documents, mode: :upsert)
+## You can bulk upsert documents, by adding an upsert action option to #import
+documents << {
+  'id' => '126',
+  'company_name' => 'Stark Industries 2',
+  'num_employees' => 200,
+  'country' => 'USA'
+}
+ap @typesense.collections['companies'].documents.import(documents, action: :upsert)
 
-## You can bulk upsert documents, by adding an update mode option to #import
-# `mode: update` will throw an error if the document doesn't already exist
-ap @typesense.collections['companies'].documents.import(documents, mode: :update)
+## You can bulk update documents, by adding an update action option to #import
+# `action: update` will throw an error if the document doesn't already exist
+# This document will error out, since id: 1200 doesn't exist
+documents << {
+  'id' => '1200',
+  'country' => 'USA'
+}
+documents << {
+  'id' => '126',
+  'num_employees' => 300
+}
+ap @typesense.collections['companies'].documents.import(documents, action: :update)
 
 ##
 # Export all documents in a collection in JSON Lines format

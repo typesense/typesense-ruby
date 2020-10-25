@@ -17,11 +17,11 @@ module Typesense
     end
 
     def upsert(document)
-      @api_call.post(endpoint_path, document, mode: :upsert)
+      @api_call.post(endpoint_path, document, action: :upsert)
     end
 
     def update(document)
-      @api_call.post(endpoint_path, document, mode: :update)
+      @api_call.post(endpoint_path, document, action: :update)
     end
 
     def create_many(documents, options = {})
