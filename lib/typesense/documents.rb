@@ -16,17 +16,40 @@ module Typesense
       @api_call.post(endpoint_path, document)
     end
 
-    def create_many(documents)
-      documents_in_jsonl_format = documents.map { |document| Oj.dump(document) }.join("\n")
-      results_in_jsonl_format = import(documents_in_jsonl_format)
-      results_in_jsonl_format.split("\n").map { |r| Oj.load(r) }
+    def upsert(document)
+      @api_call.post(endpoint_path, document, action: :upsert)
     end
 
-    def import(documents_in_jsonl_format, query_parameters = {})
-      @api_call.post(endpoint_path('import'),
-                     as_json: false,
-                     query: query_parameters,
-                     body: documents_in_jsonl_format)
+    def update(document)
+      @api_call.post(endpoint_path, document, action: :update)
+    end
+
+    def create_many(documents, options = {})
+      @api_call.logger.warn('#create_many is deprecated and will be removed in a future version. Use #import instead, which now takes both an array of documents or a JSONL string of documents')
+      import(documents, options)
+    end
+
+    # @param [Array,String] documents An array of document hashes or a JSONL string of documents.
+    def import(documents, options = {})
+      documents_in_jsonl_format = if documents.is_a?(Array)
+                                    documents.map { |document| Oj.dump(document) }.join("\n")
+                                  else
+                                    documents
+                                  end
+
+      results_in_jsonl_format = @api_call.perform_request(
+        'post',
+        endpoint_path('import'),
+        query_parameters: options,
+        body_parameters: documents_in_jsonl_format,
+        additional_headers: { 'Content-Type' => 'text/plain' }
+      )
+
+      if documents.is_a?(Array)
+        results_in_jsonl_format.split("\n").map { |r| Oj.load(r) }
+      else
+        results_in_jsonl_format
+      end
     end
 
     def export

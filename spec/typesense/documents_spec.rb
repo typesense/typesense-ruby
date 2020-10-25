@@ -58,39 +58,62 @@ describe Typesense::Documents do
     end
   end
 
-  describe '#create_many' do
-    it 'creates creates/indexes documents in bulk' do
-      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
-        .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
+  describe '#update' do
+    it 'updates the document and returns it' do
+      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents', typesense.configuration.nodes[0]))
+        .with(body: document,
               headers: {
-                'X-Typesense-Api-Key' => typesense.configuration.api_key
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type' => 'application/json'
+              },
+              query: {
+                'action' => 'update'
               })
-        .to_return(status: 200, body: JSON.dump({ 'success' => true }), headers: { 'Content-Type': 'text/plain' })
+        .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
-      result = companies_documents.create_many([document, document])
+      result = companies_documents.update(document)
 
-      expect(result).to eq([{ 'success' => true }])
+      expect(result).to eq(document)
     end
   end
 
-  describe '#import' do
-    context 'when upsert is not specified' do
-      it 'imports documents in JSONL format' do
+  describe '#upserts' do
+    it 'upserts the document and returns it' do
+      stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents', typesense.configuration.nodes[0]))
+        .with(body: document,
+              headers: {
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type' => 'application/json'
+              },
+              query: {
+                'action' => 'upsert'
+              })
+        .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
+
+      result = companies_documents.upsert(document)
+
+      expect(result).to eq(document)
+    end
+  end
+
+  describe '#create_many' do
+    context 'when no options are specified' do
+      it 'creates creates/indexes documents in bulk' do
         stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
           .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
                 headers: {
                   'X-Typesense-Api-Key' => typesense.configuration.api_key
                 })
-          .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
+          .to_return(status: 200, body: JSON.dump({ 'success' => true }), headers: { 'Content-Type': 'text/plain' })
 
-        result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}")
+        result = companies_documents.create_many([document, document])
 
-        expect(result).to eq({})
+        expect(result).to eq([{ 'success' => true }])
       end
     end
 
-    context 'when upsert is true' do
-      it 'imports documents in JSONL format, with upsert query parameter' do
+    context 'when an option is specified' do
+      it 'creates creates/indexes documents in bulk, with the option' do
         stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
           .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
                 headers: {
@@ -99,11 +122,59 @@ describe Typesense::Documents do
                 query: {
                   'upsert' => 'true'
                 })
-          .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
+          .to_return(status: 200, body: JSON.dump({ 'success' => true }), headers: { 'Content-Type': 'text/plain' })
 
-        result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}", upsert: true)
+        result = companies_documents.create_many([document, document], upsert: true)
 
-        expect(result).to eq({})
+        expect(result).to eq([{ 'success' => true }])
+      end
+    end
+  end
+
+  describe '#import' do
+    context 'when an option is specified' do
+      it 'passes the option to the API' do
+        stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
+          .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
+                headers: {
+                  'X-Typesense-Api-Key' => typesense.configuration.api_key
+                },
+                query: {
+                  'action' => 'upsert'
+                })
+          .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'text/plain' })
+
+        result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}", action: :upsert)
+
+        expect(result).to eq('{}')
+      end
+    end
+    context 'when an array of docs is passed' do
+      it 'converts it to JSONL and returns an array of results' do
+        stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
+          .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
+                headers: {
+                  'X-Typesense-Api-Key' => typesense.configuration.api_key
+                })
+          .to_return(status: 200, body: "{}\n{}", headers: { 'Content-Type': 'text/plain' })
+
+        result = companies_documents.import([document, document])
+
+        expect(result).to eq([{}, {}])
+      end
+    end
+    context 'when a JSONL string is passed' do
+      it 'it sends the string as is and returns a string' do
+        stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents/import', typesense.configuration.nodes[0]))
+          .with(body: "#{JSON.dump(document)}\n#{JSON.dump(document)}",
+                headers: {
+                  'X-Typesense-Api-Key' => typesense.configuration.api_key
+                })
+          .to_return(status: 200, body: "{}\n{}", headers: { 'Content-Type': 'text/plain' })
+
+        result = companies_documents.import("#{JSON.dump(document)}\n#{JSON.dump(document)}")
+
+        expect(result).to eq("{}\n{}")
       end
     end
   end

@@ -7,6 +7,8 @@ module Typesense
   class ApiCall
     API_KEY_HEADER_NAME = 'X-TYPESENSE-API-KEY'
 
+    attr_reader :logger
+
     def initialize(configuration)
       @configuration = configuration
 
@@ -24,45 +26,40 @@ module Typesense
       @current_node_index = -1
     end
 
-    def post(endpoint, parameters = {})
-      headers, query, body = split_post_put_parameters(parameters)
-
+    def post(endpoint, body_parameters = {}, query_parameters = {})
       perform_request :post,
                       endpoint,
-                      headers,
-                      params: query,
-                      body: body
+                      query_parameters: query_parameters,
+                      body_parameters: body_parameters
     end
 
-    def put(endpoint, parameters = {})
-      headers, query, body = split_post_put_parameters(parameters)
+    def patch(endpoint, body_parameters = {}, query_parameters = {})
+      perform_request :patch,
+                      endpoint,
+                      query_parameters: query_parameters,
+                      body_parameters: body_parameters
+    end
 
+    def put(endpoint, body_parameters = {}, query_parameters = {})
       perform_request :put,
                       endpoint,
-                      headers,
-                      params: query,
-                      body: body
+                      query_parameters: query_parameters,
+                      body_parameters: body_parameters
     end
 
-    def get(endpoint, parameters = {})
-      headers, query = extract_headers_and_query_from(parameters)
-
+    def get(endpoint, query_parameters = {})
       perform_request :get,
                       endpoint,
-                      headers,
-                      params: query
+                      query_parameters: query_parameters
     end
 
-    def delete(endpoint, parameters = {})
-      headers, query = extract_headers_and_query_from(parameters)
-
+    def delete(endpoint, query_parameters = {})
       perform_request :delete,
                       endpoint,
-                      headers,
-                      params: query
+                      query_parameters: query_parameters
     end
 
-    def perform_request(method, endpoint, headers = {}, options = {})
+    def perform_request(method, endpoint, query_parameters: nil, body_parameters: nil, additional_headers: {})
       @configuration.validate!
       last_exception = nil
       @logger.debug "Performing #{method.to_s.upcase} request: #{endpoint}"
@@ -72,15 +69,23 @@ module Typesense
         @logger.debug "Attempting #{method.to_s.upcase} request Try ##{num_tries} to Node #{node[:index]}"
 
         begin
-          response = Typhoeus::Request.new(uri_for(endpoint, node),
-                                           {
-                                             method: method,
-                                             headers: default_headers.merge(headers),
-                                             timeout: @connection_timeout_seconds
-                                           }.merge(options)).run
+          request_options = {
+            method: method,
+            timeout: @connection_timeout_seconds,
+            headers: default_headers.merge(additional_headers)
+          }
+          request_options.merge!(params: query_parameters) unless query_parameters.nil?
+
+          unless body_parameters.nil?
+            body = body_parameters
+            body = Oj.dump(body_parameters) if request_options[:headers]['Content-Type'] == 'application/json'
+            request_options.merge!(body: body)
+          end
+
+          response = Typhoeus::Request.new(uri_for(endpoint, node), request_options).run
           set_node_healthcheck(node, is_healthy: true) if response.code >= 1 && response.code <= 499
 
-          @logger.debug "Request to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response.code}."
+          @logger.debug "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response.code}."
 
           parsed_response = if response.headers && (response.headers['content-type'] || '').include?('application/json')
                               Oj.load(response.body)
@@ -101,7 +106,7 @@ module Typesense
           #   other languages that might not support the same construct.
           set_node_healthcheck(node, is_healthy: false)
           last_exception = e
-          @logger.warn "Request to Node #{node[:index]} failed due to \"#{e.class}: #{e.message}\""
+          @logger.warn "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} failed due to \"#{e.class}: #{e.message}\""
           @logger.warn "Sleeping for #{@retry_interval_seconds}s and then retrying request..."
           sleep @retry_interval_seconds
         end
@@ -111,43 +116,6 @@ module Typesense
     end
 
     private
-
-    def split_post_put_parameters(parameters)
-      if json_request?(parameters)
-        headers = { 'Content-Type' => 'application/json' }
-        query = parameters[:query]
-        body = Oj.dump(sanitize_parameters(parameters))
-      else
-        headers = {}
-        query = parameters[:query]
-        body = parameters[:body]
-      end
-      [headers, query, body]
-    end
-
-    def extract_headers_and_query_from(parameters)
-      if json_request?(parameters)
-        headers = { 'Content-Type' => 'application/json' }
-        query = sanitize_parameters(parameters)
-      else
-        headers = {}
-        query = parameters[:query]
-      end
-      [headers, query]
-    end
-
-    def json_request?(parameters)
-      parameters[:as_json].nil? ? true : parameters[:as_json]
-    end
-
-    def sanitize_parameters(parameters)
-      sanitized_parameters = parameters.dup
-      sanitized_parameters.delete(:as_json)
-      sanitized_parameters.delete(:body)
-      sanitized_parameters.delete(:query)
-
-      sanitized_parameters
-    end
 
     def uri_for(endpoint, node)
       "#{node[:protocol]}://#{node[:host]}:#{node[:port]}#{endpoint}"
@@ -231,6 +199,7 @@ module Typesense
 
     def default_headers
       {
+        'Content-Type' => 'application/json',
         API_KEY_HEADER_NAME.to_s => @api_key,
         'User-Agent' => 'Typesense Ruby Client'
       }
