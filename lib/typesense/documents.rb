@@ -64,6 +64,10 @@ module Typesense
       @documents[document_id] ||= Document.new(@collection_name, document_id, @api_call)
     end
 
+    def delete(query_parameters = {})
+      @api_call.delete(endpoint_path, query_parameters)
+    end
+
     private
 
     def endpoint_path(operation = nil)

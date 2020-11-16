@@ -258,6 +258,9 @@ documents << {
 }
 ap @typesense.collections['companies'].documents.import(documents, action: :update)
 
+## You can also bulk delete documents, using filter_by fields:
+ap @typesense.collections['companies'].documents.delete(filter_by: 'num_employees:>100')
+
 ##
 # Export all documents in a collection in JSON Lines format
 #   We use JSON Lines format for performance reasons. You can choose to parse selected lines as needed, by splitting on \n.
