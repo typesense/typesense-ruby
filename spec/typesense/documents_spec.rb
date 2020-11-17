@@ -194,6 +194,24 @@ describe Typesense::Documents do
     end
   end
 
+  describe '#delete' do
+    it 'delete documents in a collection' do
+      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents', typesense.configuration.nodes[0]))
+        .with(headers: {
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type' => 'application/json'
+              },
+              query: {
+                filter_by: 'field:=value'
+              })
+        .to_return(status: 200, body: '{}', headers: { 'Content-Type': 'application/json' })
+
+      result = companies_documents.delete(filter_by: 'field:=value')
+
+      expect(result).to eq({})
+    end
+  end
+
   describe '#search' do
     let(:search_parameters) do
       {
