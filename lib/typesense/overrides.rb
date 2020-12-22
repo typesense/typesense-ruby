@@ -10,8 +10,8 @@ module Typesense
       @overrides       = {}
     end
 
-    def create(params)
-      @api_call.put(endpoint_path, params)
+    def upsert(override_id, params)
+      @api_call.put(endpoint_path(override_id), params)
     end
 
     def retrieve
