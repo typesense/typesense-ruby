@@ -5,6 +5,12 @@
 
 require_relative './client_initialization'
 
+# Delete the collection if it already exists
+begin
+  @typesense.collections['companies'].delete
+rescue Typesense::Error::ObjectNotFound
+end
+
 ##
 # Create a collection
 schema = {
@@ -61,16 +67,16 @@ schema = {
 ##
 # Create overrides
 
-@typesense.collections['companies'].overrides.create(
-  "id": 'promote-doofenshmirtz',
+@typesense.collections['companies'].overrides.upsert(
+  'promote-doofenshmirtz',
   "rule": {
     "query": 'doofen',
     "match": 'exact'
   },
   "includes": [{ 'id' => '126', 'position' => 1 }]
 )
-@typesense.collections['companies'].overrides.create(
-  "id": 'promote-acme',
+@typesense.collections['companies'].overrides.upsert(
+  'promote-acme',
   "rule": {
     "query": 'stark',
     "match": 'exact'
