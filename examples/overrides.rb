@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 ##
-# These examples walk you through operations specifically related to overrides
-# This is a Typesense Premium feature (see: https://typesense.org/premium)
-# Be sure to add `--license-key=<>` as a parameter, when starting a Typesense Premium server
+# These examples walk you through operations specifically related to result overrides / curation
 
 require_relative './client_initialization'
 

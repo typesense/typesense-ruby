@@ -2,8 +2,6 @@
 
 ##
 # These examples walk you through operations specifically related to aliases
-# # This is a Typesense Premium feature (see: https://typesense.org/premium)
-# Be sure to add `--license-key=<>` as a parameter, when starting a Typesense Premium server
 
 require_relative './client_initialization'
 
