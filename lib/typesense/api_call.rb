@@ -78,7 +78,7 @@ module Typesense
 
           unless body_parameters.nil?
             body = body_parameters
-            body = Oj.dump(body_parameters) if request_options[:headers]['Content-Type'] == 'application/json'
+            body = Oj.dump(body_parameters, mode: :compat) if request_options[:headers]['Content-Type'] == 'application/json'
             request_options.merge!(body: body)
           end
 

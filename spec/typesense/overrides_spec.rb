@@ -20,9 +20,9 @@ describe Typesense::Overrides do
     }
   end
 
-  describe '#create' do
+  describe '#upsert' do
     it 'creates an override rule and returns it' do
-      stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides', typesense.configuration.nodes[0]))
+      stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides/lex-exact', typesense.configuration.nodes[0]))
         .with(body: override,
               headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
@@ -30,14 +30,14 @@ describe Typesense::Overrides do
               })
         .to_return(status: 201, body: JSON.dump(override), headers: { 'Content-Type': 'application/json' })
 
-      result = companies_overrides.create(override)
+      result = companies_overrides.upsert(override['id'], override)
 
       expect(result).to eq(override)
     end
   end
 
   describe '#retrieve' do
-    it 'creates an override rule and returns it' do
+    it 'retrieves all overrides' do
       stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/overrides', typesense.configuration.nodes[0]))
         .with(headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,

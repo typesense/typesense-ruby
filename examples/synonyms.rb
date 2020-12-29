@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 ##
-# These examples walk you through operations specifically related to result overrides / curation
+# These examples walk you through operations specifically related to synonyms
 
 require_relative './client_initialization'
 
@@ -65,46 +65,61 @@ schema = {
 )
 
 ##
-# Create overrides
+# Create synonyms
 
-@typesense.collections['companies'].overrides.upsert(
-  'promote-doofenshmirtz',
-  "rule": {
-    "query": 'doofen',
-    "match": 'exact'
-  },
-  "includes": [{ 'id' => '126', 'position' => 1 }]
-)
-@typesense.collections['companies'].overrides.upsert(
-  'promote-acme',
-  "rule": {
-    "query": 'stark',
-    "match": 'exact'
-  },
-  "includes": [{ 'id' => '125', 'position' => 1 }]
+ap @typesense.collections['companies'].synonyms.upsert(
+  'synonyms-doofenshmirtz',
+  {
+    'synonyms' => %w[Doofenshmirtz Heinz Evil]
+  }
 )
 
 ##
 # Search for documents
+# Should return Doofenshmirtz Inc, since it's set as a synonym
 results = @typesense.collections['companies'].documents.search(
-  'q' => 'doofen',
+  'q' => 'Heinz',
   'query_by' => 'company_name'
 )
 ap results
 
+##
+# List all synonyms
+ap @typesense.collections['companies'].synonyms.retrieve
+
+##
+# Retrieve specific synonym
+ap @typesense.collections['companies'].synonyms['synonyms-doofenshmirtz'].retrieve
+
+##
+# Update synonym to a one-way synonym
+ap @typesense.collections['companies'].synonyms.upsert(
+  'synonyms-doofenshmirtz',
+  {
+    'root' => 'Evil',
+    'synonyms' => %w[Doofenshmirtz Heinz]
+  }
+)
+
+##
+# Search for documents
+# Should return Doofenshmirtz Inc, since it's set as a synonym
 results = @typesense.collections['companies'].documents.search(
-  'q' => 'stark',
+  'q' => 'Evil',
   'query_by' => 'company_name'
 )
 ap results
 
+# Should not return any results, since this is a one-way synonym
 results = @typesense.collections['companies'].documents.search(
-  'q' => 'Inc',
-  'query_by' => 'company_name',
-  'filter_by' => 'num_employees:<100',
-  'sort_by' => 'num_employees:desc'
+  'q' => 'Heinz',
+  'query_by' => 'company_name'
 )
 ap results
+
+##
+# Delete synonym
+ap @typesense.collections['companies'].synonyms['synonyms-doofenshmirtz'].delete
 
 ##
 # Cleanup
