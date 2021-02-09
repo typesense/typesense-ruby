@@ -73,37 +73,6 @@ results = @typesense.collections['companies'].documents.search(
 )
 ap results
 
-# {
-#   "facet_counts"   => [],
-#   "found"          => 2,
-#   "hits"           => [
-#     [0] {
-#       "document"  => {
-#         "company_name"  => "Stark Industries",
-#         "country"       => "USA",
-#         "id"            => "124",
-#         "num_employees" => 5215
-#       },
-#       "highlight" => {
-#         "company_name" => "<mark>Stark</mark> Industries"
-#       }
-#     },
-#     [1] {
-#       "document"  => {
-#         "company_name"  => "Stark Corp",
-#         "country"       => "USA",
-#         "id"            => "127",
-#         "num_employees" => 1031
-#       },
-#       "highlight" => {
-#         "company_name" => "<mark>Stark</mark> Corp"
-#       }
-#     }
-#   ],
-#   "page"           => 1,
-#   "search_time_ms" => 0
-# }
-
 ##
 # Search for more documents
 results = @typesense.collections['companies'].documents.search(
@@ -114,25 +83,28 @@ results = @typesense.collections['companies'].documents.search(
 )
 ap results
 
-# {
-#   "facet_counts"   => [],
-#   "found"          => 1,
-#   "hits"           => [
-#     [0] {
-#       "document"  => {
-#         "company_name"  => "Doofenshmirtz Inc",
-#         "country"       => "Tri-State Area",
-#         "id"            => "126",
-#         "num_employees" => 2
-#       },
-#       "highlight" => {
-#         "company_name" => "Doofenshmirtz <mark>Inc</mark>"
-#       }
-#     }
-#   ],
-#   "page"           => 1,
-#   "search_time_ms" => 0
-# }
+##
+# Search for more multiple documents
+results = @typesense.multi_search.perform(
+  {
+    searches: [
+      {
+        'q' => 'Inc',
+        'filter_by' => 'num_employees:<100',
+        'sort_by' => 'num_employees:desc'
+      },
+      {
+        'q' => 'Stark',
+      }
+    ]
+  },
+  {
+    # Parameters that are common to all searches, can be mentioned here
+    'collection' => 'companies',
+    'query_by' => 'company_name'
+  }
+)
+ap results
 
 ##
 # Search for more documents
@@ -141,13 +113,6 @@ results = @typesense.collections['companies'].documents.search(
   'query_by' => 'company_name'
 )
 ap results
-
-# {
-#   "found"          => 0,
-#   "hits"           => [],
-#   "page"           => 1,
-#   "search_time_ms" => 0
-# }
 
 ##
 # Cleanup
