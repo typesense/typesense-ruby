@@ -94,7 +94,7 @@ results = @typesense.multi_search.perform(
         'sort_by' => 'num_employees:desc'
       },
       {
-        'q' => 'Stark',
+        'q' => 'Stark'
       }
     ]
   },
