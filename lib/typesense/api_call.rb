@@ -177,23 +177,23 @@ module Typesense
 
     def custom_exception_klass_for(response)
       if response.code == 400
-        Typesense::Error::RequestMalformed
+        Typesense::Error::RequestMalformed.new(response: response)
       elsif response.code == 401
-        Typesense::Error::RequestUnauthorized
+        Typesense::Error::RequestUnauthorized.new(response: response)
       elsif response.code == 404
-        Typesense::Error::ObjectNotFound
+        Typesense::Error::ObjectNotFound.new(response: response)
       elsif response.code == 409
-        Typesense::Error::ObjectAlreadyExists
+        Typesense::Error::ObjectAlreadyExists.new(response: response)
       elsif response.code == 422
-        Typesense::Error::ObjectUnprocessable
+        Typesense::Error::ObjectUnprocessable.new(response: response)
       elsif response.code >= 500 && response.code <= 599
-        Typesense::Error::ServerError
+        Typesense::Error::ServerError.new(response: response)
       elsif response.timed_out?
-        Typesense::Error::TimeoutError
+        Typesense::Error::TimeoutError.new(response: response)
       elsif response.code.zero?
-        Typesense::Error::HTTPStatus0Error
+        Typesense::Error::HTTPStatus0Error.new(response: response)
       else
-        Typesense::Error::HTTPError
+        Typesense::Error::HTTPError.new(response: response)
       end
     end
 
