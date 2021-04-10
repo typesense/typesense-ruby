@@ -16,8 +16,8 @@ module Typesense
       @api_call.delete(endpoint_path)
     end
 
-    def update(partial_document)
-      @api_call.patch(endpoint_path, partial_document)
+    def update(partial_document, query_parameters = {})
+      @api_call.patch(endpoint_path, partial_document, query_parameters)
     end
 
     private
