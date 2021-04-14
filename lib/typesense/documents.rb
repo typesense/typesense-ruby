@@ -20,7 +20,7 @@ module Typesense
       @api_call.post(endpoint_path, document, options.merge(action: :upsert))
     end
 
-    def update(document, query_parameters = {})
+    def update(document, options = {})
       @api_call.post(endpoint_path, document, options.merge(action: :update))
     end
 
