@@ -12,8 +12,8 @@ module Typesense
       @documents       = {}
     end
 
-    def create(document, query_parameters = {})
-      @api_call.post(endpoint_path, document, query_parameters)
+    def create(document)
+      @api_call.post(endpoint_path, document)
     end
 
     def upsert(document, query_parameters = {})

@@ -67,11 +67,12 @@ describe Typesense::Documents do
                 'Content-Type' => 'application/json'
               },
               query: {
-                'action' => 'update'
+                'action' => 'update',
+                'dirty_values' => 'coerce_or_reject'
               })
         .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
-      result = companies_documents.update(document)
+      result = companies_documents.update(document, dirty_values: 'coerce_or_reject')
 
       expect(result).to eq(document)
     end
@@ -86,11 +87,12 @@ describe Typesense::Documents do
                 'Content-Type' => 'application/json'
               },
               query: {
-                'action' => 'upsert'
+                'action' => 'upsert',
+                'dirty_values' => 'coerce_or_reject'
               })
         .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
-      result = companies_documents.upsert(document)
+      result = companies_documents.upsert(document, dirty_values: 'coerce_or_reject')
 
       expect(result).to eq(document)
     end

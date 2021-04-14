@@ -68,11 +68,14 @@ describe Typesense::Document do
           headers: {
             'Content-Type' => 'application/json',
             'X-Typesense-Api-Key' => typesense.configuration.api_key
+          },
+          query: {
+            dirty_values: 'coerce_or_reject'
           }
         )
         .to_return(status: 200, body: JSON.dump(partial_document), headers: { 'Content-Type': 'application/json' })
 
-      result = document_124.update(partial_document)
+      result = document_124.update(partial_document, dirty_values: 'coerce_or_reject')
 
       expect(result).to eq(partial_document)
     end
