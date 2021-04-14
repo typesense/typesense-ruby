@@ -49,9 +49,6 @@ describe Typesense::Documents do
               headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
-              },
-              query: {
-                'dirty_values' => 'reject'
               })
         .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
