@@ -12,16 +12,16 @@ module Typesense
       @documents       = {}
     end
 
-    def create(document)
-      @api_call.post(endpoint_path, document)
+    def create(document, options = {})
+      @api_call.post(endpoint_path, document, options)
     end
 
-    def upsert(document)
-      @api_call.post(endpoint_path, document, action: :upsert)
+    def upsert(document, options = {})
+      @api_call.post(endpoint_path, document, options.merge(action: :upsert))
     end
 
-    def update(document)
-      @api_call.post(endpoint_path, document, action: :update)
+    def update(document, options = {})
+      @api_call.post(endpoint_path, document, options.merge(action: :update))
     end
 
     def create_many(documents, options = {})

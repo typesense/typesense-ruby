@@ -15,3 +15,4 @@ typesense-server-peers
 
 # rspec failure tracking
 .rspec_status
+typesense-data
