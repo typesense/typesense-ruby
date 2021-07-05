@@ -190,10 +190,13 @@ describe Typesense::Documents do
         .with(headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
+              },
+              query: {
+                'include_fields' => 'field1'
               })
         .to_return(status: 200, body: "#{JSON.dump(document)}\n#{JSON.dump(document)}")
 
-      result = companies_documents.export
+      result = companies_documents.export(include_fields: 'field1')
 
       expect(result).to eq("#{JSON.dump(document)}\n#{JSON.dump(document)}")
     end
