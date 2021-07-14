@@ -52,8 +52,8 @@ module Typesense
       end
     end
 
-    def export
-      @api_call.get(endpoint_path('export'))
+    def export(options = {})
+      @api_call.get(endpoint_path('export'), options)
     end
 
     def search(search_parameters)
