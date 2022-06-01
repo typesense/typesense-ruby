@@ -16,6 +16,10 @@ module Typesense
       @api_call.get(endpoint_path)
     end
 
+    def update(update_schema)
+      @api_call.patch(endpoint_path, update_schema)
+    end
+
     def delete
       @api_call.delete(endpoint_path)
     end
