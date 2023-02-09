@@ -187,7 +187,6 @@ ap document
 ##
 # Update a document. Unlike upsert, update will error out if the doc doesn't already exist.
 document = @typesense.collections['companies'].documents['124'].update(
-  'id' => 1,
   'num_employees' => 5500
 )
 ap document
