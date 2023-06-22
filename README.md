@@ -1,4 +1,4 @@
-# Typesense Ruby Library [![Gem Version](https://badge.fury.io/rb/typesense.svg)](https://badge.fury.io/rb/typesense) [![CircleCI](https://circleci.com/gh/typesense/typesense-ruby.svg?style=shield&circle-token=063f2179925b0b37d540126f6c96f6e1fe23f1b9)](https://circleci.com/gh/typesense/typesense-ruby) [![codecov](https://codecov.io/gh/typesense/typesense-ruby/branch/master/graph/badge.svg)](https://codecov.io/gh/typesense/typesense-ruby)
+# Typesense Ruby Library [![Gem Version](https://badge.fury.io/rb/typesense.svg)](https://badge.fury.io/rb/typesense) 
 
 
 Ruby client library for accessing the [Typesense HTTP API](https://github.com/typesense/typesense).
