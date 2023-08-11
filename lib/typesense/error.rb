@@ -25,6 +25,9 @@ module Typesense
     class RequestMalformed < Error
     end
 
+    class ResponseMalformed < Error
+    end
+
     class RequestUnauthorized < Error
     end
 

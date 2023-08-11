@@ -46,7 +46,7 @@ module Typesense
       )
 
       if documents.is_a?(Array)
-        results_in_jsonl_format.split("\n").map { |r| Oj.load(r) }
+        results_in_jsonl_format.split("\n").map { |r| json_load(r) }
       else
         results_in_jsonl_format
       end
@@ -72,6 +72,12 @@ module Typesense
 
     def endpoint_path(operation = nil)
       "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Documents::RESOURCE_PATH}#{operation.nil? ? '' : "/#{operation}"}"
+    end
+
+    def json_load(json)
+      Oj.load(json)
+    rescue Oj::ParseError => e
+      raise Typesense::Error::ResponseMalformed, "#{e.message}\nJSON:\n#{json}"
     end
   end
 end
