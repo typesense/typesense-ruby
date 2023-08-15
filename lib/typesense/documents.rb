@@ -50,10 +50,12 @@ module Typesense
           begin
             Oj.load(r)
           rescue Oj::ParseError => e
-            raise Typesense::Error::ResponseMalformed,
-                  "#{e.message}\n\n" \
-                  "JSON:\n#{r}\n\n" \
-                  "Full JSON:\n#{results_in_jsonl_format}"
+            {
+              "success" => false,
+              "exception" => e.class.name,
+              "error" => e.message,
+              "json" => r,
+            }
           end
         end
       else
