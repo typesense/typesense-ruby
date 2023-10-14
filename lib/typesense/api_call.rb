@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'typhoeus'
-require 'oj'
+require 'json'
 
 module Typesense
   class ApiCall
@@ -78,7 +78,7 @@ module Typesense
 
           unless body_parameters.nil?
             body = body_parameters
-            body = Oj.dump(body_parameters, mode: :compat) if request_options[:headers]['Content-Type'] == 'application/json'
+            body = JSON.dump(body_parameters) if request_options[:headers]['Content-Type'] == 'application/json'
             request_options.merge!(body: body)
           end
 
@@ -88,7 +88,7 @@ module Typesense
           @logger.debug "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response.code}."
 
           parsed_response = if response.headers && (response.headers['content-type'] || '').include?('application/json')
-                              Oj.load(response.body)
+                              JSON.parse(response.body)
                             else
                               response.body
                             end
