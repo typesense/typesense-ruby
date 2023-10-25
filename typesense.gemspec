@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.license       = 'Apache-2.0'
 
   # rubocop:disable Gemspec/RequiredRubyVersion
-  spec.required_ruby_version = '>= 2.4'
+  spec.required_ruby_version = '>= 2.7'
   # rubocop:enable Gemspec/RequiredRubyVersion
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
