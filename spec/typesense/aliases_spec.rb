@@ -47,7 +47,7 @@ describe Typesense::Aliases do
     it 'returns an alias object' do
       result = aliases['books']
 
-      expect(result).to be_a_kind_of(Typesense::Alias)
+      expect(result).to be_a(Typesense::Alias)
       expect(result.instance_variable_get(:@name)).to eq('books')
     end
   end

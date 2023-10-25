@@ -36,7 +36,7 @@ describe Typesense::Collections do
   describe '#create' do
     it 'creates a collection and returns it' do
       # since num_documents is a read-only attribute
-      schema_for_creation = company_schema.reject { |key, _| key == 'num_documents' }
+      schema_for_creation = company_schema.except('num_documents')
 
       stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections', typesense.configuration.nodes[0]))
         .with(body: schema_for_creation,
@@ -71,7 +71,7 @@ describe Typesense::Collections do
     it 'returns a collection object' do
       result = collections['companies']
 
-      expect(result).to be_a_kind_of(Typesense::Collection)
+      expect(result).to be_a(Typesense::Collection)
       expect(result.instance_variable_get(:@name)).to eq('companies')
     end
   end

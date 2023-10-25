@@ -3,7 +3,7 @@
 ##
 # These examples walk you through operations specifically related to synonyms
 
-require_relative './client_initialization'
+require_relative 'client_initialization'
 
 # Delete the collection if it already exists
 begin

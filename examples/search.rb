@@ -3,7 +3,7 @@
 ##
 # These examples walk you through operations specifically related to search
 
-require_relative './client_initialization'
+require_relative 'client_initialization'
 
 ##
 # Create a collection

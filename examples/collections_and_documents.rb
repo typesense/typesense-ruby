@@ -4,7 +4,7 @@
 # These examples walk you through all the operations you can do on a collection and a document
 # Search is specifically covered in another file in the examples folder
 
-require_relative './client_initialization'
+require_relative 'client_initialization'
 
 ##
 # Create a collection

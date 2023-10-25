@@ -55,7 +55,7 @@ describe Typesense::AnalyticsRules do
     it 'creates an analytics rule object and returns it' do
       result = analytics_rules['search_suggestions']
 
-      expect(result).to be_a_kind_of(Typesense::AnalyticsRule)
+      expect(result).to be_a(Typesense::AnalyticsRule)
       expect(result.instance_variable_get(:@rule_name)).to eq('search_suggestions')
     end
   end

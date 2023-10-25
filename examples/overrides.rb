@@ -3,7 +3,7 @@
 ##
 # These examples walk you through operations specifically related to result overrides / curation
 
-require_relative './client_initialization'
+require_relative 'client_initialization'
 
 # Delete the collection if it already exists
 begin
@@ -69,19 +69,19 @@ schema = {
 
 @typesense.collections['companies'].overrides.upsert(
   'promote-doofenshmirtz',
-  "rule": {
-    "query": 'doofen',
-    "match": 'exact'
+  rule: {
+    query: 'doofen',
+    match: 'exact'
   },
-  "includes": [{ 'id' => '126', 'position' => 1 }]
+  includes: [{ 'id' => '126', 'position' => 1 }]
 )
 @typesense.collections['companies'].overrides.upsert(
   'promote-acme',
-  "rule": {
-    "query": 'stark',
-    "match": 'exact'
+  rule: {
+    query: 'stark',
+    match: 'exact'
   },
-  "includes": [{ 'id' => '125', 'position' => 1 }]
+  includes: [{ 'id' => '125', 'position' => 1 }]
 )
 
 ##

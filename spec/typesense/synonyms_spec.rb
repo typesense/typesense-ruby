@@ -54,7 +54,7 @@ describe Typesense::Synonyms do
     it 'creates an synonym object and returns it' do
       result = companies_synonyms['synonym-set-1']
 
-      expect(result).to be_a_kind_of(Typesense::Synonym)
+      expect(result).to be_a(Typesense::Synonym)
       expect(result.instance_variable_get(:@synonym_id)).to eq('synonym-set-1')
     end
   end

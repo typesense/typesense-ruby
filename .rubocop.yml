@@ -1,3 +1,5 @@
+require: rubocop-rspec
+
 AllCops:
   NewCops: enable
 
@@ -37,3 +39,12 @@ Layout/LineLength:
 Lint/SuppressedException:
   Exclude:
     - examples/**
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+Style/HashSyntax:
+  Enabled: false # We still want to support older versions of Ruby
