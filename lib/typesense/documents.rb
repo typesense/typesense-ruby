@@ -21,7 +21,11 @@ module Typesense
     end
 
     def update(document, options = {})
-      @api_call.post(endpoint_path, document, options.merge(action: :update))
+      if options['filter_by'] || options[:filter_by]
+        @api_call.patch(endpoint_path, document, options)
+      else
+        @api_call.post(endpoint_path, document, options.merge(action: :update))
+      end
     end
 
     def create_many(documents, options = {})

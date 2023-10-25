@@ -62,6 +62,26 @@ describe Typesense::Documents do
   end
 
   describe '#update' do
+    context 'update by query' do
+      it 'updates the document and returns it' do
+        stub_request(:patch, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents', typesense.configuration.nodes[0]))
+          .with(body: document,
+                headers: {
+                  'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                  'Content-Type' => 'application/json'
+                },
+                query: {
+                  'filter_by' => 'field:=value',
+                  'dirty_values' => 'coerce_or_reject'
+                })
+          .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
+
+        result = companies_documents.update(document, dirty_values: 'coerce_or_reject', filter_by: 'field:=value')
+
+        expect(result).to eq(document)
+      end
+    end
+
     it 'updates the document and returns it' do
       stub_request(:post, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents', typesense.configuration.nodes[0]))
         .with(body: document,
