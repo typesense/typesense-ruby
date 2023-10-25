@@ -88,7 +88,7 @@ module Typesense
           @logger.debug "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response.code}."
 
           parsed_response = if response.headers && (response.headers['content-type'] || '').include?('application/json')
-                              Oj.load(response.body)
+                              Oj.load(response.body, mode: :compat)
                             else
                               response.body
                             end
