@@ -14,8 +14,8 @@ gem 'rake', '~> 13.0'
 gem 'rspec', '~> 3.9'
 gem 'rspec_junit_formatter', '~> 0.4'
 gem 'rspec-legacy_formatters', '~> 1.0' # For codecov formatter
-gem 'rubocop', '~> 1.56'
-gem 'rubocop-rspec', '~> 2.24', require: false
+gem 'rubocop', '~> 1.12'
+gem 'rubocop-rspec', '~> 2.4', require: false
 gem 'simplecov', '~> 0.18'
 gem 'timecop', '~> 0.9'
 gem 'webmock', '~> 3.8'
