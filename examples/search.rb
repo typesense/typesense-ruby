@@ -110,7 +110,9 @@ ap results
 # Search for more documents
 results = @typesense.collections['companies'].documents.search(
   'q' => 'Non-existent',
-  'query_by' => 'company_name'
+  'query_by' => 'company_name',
+  # Optionally add a user id if you use Analytics & Query Suggestions
+  'x-typesense-user-id' => 42
 )
 ap results
 
