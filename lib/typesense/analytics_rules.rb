@@ -24,7 +24,7 @@ module Typesense
     private
 
     def endpoint_path(operation = nil)
-      "#{AnalyticsRules::RESOURCE_PATH}#{operation.nil? ? '' : "/#{operation}"}"
+      "#{AnalyticsRules::RESOURCE_PATH}#{operation.nil? ? '' : "/#{ERB::Util.url_encode(operation)}"}"
     end
   end
 end

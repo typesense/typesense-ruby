@@ -27,7 +27,7 @@ module Typesense
     private
 
     def endpoint_path
-      "#{Collections::RESOURCE_PATH}/#{@name}"
+      "#{Collections::RESOURCE_PATH}/#{ERB::Util.url_encode(@name)}"
     end
   end
 end

@@ -24,7 +24,7 @@ module Typesense
     private
 
     def endpoint_path(alias_name)
-      "#{Aliases::RESOURCE_PATH}/#{alias_name}"
+      "#{Aliases::RESOURCE_PATH}/#{ERB::Util.url_encode(alias_name)}"
     end
   end
 end

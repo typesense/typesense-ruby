@@ -25,7 +25,7 @@ module Typesense
     private
 
     def endpoint_path(operation = nil)
-      "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Overrides::RESOURCE_PATH}#{operation.nil? ? '' : "/#{operation}"}"
+      "#{Collections::RESOURCE_PATH}/#{ERB::Util.url_encode(@collection_name)}#{Overrides::RESOURCE_PATH}#{operation.nil? ? '' : "/#{ERB::Util.url_encode(operation)}"}"
     end
   end
 end
