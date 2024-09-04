@@ -18,7 +18,7 @@ module Typesense
     private
 
     def endpoint_path
-      "#{Presets::RESOURCE_PATH}/#{@preset_name}"
+      "#{Presets::RESOURCE_PATH}/#{ERB::Util.url_encode(@preset_name)}"
     end
   end
 end
