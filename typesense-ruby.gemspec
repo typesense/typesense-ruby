@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'typesense/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'typesense'
+  spec.name          = 'typesense-ruby'
   spec.version       = Typesense::VERSION
   spec.authors       = ['Typesense, Inc.']
   spec.email         = ['contact@typesense.org']
