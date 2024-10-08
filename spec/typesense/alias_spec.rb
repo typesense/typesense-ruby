@@ -25,7 +25,7 @@ describe Typesense::Alias do
     end
 
     it 'returns the specified alias with URI encoded name' do
-      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases/abc123%3F%3D%2B-_!%40%23%24%25%5E%26*()~%20%2F', typesense.configuration.nodes[0]))
+      stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/aliases/abc123%3F%3D%2B-_!%40%23%24%25%5E%26*()~+%2F', typesense.configuration.nodes[0]))
         .with(headers: {
                 'X-Typesense-Api-Key' => typesense.configuration.api_key,
                 'Content-Type' => 'application/json'
