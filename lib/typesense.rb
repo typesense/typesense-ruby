@@ -3,6 +3,7 @@
 module Typesense
 end
 
+require 'uri'
 require_relative 'typesense/version'
 require_relative 'typesense/configuration'
 require_relative 'typesense/client'
