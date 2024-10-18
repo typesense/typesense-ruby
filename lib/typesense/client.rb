@@ -2,7 +2,7 @@
 
 module Typesense
   class Client
-    attr_reader :configuration, :collections, :aliases, :keys, :debug, :health, :metrics, :operations,
+    attr_reader :configuration, :collections, :aliases, :keys, :debug, :health, :metrics, :stats, :operations,
                 :multi_search, :analytics, :presets
 
     def initialize(options = {})
@@ -15,6 +15,7 @@ module Typesense
       @debug = Debug.new(@api_call)
       @health = Health.new(@api_call)
       @metrics = Metrics.new(@api_call)
+      @stats = Stats.new(@api_call)
       @operations = Operations.new(@api_call)
       @analytics = Analytics.new(@api_call)
       @presets = Presets.new(@api_call)
