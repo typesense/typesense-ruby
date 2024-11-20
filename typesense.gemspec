@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'faraday', '~> 2.8'
   spec.add_dependency 'oj', '~> 3.16'
-  spec.add_dependency 'typhoeus', '~> 1.4'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end

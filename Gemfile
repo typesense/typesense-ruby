@@ -8,6 +8,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 gem 'awesome_print', '~> 1.8'
 gem 'bundler', '~> 2.0'
 gem 'codecov', '~> 0.1'
+gem 'erb'
 gem 'guard', '~> 2.16'
 gem 'guard-rubocop', '~> 1.3'
 gem 'rake', '~> 13.0'
