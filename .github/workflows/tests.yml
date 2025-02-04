@@ -39,6 +39,6 @@ jobs:
       - run: bundle exec rspec --format documentation
       - uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-ruby-${{ matrix.ruby-version }}
           path: coverage/
           retention-days: 1
