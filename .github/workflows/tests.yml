@@ -13,7 +13,7 @@ jobs:
         ruby-version: ['2.7', '3.0', '3.2']
     services:
       typesense:
-        image: typesense/typesense:27.1
+        image: typesense/typesense:28.0.rc36
         ports:
           - 8108:8108
         volumes:
