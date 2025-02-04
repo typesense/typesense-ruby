@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 module Typesense
   class Stemming
-    RESOURCE_PATH = "/stemming"
+    RESOURCE_PATH = '/stemming'
 
     def initialize(api_call)
       @api_call = api_call
