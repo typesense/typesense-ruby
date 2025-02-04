@@ -100,6 +100,7 @@ describe Typesense::Collections do
             'optional' => false,
             'sort' => false,
             'stem' => false,
+            'stem_dictionary' => '',
             'store' => true
           },
           {
@@ -112,6 +113,7 @@ describe Typesense::Collections do
             'optional' => false,
             'sort' => true,
             'stem' => false,
+            'stem_dictionary' => '',
             'store' => true
           },
           {
@@ -124,6 +126,7 @@ describe Typesense::Collections do
             'optional' => false,
             'sort' => false,
             'stem' => false,
+            'stem_dictionary' => '',
             'store' => true
           }
         ]
