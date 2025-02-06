@@ -19,8 +19,15 @@ describe 'StemmingDictionaries' do
     ]
   end
 
-  before { WebMock.disable! }
-  after { WebMock.enable! }
+  before do
+    WebMock.disable!
+    # Create the dictionary at the start of each test
+    client.stemming.dictionaries.upsert(dictionary_id, dictionary)
+  end
+
+  after do
+    WebMock.enable!
+  end
 
   it 'can upsert a dictionary' do
     response = client.stemming.dictionaries.upsert(dictionary_id, dictionary)

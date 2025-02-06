@@ -32,7 +32,8 @@ module Typesense
     end
 
     def retrieve
-      @api_call.get(endpoint_path)
+      response = @api_call.get(endpoint_path)
+      response || { 'dictionaries' => [] }
     end
 
     def [](dict_id)
