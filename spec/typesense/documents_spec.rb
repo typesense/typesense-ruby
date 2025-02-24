@@ -242,6 +242,24 @@ describe Typesense::Documents do
     end
   end
 
+  describe '#truncate' do
+    it 'truncate documents in a collection' do
+      stub_request(:delete, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/documents', typesense.configuration.nodes[0]))
+        .with(headers: {
+                'X-Typesense-Api-Key' => typesense.configuration.api_key,
+                'Content-Type' => 'application/json'
+              },
+              query: {
+                truncate: true
+              })
+        .to_return(status: 200, body: '{ "num_deleted": 1 }', headers: { 'Content-Type': 'application/json' })
+
+      result = companies_documents.truncate
+
+      expect(result['num_deleted']).to eq(1)
+    end
+  end
+
   describe '#search' do
     let(:search_parameters) do
       {

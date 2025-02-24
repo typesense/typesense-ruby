@@ -72,6 +72,10 @@ module Typesense
       @api_call.delete(endpoint_path, query_parameters)
     end
 
+    def truncate
+      @api_call.delete(endpoint_path, { truncate: true })
+    end
+
     private
 
     def endpoint_path(operation = nil)

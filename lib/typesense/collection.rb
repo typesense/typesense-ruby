@@ -9,7 +9,7 @@ module Typesense
       @api_call  = api_call
       @documents = Documents.new(@name, @api_call)
       @overrides = Overrides.new(@name, @api_call)
-      @synonyms = Synonyms.new(@name, @api_call)
+      @synonyms  = Synonyms.new(@name, @api_call)
     end
 
     def retrieve

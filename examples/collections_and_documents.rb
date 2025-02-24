@@ -145,6 +145,16 @@ ap collection
 #   "num_documents"         => 0
 # }
 
+###
+# Truncate a collection
+#   Deletion returns the number of documents deleted
+collection = @typesense.collections['companies'].truncate
+ap collection
+
+# {
+#   "num_deleted": 125
+# }
+
 # Let's create the collection again for use in our remaining examples
 @typesense.collections.create(schema)
 
