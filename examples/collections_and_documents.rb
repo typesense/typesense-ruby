@@ -147,8 +147,8 @@ ap collection
 
 ###
 # Truncate a collection
-#   Deletion returns the number of documents deleted
-collection = @typesense.collections['companies'].truncate
+#   Truncation returns the number of documents deleted
+collection = @typesense.collections['companies'].documents.truncate
 ap collection
 
 # {
