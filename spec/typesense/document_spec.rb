@@ -8,30 +8,7 @@ describe Typesense::Document do
 
   include_context 'with Typesense configuration'
 
-  let(:company_schema) do
-    {
-      'name' => 'companies',
-      'num_documents' => 0,
-      'fields' => [
-        {
-          'name' => 'company_name',
-          'type' => 'string',
-          'facet' => false
-        },
-        {
-          'name' => 'num_employees',
-          'type' => 'int32',
-          'facet' => false
-        },
-        {
-          'name' => 'country',
-          'type' => 'string',
-          'facet' => true
-        }
-      ],
-      'token_ranking_field' => 'num_employees'
-    }
-  end
+  let(:company_schema) { JSON.parse(File.read('spec/fixtures/collections/companies.json')) }
 
   let(:document) do
     {

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: ['3.0', '3.2', '3.3']
+        ruby-version: ['3.0', '3.2', '3.3', '3.4']
     services:
       typesense:
         image: typesense/typesense:28.0
