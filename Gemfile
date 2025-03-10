@@ -5,22 +5,21 @@ source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Dev dependencies
-gem 'awesome_print', '~> 1.8'
-gem 'bundler', '~> 2.0'
-gem 'codecov', '~> 0.1'
-gem 'erb'
-gem 'guard', '~> 2.16'
-gem 'guard-rubocop', '~> 1.3'
-gem 'rake', '~> 13.0'
-gem 'rspec', '~> 3.9'
-gem 'rspec_junit_formatter', '~> 0.4'
+gem 'awesome_print', '~> 1.9'
+gem 'bundler', '~> 2.6'
+gem 'codecov', '~> 0.6'
+gem 'erb', '~> 4.0'
+gem 'guard', '~> 2.19'
+gem 'guard-rubocop', '~> 1.5'
+gem 'rake', '~> 13.2'
+gem 'rspec', '~> 3.13'
+gem 'rspec_junit_formatter', '~> 0.6'
 gem 'rspec-legacy_formatters', '~> 1.0' # For codecov formatter
-gem 'rubocop', '~> 1.12'
+gem 'rubocop', '~> 1.73'
 gem 'rubocop-rake', '~> 0.7'
-gem 'rubocop-rspec', '~> 2.4', require: false
-gem 'simplecov', '~> 0.18'
+gem 'rubocop-rspec', '~> 3.5', require: false
 gem 'timecop', '~> 0.9'
-gem 'webmock', '~> 3.8'
+gem 'webmock', '~> 3.25'
 
 # Specify your gem's dependencies in typesense.gemspec
 gemspec
