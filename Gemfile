@@ -6,7 +6,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Dev dependencies
 gem 'awesome_print', '~> 1.9'
-gem 'bundler', '~> 2.6'
+gem 'bundler', '~> 2.2'
 gem 'codecov', '~> 0.6'
 gem 'erb', '~> 4.0'
 gem 'guard', '~> 2.19'
