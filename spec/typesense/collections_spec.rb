@@ -8,7 +8,30 @@ describe Typesense::Collections do
 
   include_context 'with Typesense configuration'
 
-  let(:company_schema) { JSON.parse(File.read('spec/fixtures/collections/companies.json')) }
+  let(:company_schema) do
+    {
+      'name' => 'companies',
+      'num_documents' => 0,
+      'fields' => [
+        {
+          'name' => 'company_name',
+          'type' => 'string',
+          'facet' => false
+        },
+        {
+          'name' => 'num_employees',
+          'type' => 'int32',
+          'facet' => false
+        },
+        {
+          'name' => 'country',
+          'type' => 'string',
+          'facet' => true
+        }
+      ],
+      'default_sorting_field' => 'num_employees'
+    }
+  end
 
   describe '#create' do
     it 'creates a collection and returns it' do
