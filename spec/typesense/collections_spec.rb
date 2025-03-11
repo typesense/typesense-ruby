@@ -54,7 +54,7 @@ describe Typesense::Collections do
     context 'with integration', :integration do
       let(:integration_schema) do
         {
-          'name' => 'companies',
+          'name' => 'integration_companies',
           'num_documents' => 0,
           'fields' => [
             {
@@ -136,7 +136,7 @@ describe Typesense::Collections do
       before do
         WebMock.disable!
         begin
-          integration_client.collections['companies'].delete
+          integration_client.collections['integration_companies'].delete
         rescue Typesense::Error::ObjectNotFound
           # Collection doesn't exist, which is fine
         end
@@ -144,7 +144,7 @@ describe Typesense::Collections do
 
       after do
         begin
-          integration_client.collections['companies'].delete
+          integration_client.collections['integration_companies'].delete
         rescue Typesense::Error::ObjectNotFound
           # Collection doesn't exist, which is fine
         end
@@ -154,7 +154,7 @@ describe Typesense::Collections do
       it 'creates a collection on a real Typesense server' do
         result = integration_client.collections.create(integration_schema)
 
-        expect(result['name']).to eq('companies')
+        expect(result['name']).to eq('integration_companies')
         expect(result['fields']).to eq(expected_fields)
         expect(result['default_sorting_field']).to eq(integration_schema['default_sorting_field'])
         expect(result['num_documents']).to eq(0)
