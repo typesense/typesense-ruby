@@ -52,7 +52,30 @@ describe Typesense::Collections do
     end
 
     context 'with integration', :integration do
-      let(:integration_schema) { company_schema }
+      let(:integration_schema) do
+        {
+          'name' => 'companies',
+          'num_documents' => 0,
+          'fields' => [
+            {
+              'name' => 'company_name',
+              'type' => 'string',
+              'facet' => false
+            },
+            {
+              'name' => 'num_employees',
+              'type' => 'int32',
+              'facet' => false
+            },
+            {
+              'name' => 'country',
+              'type' => 'string',
+              'facet' => true
+            }
+          ],
+          'default_sorting_field' => 'num_employees'
+        }
+      end
 
       let(:integration_client) do
         Typesense::Client.new(
