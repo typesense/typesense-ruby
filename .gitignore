@@ -16,3 +16,6 @@ typesense-server-peers
 # rspec failure tracking
 .rspec_status
 typesense-data
+
+# os files
+.DS_Store

@@ -11,7 +11,6 @@ describe Typesense::Documents do
   let(:company_schema) do
     {
       'name' => 'companies',
-      'num_documents' => 0,
       'fields' => [
         {
           'name' => 'company_name',
@@ -29,7 +28,7 @@ describe Typesense::Documents do
           'facet' => true
         }
       ],
-      'token_ranking_field' => 'num_employees'
+      'default_sorting_field' => 'num_employees'
     }
   end
 
