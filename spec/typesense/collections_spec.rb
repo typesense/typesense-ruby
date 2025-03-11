@@ -11,7 +11,6 @@ describe Typesense::Collections do
   let(:company_schema) do
     {
       'name' => 'companies',
-      'num_documents' => 0,
       'fields' => [
         {
           'name' => 'company_name',
@@ -55,7 +54,6 @@ describe Typesense::Collections do
       let(:integration_schema) do
         {
           'name' => 'integration_companies',
-          'num_documents' => 0,
           'fields' => [
             {
               'name' => 'company_name',

@@ -11,7 +11,6 @@ describe Typesense::Document do
   let(:company_schema) do
     {
       'name' => 'companies',
-      'num_documents' => 0,
       'fields' => [
         {
           'name' => 'company_name',
