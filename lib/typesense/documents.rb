@@ -51,16 +51,14 @@ module Typesense
 
       if documents.is_a?(Array)
         results_in_jsonl_format.split("\n").map do |r|
-          begin
-            Oj.load(r)
-          rescue Oj::ParseError => e
-            {
-              "success" => false,
-              "exception" => e.class.name,
-              "error" => e.message,
-              "json" => r,
-            }
-          end
+          Oj.load(r)
+        rescue Oj::ParseError => e
+          {
+            'success' => false,
+            'exception' => e.class.name,
+            'error' => e.message,
+            'json' => r
+          }
         end
       else
         results_in_jsonl_format
