@@ -85,7 +85,7 @@ module Typesense
               req.body = body
             end
           end
-          set_node_healthcheck(node, is_healthy: true) if response.status >= 1 && response.status <= 499
+          set_node_healthcheck(node, is_healthy: true) if response.status.between?(1, 499)
 
           @logger.debug "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} was successfully made (at the network layer). response.status was #{response.status}."
 
@@ -96,7 +96,7 @@ module Typesense
                             end
 
           # If response is 2xx return the object, else raise the response as an exception
-          return parsed_response if response.status >= 200 && response.status <= 299
+          return parsed_response if response.status.between?(200, 299)
 
           exception_message = (parsed_response && parsed_response['message']) || 'Error'
           raise custom_exception_klass_for(response), exception_message
@@ -190,7 +190,7 @@ module Typesense
         Typesense::Error::ObjectAlreadyExists.new(response: response)
       elsif response.status == 422
         Typesense::Error::ObjectUnprocessable.new(response: response)
-      elsif response.status >= 500 && response.status <= 599
+      elsif response.status.between?(500, 599)
         Typesense::Error::ServerError.new(response: response)
       elsif response.respond_to?(:timed_out?) && response.timed_out?
         Typesense::Error::TimeoutError.new(response: response)
