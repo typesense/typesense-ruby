@@ -245,17 +245,17 @@ describe Typesense::ApiCall do
   end
 
   describe '#post' do
-    include_examples 'General error handling', :post
-    include_examples 'Node selection', :post
+    it_behaves_like 'General error handling', :post
+    it_behaves_like 'Node selection', :post
   end
 
   describe '#get' do
-    include_examples 'General error handling', :get
-    include_examples 'Node selection', :get
+    it_behaves_like 'General error handling', :get
+    it_behaves_like 'Node selection', :get
   end
 
   describe '#delete' do
-    include_examples 'General error handling', :delete
-    include_examples 'Node selection', :delete
+    it_behaves_like 'General error handling', :delete
+    it_behaves_like 'Node selection', :delete
   end
 end
