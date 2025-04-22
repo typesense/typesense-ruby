@@ -15,7 +15,9 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://typesense.org'
   spec.license       = 'Apache-2.0'
 
-  spec.required_ruby_version = '>= 2.4'
+  # rubocop:disable Gemspec/RequiredRubyVersion, Lint/RedundantCopDisableDirective
+  spec.required_ruby_version = '>= 2.7'
+  # rubocop:enable Gemspec/RequiredRubyVersion, Lint/RedundantCopDisableDirective
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
@@ -24,22 +26,8 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'awesome_print', '~> 1.8'
-  spec.add_development_dependency 'bundler', '~> 2.0'
-  spec.add_development_dependency 'codecov', '~> 0.1'
-  spec.add_development_dependency 'guard', '~> 2.16'
-  spec.add_development_dependency 'guard-rubocop', '~> 1.3'
-  spec.add_development_dependency 'pry-byebug', '~> 3.9'
-  spec.add_development_dependency 'rake', '~> 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.9'
-  spec.add_development_dependency 'rspec_junit_formatter', '~> 0.4'
-  spec.add_development_dependency 'rspec-legacy_formatters', '~> 1.0' # For codecov formatter
-  spec.add_development_dependency 'rubocop', '~> 0.88'
-  spec.add_development_dependency 'rubocop-rspec', '~> 1.39'
-  spec.add_development_dependency 'simplecov', '~> 0.18'
-  spec.add_development_dependency 'timecop', '~> 0.9'
-  spec.add_development_dependency 'webmock', '~> 3.8'
-
-  spec.add_dependency 'oj', '~> 3.11'
-  spec.add_dependency 'typhoeus', '~> 1.4'
+  spec.add_dependency 'base64', '~> 0.2.0'
+  spec.add_dependency 'faraday', '~> 2.8'
+  spec.add_dependency 'oj', '~> 3.16'
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end

@@ -1,13 +1,6 @@
 # frozen_string_literal: true
 
 require 'simplecov'
-SimpleCov.start
-
-if ENV['CI'] == 'true'
-  require 'codecov'
-  SimpleCov.formatter = SimpleCov::Formatter::Codecov
-end
-
 SimpleCov.start do
   add_group 'lib', 'lib'
 
@@ -17,7 +10,6 @@ end
 require 'bundler/setup'
 require 'webmock/rspec'
 require 'typesense'
-require 'pry'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

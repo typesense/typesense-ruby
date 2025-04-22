@@ -9,7 +9,7 @@ module Typesense
       @api_call  = api_call
       @documents = Documents.new(@name, @api_call)
       @overrides = Overrides.new(@name, @api_call)
-      @synonyms = Synonyms.new(@name, @api_call)
+      @synonyms  = Synonyms.new(@name, @api_call)
     end
 
     def retrieve
@@ -27,7 +27,7 @@ module Typesense
     private
 
     def endpoint_path
-      "#{Collections::RESOURCE_PATH}/#{@name}"
+      "#{Collections::RESOURCE_PATH}/#{URI.encode_www_form_component(@name)}"
     end
   end
 end

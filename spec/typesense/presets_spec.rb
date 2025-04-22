@@ -54,7 +54,7 @@ describe Typesense::Presets do
     it 'creates a preset object and returns it' do
       result = presets['search-view']
 
-      expect(result).to be_a_kind_of(Typesense::Preset)
+      expect(result).to be_a(Typesense::Preset)
       expect(result.instance_variable_get(:@preset_name)).to eq('search-view')
     end
   end

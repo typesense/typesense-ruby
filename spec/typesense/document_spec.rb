@@ -4,7 +4,7 @@ require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
 describe Typesense::Document do
-  subject(:document_124) { typesense.collections['companies'].documents['124'] }
+  subject(:document124) { typesense.collections['companies'].documents['124'] }
 
   include_context 'with Typesense configuration'
 
@@ -51,7 +51,7 @@ describe Typesense::Document do
               })
         .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
-      result = document_124.retrieve
+      result = document124.retrieve
 
       expect(result).to eq(document)
     end
@@ -75,7 +75,7 @@ describe Typesense::Document do
         )
         .to_return(status: 200, body: JSON.dump(partial_document), headers: { 'Content-Type': 'application/json' })
 
-      result = document_124.update(partial_document, dirty_values: 'coerce_or_reject')
+      result = document124.update(partial_document, dirty_values: 'coerce_or_reject')
 
       expect(result).to eq(partial_document)
     end
@@ -89,7 +89,7 @@ describe Typesense::Document do
               })
         .to_return(status: 200, body: JSON.dump(document), headers: { 'Content-Type': 'application/json' })
 
-      result = document_124.delete
+      result = document124.delete
 
       expect(result).to eq(document)
     end

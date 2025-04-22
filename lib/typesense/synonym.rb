@@ -19,7 +19,7 @@ module Typesense
     private
 
     def endpoint_path
-      "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Synonyms::RESOURCE_PATH}/#{@synonym_id}"
+      "#{Collections::RESOURCE_PATH}/#{URI.encode_www_form_component(@collection_name)}#{Synonyms::RESOURCE_PATH}/#{URI.encode_www_form_component(@synonym_id)}"
     end
   end
 end

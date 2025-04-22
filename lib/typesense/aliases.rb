@@ -24,7 +24,7 @@ module Typesense
     private
 
     def endpoint_path(alias_name)
-      "#{Aliases::RESOURCE_PATH}/#{alias_name}"
+      "#{Aliases::RESOURCE_PATH}/#{URI.encode_www_form_component(alias_name)}"
     end
   end
 end

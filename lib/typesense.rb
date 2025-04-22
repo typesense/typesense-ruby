@@ -3,6 +3,7 @@
 module Typesense
 end
 
+require 'uri'
 require_relative 'typesense/version'
 require_relative 'typesense/configuration'
 require_relative 'typesense/client'
@@ -28,5 +29,9 @@ require_relative 'typesense/preset'
 require_relative 'typesense/debug'
 require_relative 'typesense/health'
 require_relative 'typesense/metrics'
+require_relative 'typesense/stats'
 require_relative 'typesense/operations'
 require_relative 'typesense/error'
+require_relative 'typesense/stemming'
+require_relative 'typesense/stemming_dictionaries'
+require_relative 'typesense/stemming_dictionary'

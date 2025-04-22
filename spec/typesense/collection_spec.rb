@@ -47,6 +47,7 @@ describe Typesense::Collection do
       expect(result).to eq(company_schema)
     end
   end
+
   describe '#update' do
     it 'updates the specified collection' do
       update_schema = {
@@ -88,7 +89,7 @@ describe Typesense::Collection do
     it 'creates a documents object and returns it' do
       result = companies_collection.documents
 
-      expect(result).to be_a_kind_of(Typesense::Documents)
+      expect(result).to be_a(Typesense::Documents)
     end
   end
 end

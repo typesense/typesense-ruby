@@ -3,7 +3,7 @@
 ##
 # These examples walk you through operations to manage API Keys
 
-require_relative './client_initialization'
+require_relative 'client_initialization'
 
 # Let's setup some test data for this example
 schema = {
@@ -95,18 +95,18 @@ ap unscoped_search_only_api_key_response
 #  This is useful when you store multi-tenant data in a single Typesense server, but you only want
 #  a particular tenant to access their own data. You'd generate one scoped search key per tenant.
 #  IMPORTANT: scoped search keys should only be generated *server-side*, so as to not leak the unscoped main search key to clients
-scoped_search_only_api_key = @typesense.keys.generate_scoped_search_key(unscoped_search_only_api_key, { 'filter_by': 'company_id:124' })
+scoped_search_only_api_key = @typesense.keys.generate_scoped_search_key(unscoped_search_only_api_key, { filter_by: 'company_id:124' })
 ap "scoped_search_only_api_key: #{scoped_search_only_api_key}"
 
 # Now let's search the data using the scoped API Key for company_id:124
 # You can do searches with this scoped_search_only_api_key from the server-side or client-side
 scoped_typesense_client = Typesense::Client.new({
-                                                  'nodes': [{
-                                                    'host': 'localhost',
-                                                    'port': '8108',
-                                                    'protocol': 'http'
+                                                  nodes: [{
+                                                    host: 'localhost',
+                                                    port: '8108',
+                                                    protocol: 'http'
                                                   }],
-                                                  'api_key': scoped_search_only_api_key
+                                                  api_key: scoped_search_only_api_key
                                                 })
 
 search_results = scoped_typesense_client.collections['users'].documents.search({
@@ -117,8 +117,8 @@ ap search_results
 
 # Search for a user that exists, but is outside the current key's scope
 search_results = scoped_typesense_client.collections['users'].documents.search({
-                                                                                 'q': 'Maxwell',
-                                                                                 'query_by': 'user_name'
+                                                                                 q: 'Maxwell',
+                                                                                 query_by: 'user_name'
                                                                                })
 ap search_results # Will return empty result set
 

@@ -4,7 +4,7 @@
 # These examples walk you through all the operations you can do on a collection and a document
 # Search is specifically covered in another file in the examples folder
 
-require_relative './client_initialization'
+require_relative 'client_initialization'
 
 ##
 # Create a collection
@@ -143,6 +143,16 @@ ap collection
 #   ],
 #   "name"                  => "companies",
 #   "num_documents"         => 0
+# }
+
+###
+# Truncate a collection
+#   Truncation returns the number of documents deleted
+collection = @typesense.collections['companies'].documents.truncate
+ap collection
+
+# {
+#   "num_deleted": 125
 # }
 
 # Let's create the collection again for use in our remaining examples

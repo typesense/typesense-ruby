@@ -21,7 +21,11 @@ module Typesense
     end
 
     def update(document, options = {})
-      @api_call.post(endpoint_path, document, options.merge(action: :update))
+      if options['filter_by'] || options[:filter_by]
+        @api_call.patch(endpoint_path, document, options)
+      else
+        @api_call.post(endpoint_path, document, options.merge(action: :update))
+      end
     end
 
     def create_many(documents, options = {})
@@ -79,10 +83,14 @@ module Typesense
       @api_call.delete(endpoint_path, query_parameters)
     end
 
+    def truncate
+      @api_call.delete(endpoint_path, { truncate: true })
+    end
+
     private
 
     def endpoint_path(operation = nil)
-      "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Documents::RESOURCE_PATH}#{operation.nil? ? '' : "/#{operation}"}"
+      "#{Collections::RESOURCE_PATH}/#{URI.encode_www_form_component(@collection_name)}#{Documents::RESOURCE_PATH}#{operation.nil? ? '' : "/#{operation}"}"
     end
   end
 end

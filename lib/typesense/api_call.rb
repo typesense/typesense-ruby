@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'typhoeus'
+require 'faraday'
 require 'oj'
 
 module Typesense
@@ -69,38 +69,42 @@ module Typesense
         @logger.debug "Attempting #{method.to_s.upcase} request Try ##{num_tries} to Node #{node[:index]}"
 
         begin
-          request_options = {
-            method: method,
-            timeout: @connection_timeout_seconds,
-            headers: default_headers.merge(additional_headers)
-          }
-          request_options.merge!(params: query_parameters) unless query_parameters.nil?
-
-          unless body_parameters.nil?
-            body = body_parameters
-            body = Oj.dump(body_parameters, mode: :compat) if request_options[:headers]['Content-Type'] == 'application/json'
-            request_options.merge!(body: body)
+          conn = Faraday.new(uri_for(endpoint, node)) do |f|
+            f.options.timeout = @connection_timeout_seconds
+            f.options.open_timeout = @connection_timeout_seconds
           end
 
-          response = Typhoeus::Request.new(uri_for(endpoint, node), request_options).run
-          set_node_healthcheck(node, is_healthy: true) if response.code >= 1 && response.code <= 499
+          headers = default_headers.merge(additional_headers)
 
-          @logger.debug "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} was successfully made (at the network layer). Response Code was #{response.code}."
+          response = conn.send(method) do |req|
+            req.headers = headers
+            req.params = query_parameters unless query_parameters.nil?
+            unless body_parameters.nil?
+              body = body_parameters
+              body = Oj.dump(body_parameters, mode: :compat) if headers['Content-Type'] == 'application/json'
+              req.body = body
+            end
+          end
+          set_node_healthcheck(node, is_healthy: true) if response.status >= 1 && response.status <= 499
+
+          @logger.debug "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} was successfully made (at the network layer). response.status was #{response.status}."
 
           parsed_response = if response.headers && (response.headers['content-type'] || '').include?('application/json')
-                              Oj.load(response.body)
+                              Oj.load(response.body, mode: :compat)
                             else
                               response.body
                             end
 
           # If response is 2xx return the object, else raise the response as an exception
-          return parsed_response if response.code >= 200 && response.code <= 299
+          return parsed_response if response.status >= 200 && response.status <= 299
 
           exception_message = (parsed_response && parsed_response['message']) || 'Error'
           raise custom_exception_klass_for(response), exception_message
-        rescue Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET, Errno::ECONNABORTED, Errno::ECONNRESET,
-               Errno::ETIMEDOUT, Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
-               Typesense::Error::TimeoutError, Typesense::Error::ServerError, Typesense::Error::HTTPStatus0Error => e
+        rescue Faraday::ConnectionFailed, Faraday::TimeoutError,
+               Errno::EINVAL, Errno::ENETDOWN, Errno::ENETUNREACH, Errno::ENETRESET,
+               Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT,
+               Errno::ECONNREFUSED, Errno::EHOSTDOWN, Errno::EHOSTUNREACH,
+               Typesense::Error::ServerError, Typesense::Error::HTTPStatus0Error => e
           # Rescue network layer exceptions and HTTP 5xx errors, so the loop can continue.
           # Using loops for retries instead of rescue...retry to maintain consistency with client libraries in
           #   other languages that might not support the same construct.
@@ -176,23 +180,24 @@ module Typesense
     end
 
     def custom_exception_klass_for(response)
-      if response.code == 400
+      if response.status == 400
         Typesense::Error::RequestMalformed.new(response: response)
-      elsif response.code == 401
+      elsif response.status == 401
         Typesense::Error::RequestUnauthorized.new(response: response)
-      elsif response.code == 404
+      elsif response.status == 404
         Typesense::Error::ObjectNotFound.new(response: response)
-      elsif response.code == 409
+      elsif response.status == 409
         Typesense::Error::ObjectAlreadyExists.new(response: response)
-      elsif response.code == 422
+      elsif response.status == 422
         Typesense::Error::ObjectUnprocessable.new(response: response)
-      elsif response.code >= 500 && response.code <= 599
+      elsif response.status >= 500 && response.status <= 599
         Typesense::Error::ServerError.new(response: response)
-      elsif response.timed_out?
+      elsif response.respond_to?(:timed_out?) && response.timed_out?
         Typesense::Error::TimeoutError.new(response: response)
-      elsif response.code.zero?
+      elsif response.status.zero?
         Typesense::Error::HTTPStatus0Error.new(response: response)
       else
+        # This will handle both 300-level responses and any other unhandled status codes
         Typesense::Error::HTTPError.new(response: response)
       end
     end

@@ -11,7 +11,7 @@ describe Typesense::Client do
     it 'creates a collections object and returns it' do
       result = typesense.collections
 
-      expect(result).to be_a_kind_of(Typesense::Collections)
+      expect(result).to be_a(Typesense::Collections)
     end
   end
 
@@ -19,7 +19,7 @@ describe Typesense::Client do
     it 'creates a debug object and returns it' do
       result = typesense.debug
 
-      expect(result).to be_a_kind_of(Typesense::Debug)
+      expect(result).to be_a(Typesense::Debug)
     end
   end
 end

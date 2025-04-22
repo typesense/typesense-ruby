@@ -59,7 +59,7 @@ describe Typesense::Keys do
     it 'returns an key object' do
       result = keys['123']
 
-      expect(result).to be_a_kind_of(Typesense::Key)
+      expect(result).to be_a(Typesense::Key)
       expect(result.instance_variable_get(:@id)).to eq('123')
     end
   end

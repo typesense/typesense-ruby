@@ -18,7 +18,7 @@ module Typesense
     private
 
     def endpoint_path
-      "#{Presets::RESOURCE_PATH}/#{@preset_name}"
+      "#{Presets::RESOURCE_PATH}/#{URI.encode_www_form_component(@preset_name)}"
     end
   end
 end

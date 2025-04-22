@@ -19,7 +19,7 @@ module Typesense
     private
 
     def endpoint_path
-      "#{Collections::RESOURCE_PATH}/#{@collection_name}#{Overrides::RESOURCE_PATH}/#{@override_id}"
+      "#{Collections::RESOURCE_PATH}/#{URI.encode_www_form_component(@collection_name)}#{Overrides::RESOURCE_PATH}/#{URI.encode_www_form_component(@override_id)}"
     end
   end
 end

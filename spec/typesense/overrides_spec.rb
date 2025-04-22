@@ -55,7 +55,7 @@ describe Typesense::Overrides do
     it 'creates an override object and returns it' do
       result = companies_overrides['lex-override']
 
-      expect(result).to be_a_kind_of(Typesense::Override)
+      expect(result).to be_a(Typesense::Override)
       expect(result.instance_variable_get(:@override_id)).to eq('lex-override')
     end
   end

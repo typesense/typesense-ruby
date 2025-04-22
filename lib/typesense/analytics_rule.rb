@@ -18,7 +18,7 @@ module Typesense
     private
 
     def endpoint_path
-      "#{AnalyticsRules::RESOURCE_PATH}/#{@rule_name}"
+      "#{AnalyticsRules::RESOURCE_PATH}/#{URI.encode_www_form_component(@rule_name)}"
     end
   end
 end

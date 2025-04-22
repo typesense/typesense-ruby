@@ -11,7 +11,7 @@ module Typesense
       @nearest_node = options[:nearest_node]
       @connection_timeout_seconds = options[:connection_timeout_seconds] || options[:timeout_seconds] || 10
       @healthcheck_interval_seconds = options[:healthcheck_interval_seconds] || 15
-      @num_retries = options[:num_retries] || @nodes.length + (@nearest_node.nil? ? 0 : 1) || 3
+      @num_retries = options[:num_retries] || (@nodes.length + (@nearest_node.nil? ? 0 : 1)) || 3
       @retry_interval_seconds = options[:retry_interval_seconds] || 0.1
       @api_key = options[:api_key]
 

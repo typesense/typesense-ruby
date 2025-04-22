@@ -24,7 +24,7 @@ module Typesense
     private
 
     def endpoint_path(operation = nil)
-      "#{Presets::RESOURCE_PATH}#{operation.nil? ? '' : "/#{operation}"}"
+      "#{Presets::RESOURCE_PATH}#{operation.nil? ? '' : "/#{URI.encode_www_form_component(operation)}"}"
     end
   end
 end

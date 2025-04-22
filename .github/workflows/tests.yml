@@ -10,9 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: ['2.6', '2.7', '3.0']
+        ruby-version: ['3.0', '3.2', '3.3']
+    services:
+      typesense:
+        image: typesense/typesense:28.0
+        ports:
+          - 8108:8108
+        volumes:
+          - /tmp/typesense-data:/data
+          - /tmp/typesense-analytics:/analytics
+        env:
+          TYPESENSE_API_KEY: xyz
+          TYPESENSE_DATA_DIR: /data
+          TYPESENSE_ENABLE_CORS: true
+          TYPESENSE_ANALYTICS_DIR: /analytics
+          TYPESENSE_ENABLE_SEARCH_ANALYTICS: true
 
     steps:
+      - name: Wait for Typesense
+        run: |
+          timeout 20 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8108/health)" != "200" ]]; do sleep 1; done' || false
       - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
         with:
@@ -20,8 +37,8 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - run: bundle exec rubocop
       - run: bundle exec rspec --format documentation
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-ruby-${{ matrix.ruby-version }}
           path: coverage/
           retention-days: 1

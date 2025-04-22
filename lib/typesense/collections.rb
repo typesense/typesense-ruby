@@ -13,8 +13,8 @@ module Typesense
       @api_call.post(RESOURCE_PATH, schema)
     end
 
-    def retrieve
-      @api_call.get(RESOURCE_PATH)
+    def retrieve(options = {})
+      @api_call.get(RESOURCE_PATH, options)
     end
 
     def [](collection_name)
