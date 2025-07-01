@@ -24,7 +24,7 @@ module Typesense
     private
 
     def endpoint_path(operation = nil)
-      "#{AnalyticsRules::RESOURCE_PATH}#{operation.nil? ? '' : "/#{URI.encode_www_form_component(operation)}"}"
+      "#{AnalyticsRules::RESOURCE_PATH}#{"/#{URI.encode_www_form_component(operation)}" unless operation.nil?}"
     end
   end
 end

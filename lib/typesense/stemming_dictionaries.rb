@@ -43,7 +43,7 @@ module Typesense
     private
 
     def endpoint_path(operation = nil)
-      "#{StemmingDictionaries::RESOURCE_PATH}#{operation.nil? ? '' : "/#{URI.encode_www_form_component(operation)}"}"
+      "#{StemmingDictionaries::RESOURCE_PATH}#{"/#{URI.encode_www_form_component(operation)}" unless operation.nil?}"
     end
   end
 end
