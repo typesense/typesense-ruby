@@ -14,14 +14,13 @@ describe 'NlSearchModels', :integration do
     )
   end
 
-
   def create_model_schema(id_suffix = nil)
     model_id = id_suffix ? "test_openai_model_#{id_suffix}" : "test_openai_model_#{Time.now.to_i}_#{rand(1000)}"
     {
       'id' => model_id,
       'model_name' => 'openai/gpt-4.1',
-      'api_key' => ENV['OPENAI_API_KEY'],
-      'max_bytes' => 16000,
+      'api_key' => ENV.fetch('OPENAI_API_KEY', nil),
+      'max_bytes' => 16_000,
       'temperature' => 0.0
     }
   end
@@ -42,12 +41,12 @@ describe 'NlSearchModels', :integration do
 
   it 'can create a nl search model' do
     model_schema = create_model_schema('create_test')
-    
+
     begin
       response = client.nl_search_models.create(model_schema)
       expect(response['id']).to eq(model_schema['id'])
       expect(response['model_name']).to eq('openai/gpt-4.1')
-      expect(response['max_bytes']).to eq(16000)
+      expect(response['max_bytes']).to eq(16_000)
       expect(response['temperature']).to eq(0.0)
     ensure
       cleanup_model(model_schema['id'])
@@ -56,7 +55,7 @@ describe 'NlSearchModels', :integration do
 
   it 'can retrieve a specific nl search model' do
     model_schema = create_model_schema('retrieve_test')
-    
+
     begin
       client.nl_search_models.create(model_schema)
       response = client.nl_search_models[model_schema['id']].retrieve
@@ -69,14 +68,14 @@ describe 'NlSearchModels', :integration do
 
   it 'can retrieve all nl search models' do
     model_schema = create_model_schema('list_test')
-    
+
     begin
       client.nl_search_models.create(model_schema)
-      
+
       response = client.nl_search_models.retrieve
       expect(response).to be_an(Array)
       expect(response.length).to be >= 1
-      
+
       model_ids = response.map { |model| model['id'] }
       expect(model_ids).to include(model_schema['id'])
     ensure
@@ -86,15 +85,15 @@ describe 'NlSearchModels', :integration do
 
   it 'can update a nl search model' do
     model_schema = create_model_schema('update_test')
-    
+
     begin
       client.nl_search_models.create(model_schema)
-      
+
       update_schema = {
         'temperature' => 0.5,
         'system_prompt' => 'Updated system prompt for electronics search'
       }
-      
+
       response = client.nl_search_models[model_schema['id']].update(update_schema)
       expect(response['temperature']).to eq(0.5)
       expect(response['system_prompt']).to eq('Updated system prompt for electronics search')
@@ -105,14 +104,14 @@ describe 'NlSearchModels', :integration do
 
   it 'can delete a nl search model' do
     model_schema = create_model_schema('delete_test')
-    
+
     client.nl_search_models.create(model_schema)
-    
+
     response = client.nl_search_models[model_schema['id']].delete
     expect(response['id']).to eq(model_schema['id'])
-    
-    expect {
+
+    expect do
       client.nl_search_models[model_schema['id']].retrieve
-    }.to raise_error(Typesense::Error::ObjectNotFound)
+    end.to raise_error(Typesense::Error::ObjectNotFound)
   end
-end 
+end

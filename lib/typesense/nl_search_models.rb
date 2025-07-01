@@ -21,4 +21,4 @@ module Typesense
       @nl_search_models[model_id] ||= NlSearchModel.new(model_id, @api_call)
     end
   end
-end 
+end

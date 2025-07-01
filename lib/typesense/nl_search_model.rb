@@ -25,4 +25,4 @@ module Typesense
       "#{NlSearchModels::RESOURCE_PATH}/#{URI.encode_www_form_component(@model_id)}"
     end
   end
-end 
+end
