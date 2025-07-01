@@ -1,4 +1,5 @@
 /.bundle/
+/vendor/
 /.yardoc
 /_yardoc/
 /coverage/
