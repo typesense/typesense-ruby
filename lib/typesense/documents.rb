@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'oj'
+require 'json'
 
 module Typesense
   class Documents
@@ -36,7 +36,7 @@ module Typesense
     # @param [Array,String] documents An array of document hashes or a JSONL string of documents.
     def import(documents, options = {})
       documents_in_jsonl_format = if documents.is_a?(Array)
-                                    documents.map { |document| Oj.dump(document, mode: :compat) }.join("\n")
+                                    documents.map { |document| JSON.dump(document) }.join("\n")
                                   else
                                     documents
                                   end
@@ -51,8 +51,8 @@ module Typesense
 
       if documents.is_a?(Array)
         results_in_jsonl_format.split("\n").map do |r|
-          Oj.load(r)
-        rescue Oj::ParseError => e
+          JSON.parse(r)
+        rescue JSON::ParserError => e
           {
             'success' => false,
             'exception' => e.class.name,

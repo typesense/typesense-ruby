@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'faraday'
-require 'oj'
+require 'json'
 
 module Typesense
   class ApiCall
@@ -81,7 +81,7 @@ module Typesense
             req.params = query_parameters unless query_parameters.nil?
             unless body_parameters.nil?
               body = body_parameters
-              body = Oj.dump(body_parameters, mode: :compat) if headers['Content-Type'] == 'application/json'
+              body = JSON.dump(body_parameters) if headers['Content-Type'] == 'application/json'
               req.body = body
             end
           end
@@ -90,7 +90,7 @@ module Typesense
           @logger.debug "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} was successfully made (at the network layer). response.status was #{response.status}."
 
           parsed_response = if response.headers && (response.headers['content-type'] || '').include?('application/json')
-                              Oj.load(response.body, mode: :compat)
+                              JSON.parse(response.body)
                             else
                               response.body
                             end
