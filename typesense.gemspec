@@ -28,6 +28,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'base64', '~> 0.2.0'
   spec.add_dependency 'faraday', '~> 2.8'
-  spec.add_dependency 'json', '~> 2.3'
+  spec.add_dependency 'json', '~> 2.9'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end
