@@ -11,7 +11,7 @@ module Typesense
 
     def upsert(dict_id, words_and_roots_combinations)
       words_and_roots_combinations_in_jsonl = if words_and_roots_combinations.is_a?(Array)
-                                                words_and_roots_combinations.map { |combo| Oj.dump(combo, mode: :compat) }.join("\n")
+                                                words_and_roots_combinations.map { |combo| JSON.dump(combo) }.join("\n")
                                               else
                                                 words_and_roots_combinations
                                               end
@@ -25,7 +25,7 @@ module Typesense
       )
 
       if words_and_roots_combinations.is_a?(Array)
-        result_in_jsonl.split("\n").map { |r| Oj.load(r) }
+        result_in_jsonl.split("\n").map { |r| JSON.parse(r) }
       else
         result_in_jsonl
       end
