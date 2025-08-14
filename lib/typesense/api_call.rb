@@ -112,7 +112,7 @@ module Typesense
           last_exception = e
           @logger.warn "Request #{method}:#{uri_for(endpoint, node)} to Node #{node[:index]} failed due to \"#{e.class}: #{e.message}\""
           @logger.warn "Sleeping for #{@retry_interval_seconds}s and then retrying request..."
-          sleep @retry_interval_seconds
+          sleep @retry_interval_seconds if num_tries <= @num_retries_per_request
         end
       end
       @logger.debug "No retries left. Raising last error \"#{last_exception.class}: #{last_exception.message}\"..."
