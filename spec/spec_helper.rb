@@ -14,6 +14,18 @@ require 'faraday'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
+module TypesenseTestState
+  @started_by_tests = false
+
+  def self.started_by_tests?
+    @started_by_tests
+  end
+
+  def self.mark_started
+    @started_by_tests = true
+  end
+end
+
 def typesense_healthy?(host = 'localhost', port = 8108)
   conn = Faraday.new("http://#{host}:#{port}")
   response = conn.get('/health')
@@ -29,14 +41,10 @@ def start_typesense_if_needed
   end
 
   # Check if Docker is running
-  unless system('docker info > /dev/null 2>&1')
-    raise 'Docker daemon is not running. Please start Docker and try again.'
-  end
+  raise 'Docker daemon is not running. Please start Docker and try again.' unless system('docker info > /dev/null 2>&1')
 
   puts 'Starting Typesense with docker-compose...'
-  unless system('docker-compose up -d')
-    raise 'Failed to start docker-compose'
-  end
+  raise 'Failed to start docker-compose' unless system('docker-compose up -d')
 
   # Wait for Typesense to be ready
   print 'Waiting for Typesense to start'
@@ -48,17 +56,15 @@ def start_typesense_if_needed
   end
   puts
 
-  unless typesense_healthy?
-    raise 'Failed to start Typesense - health endpoint did not return OK'
-  end
+  raise 'Failed to start Typesense - health endpoint did not return OK' unless typesense_healthy?
 
   puts 'Typesense is ready!'
-  $typesense_started_by_tests = true
+  TypesenseTestState.mark_started
   true
 end
 
 def stop_typesense_if_started
-  unless $typesense_started_by_tests
+  unless TypesenseTestState.started_by_tests?
     puts "\e[33m\nTest suite did not shut down Typesense automatically, because it was already running when tests started\e[0m"
     return
   end
@@ -89,7 +95,7 @@ RSpec.configure do |config|
   config.shared_context_metadata_behavior = :apply_to_host_groups
 
   config.before(:suite) do
-    $typesense_started_by_tests = start_typesense_if_needed
+    start_typesense_if_needed
     WebMock.disable_net_connect!
   end
 
