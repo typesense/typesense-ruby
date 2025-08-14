@@ -34,7 +34,7 @@ rescue StandardError
   false
 end
 
-def start_typesense_if_needed
+def ensure_typesense_running
   if typesense_healthy?
     puts '✅ Typesense is already running and healthy, ready for use in integration tests'
     return false
@@ -95,7 +95,7 @@ RSpec.configure do |config|
   config.shared_context_metadata_behavior = :apply_to_host_groups
 
   config.before(:suite) do
-    start_typesense_if_needed
+    ensure_typesense_running
     WebMock.disable_net_connect!
   end
 
