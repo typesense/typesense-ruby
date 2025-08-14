@@ -1,0 +1,18 @@
+services:
+  typesense:
+    image: typesense/typesense:29.0
+    ports:
+      - "127.0.0.1:8108:8108"
+    volumes:
+      - data:/data
+      - analytics:/analytics
+    environment:
+      TYPESENSE_API_KEY: xyz
+      TYPESENSE_DATA_DIR: /data
+      TYPESENSE_ENABLE_CORS: true
+      TYPESENSE_ANALYTICS_DIR: /analytics
+      TYPESENSE_ENABLE_SEARCH_ANALYTICS: true
+
+volumes:
+  data:
+  analytics:
