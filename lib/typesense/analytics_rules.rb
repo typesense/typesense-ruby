@@ -5,26 +5,27 @@ module Typesense
     RESOURCE_PATH = '/analytics/rules'
 
     def initialize(api_call)
-      @api_call        = api_call
-      @analytics_rules = {}
+      @api_call = api_call
     end
 
-    def upsert(rule_name, params)
-      @api_call.put(endpoint_path(rule_name), params)
+    def create(rules)
+      @api_call.post(self.class::RESOURCE_PATH, rules)
     end
 
     def retrieve
-      @api_call.get(endpoint_path)
+      @api_call.get(self.class::RESOURCE_PATH)
     end
 
     def [](rule_name)
-      @analytics_rules[rule_name] ||= AnalyticsRule.new(rule_name, @api_call)
+      AnalyticsRule.new(rule_name, @api_call)
     end
 
-    private
+    def respond_to_missing?(_method_name, _include_private = false)
+      true
+    end
 
-    def endpoint_path(operation = nil)
-      "#{AnalyticsRules::RESOURCE_PATH}#{"/#{URI.encode_www_form_component(operation)}" unless operation.nil?}"
+    def method_missing(method_name, *_args, &_block)
+      self[method_name.to_s]
     end
   end
 end

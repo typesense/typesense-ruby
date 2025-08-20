@@ -11,5 +11,9 @@ module Typesense
     def rules
       @rules ||= AnalyticsRules.new(@api_call)
     end
+
+    def events
+      @events ||= AnalyticsEvents.new(@api_call)
+    end
   end
 end
