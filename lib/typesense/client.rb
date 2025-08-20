@@ -3,7 +3,7 @@
 module Typesense
   class Client
     attr_reader :configuration, :collections, :aliases, :keys, :debug, :health, :metrics, :stats, :operations,
-                :multi_search, :analytics, :presets, :stemming, :nl_search_models, :synonym_sets, :curation_sets
+                :multi_search, :analytics, :analytics_v1, :presets, :stemming, :nl_search_models, :synonym_sets, :curation_sets
 
     def initialize(options = {})
       @configuration = Configuration.new(options)
@@ -18,6 +18,7 @@ module Typesense
       @stats = Stats.new(@api_call)
       @operations = Operations.new(@api_call)
       @analytics = Analytics.new(@api_call)
+      @analytics_v1 = AnalyticsV1.new(@api_call)
       @stemming = Stemming.new(@api_call)
       @presets = Presets.new(@api_call)
       @nl_search_models = NlSearchModels.new(@api_call)
