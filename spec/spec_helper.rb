@@ -34,6 +34,37 @@ rescue StandardError
   false
 end
 
+def typesense_version
+  WebMock.allow_net_connect!
+  conn = Faraday.new('http://localhost:8108')
+  response = conn.get('/debug') do |req|
+    req.headers['X-TYPESENSE-API-KEY'] = 'xyz'
+  end
+
+  if response.status == 200 && !response.body.empty?
+    debug_info = JSON.parse(response.body)
+    debug_info['version']
+  end
+rescue StandardError
+  nil
+ensure
+  WebMock.disable_net_connect!(allow_localhost: true)
+end
+
+def typesense_v30_or_above?
+  version = typesense_version
+  return false unless version
+
+  return true if version == 'nightly'
+
+  if version.match(/^v(\d+)/)
+    major_version = Regexp.last_match(1).to_i
+    return major_version >= 30
+  end
+
+  false
+end
+
 def ensure_typesense_running
   if typesense_healthy?
     puts '✅ Typesense is already running and healthy, ready for use in integration tests'
@@ -96,7 +127,6 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     ensure_typesense_running
-    WebMock.disable_net_connect!
   end
 
   config.after(:suite) do
