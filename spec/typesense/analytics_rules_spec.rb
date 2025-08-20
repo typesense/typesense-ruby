@@ -20,6 +20,10 @@ describe Typesense::AnalyticsRules do
     }
   end
 
+  before do
+    skip('Analytics is deprecated in Typesense v30+') if typesense_v30_or_above?
+  end
+
   describe '#upsert' do
     it 'creates a rule and returns it' do
       stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/analytics/rules/search_suggestions', typesense.configuration.nodes[0]))

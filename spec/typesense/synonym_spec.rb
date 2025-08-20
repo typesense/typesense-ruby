@@ -19,6 +19,10 @@ describe Typesense::Synonym do
     }
   end
 
+  before do
+    skip('Synonyms is deprecated in Typesense v30+, use SynonymSets instead') if typesense_v30_or_above?
+  end
+
   describe '#retrieve' do
     it 'returns the specified synonym' do
       stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]))
