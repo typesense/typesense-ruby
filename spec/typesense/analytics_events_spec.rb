@@ -3,8 +3,8 @@
 require_relative '../spec_helper'
 require_relative 'shared_configuration_context'
 
-describe Typesense::AnalyticsRule do
-  subject(:analytics_rule) { typesense.analytics.rules[rule_name] }
+describe Typesense::AnalyticsEvents do
+  subject(:analytics_events) { typesense.analytics.events }
 
   include_context 'with Typesense configuration'
 
@@ -40,7 +40,6 @@ describe Typesense::AnalyticsRule do
 
     WebMock.disable!
 
-    # Create test collection
     begin
       integration_client.collections.create({
                                               'name' => 'test_products',
@@ -56,7 +55,6 @@ describe Typesense::AnalyticsRule do
       # Collection already exists, which is fine
     end
 
-    # Create test rule
     begin
       integration_client.analytics.rules.create([rule_configuration])
     rescue StandardError
@@ -65,7 +63,6 @@ describe Typesense::AnalyticsRule do
   end
 
   after do
-    # Clean up test rules
     begin
       rules = integration_client.analytics.rules.retrieve
       if rules.is_a?(Array)
@@ -83,7 +80,6 @@ describe Typesense::AnalyticsRule do
       # Ignore cleanup errors
     end
 
-    # Clean up test collection
     begin
       integration_client.collections['test_products'].delete
     rescue StandardError
@@ -93,46 +89,71 @@ describe Typesense::AnalyticsRule do
     WebMock.enable!
   end
 
-  describe '#retrieve' do
-    it 'returns the specified analytics rule' do
-      result = integration_client.analytics.rules[rule_name].retrieve
-
-      expect(result['name']).to eq(rule_name)
-      expect(result['type']).to eq('counter')
-      expect(result['collection']).to eq('test_products')
-    end
-  end
-
-  describe '#delete' do
-    it 'deletes the specified analytics rule' do
-      result = integration_client.analytics.rules[rule_name].delete
-      expect(result['name']).to eq(rule_name)
-
-      # Verify the rule is deleted
-      expect do
-        integration_client.analytics.rules[rule_name].retrieve
-      end.to raise_error(Typesense::Error::RequestMalformed)
-    end
-  end
-
-  describe '#update' do
-    it 'updates the specified analytics rule' do
-      update_params = {
-        'type' => 'counter',
-        'collection' => 'test_products',
+  describe '#create' do
+    it 'creates an analytics event and returns it' do
+      event = {
+        'name' => rule_name,
         'event_type' => 'click',
-        'rule_tag' => 'updated_tag',
-        'params' => {
-          'counter_field' => 'popularity',
-          'weight' => 5
+        'data' => {
+          'doc_id' => '1',
+          'user_id' => 'test_user'
         }
       }
 
-      result = integration_client.analytics.rules[rule_name].update(update_params)
+      result = integration_client.analytics.events.create(event)
+      expect(result).to be_a(Hash)
+    end
+  end
 
-      expect(result['name']).to eq(rule_name)
-      expect(result['rule_tag']).to eq('updated_tag')
-      expect(result['params']['weight']).to eq(5)
+  describe '#retrieve' do
+    it 'retrieves analytics events with query parameters' do
+      event = {
+        'name' => rule_name,
+        'event_type' => 'click',
+        'data' => {
+          'doc_id' => '1',
+          'user_id' => 'test_user'
+        }
+      }
+
+      integration_client.analytics.events.create(event)
+
+      result = integration_client.analytics.events.retrieve({
+                                                              'user_id' => 'test_user',
+                                                              'name' => rule_name,
+                                                              'n' => 10
+                                                            })
+
+      expect(result).to be_a(Hash)
+      expect(result['events']).to be_a(Array)
+    end
+  end
+
+  describe 'event creation with different event types' do
+    it 'creates click and conversion events' do
+      click_event = {
+        'name' => rule_name,
+        'event_type' => 'click',
+        'data' => {
+          'doc_id' => '1',
+          'user_id' => 'test_user'
+        }
+      }
+
+      conversion_event = {
+        'name' => rule_name,
+        'event_type' => 'conversion',
+        'data' => {
+          'doc_id' => '1',
+          'user_id' => 'test_user'
+        }
+      }
+
+      click_response = integration_client.analytics.events.create(click_event)
+      expect(click_response).to be_a(Hash)
+
+      conversion_response = integration_client.analytics.events.create(conversion_event)
+      expect(conversion_response).to be_a(Hash)
     end
   end
 end
