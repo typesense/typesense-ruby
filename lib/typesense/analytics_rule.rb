@@ -15,6 +15,10 @@ module Typesense
       @api_call.delete(endpoint_path)
     end
 
+    def update(params)
+      @api_call.put(endpoint_path, params)
+    end
+
     private
 
     def endpoint_path
