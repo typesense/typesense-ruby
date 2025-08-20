@@ -19,6 +19,10 @@ describe Typesense::Synonyms do
     }
   end
 
+  before do
+    skip('Synonyms is deprecated in Typesense v30+, use SynonymSets instead') if typesense_v30_or_above?
+  end
+
   describe '#upsert' do
     it 'creates an synonym rule and returns it' do
       stub_request(:put, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/collections/companies/synonyms/synonym-set-1', typesense.configuration.nodes[0]))

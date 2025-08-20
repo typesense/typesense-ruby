@@ -20,6 +20,10 @@ describe Typesense::AnalyticsRule do
     }
   end
 
+  before do
+    skip('Analytics is deprecated in Typesense v30+') if typesense_v30_or_above?
+  end
+
   describe '#retrieve' do
     it 'returns the specified analytics rule' do
       stub_request(:get, Typesense::ApiCall.new(typesense.configuration).send(:uri_for, '/analytics/rules/search_suggestions', typesense.configuration.nodes[0]))
