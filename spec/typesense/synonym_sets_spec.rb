@@ -22,7 +22,7 @@ describe Typesense::SynonymSets do
 
   let(:synonym_set_data) do
     {
-      'synonyms' => [
+      'items' => [
         {
           'id' => 'dummy',
           'synonyms' => %w[foo bar baz],
@@ -54,7 +54,7 @@ describe Typesense::SynonymSets do
 
       result = synonym_sets.upsert('test-synonym-set', synonym_set_data)
 
-      expect(result['synonyms']).to eq(synonym_set_data['synonyms'])
+      expect(result['items']).to eq(synonym_set_data['items'])
     end
   end
 
@@ -73,7 +73,7 @@ describe Typesense::SynonymSets do
       # Find our test synonym set
       test_set = result.find { |set| set['name'] == 'test-synonym-set' }
       expect(test_set).not_to be_nil
-      expect(test_set['synonyms']).to eq(synonym_set_data['synonyms'])
+      expect(test_set['items']).to eq(synonym_set_data['items'])
     end
   end
 

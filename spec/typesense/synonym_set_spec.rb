@@ -22,7 +22,7 @@ describe Typesense::SynonymSet do
 
   let(:synonym_set_data) do
     {
-      'synonyms' => [
+      'items' => [
         {
           'id' => 'dummy',
           'synonyms' => %w[foo bar baz],
@@ -52,7 +52,7 @@ describe Typesense::SynonymSet do
 
       result = synonym_set.retrieve
 
-      expect(result['synonyms']).to eq(synonym_set_data['synonyms'])
+      expect(result['items']).to eq(synonym_set_data['items'])
     end
   end
 
