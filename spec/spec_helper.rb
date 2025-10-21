@@ -62,6 +62,11 @@ def typesense_v30_or_above?
     return major_version >= 30
   end
 
+  if version.match(/^(\d+)/)
+    major_version = Regexp.last_match(1).to_i
+    return major_version >= 30
+  end
+
   false
 end
 
