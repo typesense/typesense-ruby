@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module Typesense
-  class AnalyticsRule
-    def initialize(rule_name, api_call)
-      @rule_name = rule_name
+  class SynonymSet
+    def initialize(synonym_set_name, api_call)
+      @synonym_set_name = synonym_set_name
       @api_call = api_call
     end
 
@@ -15,14 +15,10 @@ module Typesense
       @api_call.delete(endpoint_path)
     end
 
-    def update(params)
-      @api_call.put(endpoint_path, params)
-    end
-
     private
 
     def endpoint_path
-      "#{AnalyticsRules::RESOURCE_PATH}/#{URI.encode_www_form_component(@rule_name)}"
+      "#{SynonymSets::RESOURCE_PATH}/#{URI.encode_www_form_component(@synonym_set_name)}"
     end
   end
 end

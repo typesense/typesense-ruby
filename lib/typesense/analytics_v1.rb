@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Typesense
-  class Analytics
+  class AnalyticsV1
     RESOURCE_PATH = '/analytics'
 
     def initialize(api_call)
@@ -9,11 +9,11 @@ module Typesense
     end
 
     def rules
-      @rules ||= AnalyticsRules.new(@api_call)
+      @rules ||= AnalyticsRulesV1.new(@api_call)
     end
 
     def events
-      @events ||= AnalyticsEvents.new(@api_call)
+      @events ||= AnalyticsEventsV1.new(@api_call)
     end
   end
 end

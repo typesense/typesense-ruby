@@ -22,4 +22,20 @@ describe Typesense::Client do
       expect(result).to be_a(Typesense::Debug)
     end
   end
+
+  describe '#analytics' do
+    it 'creates an analytics object and returns it' do
+      result = typesense.analytics
+
+      expect(result).to be_a(Typesense::Analytics)
+    end
+  end
+
+  describe '#analytics_v1' do
+    it 'creates an analytics_v1 object and returns it' do
+      result = typesense.analytics_v1
+
+      expect(result).to be_a(Typesense::AnalyticsV1)
+    end
+  end
 end

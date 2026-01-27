@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Typesense
-  class AnalyticsRule
+  class AnalyticsRuleV1
     def initialize(rule_name, api_call)
       @rule_name = rule_name
       @api_call = api_call
@@ -15,14 +15,10 @@ module Typesense
       @api_call.delete(endpoint_path)
     end
 
-    def update(params)
-      @api_call.put(endpoint_path, params)
-    end
-
     private
 
     def endpoint_path
-      "#{AnalyticsRules::RESOURCE_PATH}/#{URI.encode_www_form_component(@rule_name)}"
+      "#{AnalyticsRulesV1::RESOURCE_PATH}/#{URI.encode_www_form_component(@rule_name)}"
     end
   end
 end

@@ -101,7 +101,8 @@ describe Typesense::Collections do
             'sort' => false,
             'stem' => false,
             'stem_dictionary' => '',
-            'store' => true
+            'store' => true,
+            'truncate_len' => 100
           },
           {
             'name' => 'num_employees',
@@ -114,7 +115,8 @@ describe Typesense::Collections do
             'sort' => true,
             'stem' => false,
             'stem_dictionary' => '',
-            'store' => true
+            'store' => true,
+            'truncate_len' => 100
           },
           {
             'name' => 'country',
@@ -127,7 +129,8 @@ describe Typesense::Collections do
             'sort' => false,
             'stem' => false,
             'stem_dictionary' => '',
-            'store' => true
+            'store' => true,
+            'truncate_len' => 100
           }
         ]
       end
