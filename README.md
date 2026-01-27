@@ -33,6 +33,7 @@ Tests are also a good place to know how the the library works internally: [spec]
 
 | Typesense Server | typesense-ruby |
 |------------------|----------------|
+| \>= v30.0        | \>= v5.0.0     |
 | \>= v28.0        | \>= v3.0.0     |
 | \>= v0.25.0      | \>= v1.0.0     |
 | \>= v0.23.0      | \>= v0.14.0    |
