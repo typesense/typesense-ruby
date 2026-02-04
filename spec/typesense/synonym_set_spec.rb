@@ -46,6 +46,16 @@ describe Typesense::SynonymSet do
     # Ignore errors if already deleted
   end
 
+  describe '#upsert' do
+    it 'creates a synonym set and returns it' do
+      skip('SynonymSets is only supported in Typesense v30+') unless typesense_v30_or_above?
+
+      result = synonym_set.upsert(synonym_set_data)
+
+      expect(result['items']).to eq(synonym_set_data['items'])
+    end
+  end
+
   describe '#retrieve' do
     it 'returns the specified synonym set' do
       skip('SynonymSets is only supported in Typesense v30+') unless typesense_v30_or_above?
