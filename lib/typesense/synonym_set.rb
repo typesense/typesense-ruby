@@ -7,6 +7,10 @@ module Typesense
       @api_call = api_call
     end
 
+    def upsert(params)
+      @api_call.put(endpoint_path, params)
+    end
+
     def retrieve
       @api_call.get(endpoint_path)
     end
