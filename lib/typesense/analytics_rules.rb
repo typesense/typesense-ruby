@@ -6,6 +6,7 @@ module Typesense
 
     def initialize(api_call)
       @api_call = api_call
+      @analytics_rules = {}
     end
 
     def create(rules)
@@ -17,7 +18,7 @@ module Typesense
     end
 
     def [](rule_name)
-      AnalyticsRule.new(rule_name, @api_call)
+      @analytics_rules[rule_name] ||= AnalyticsRule.new(rule_name, @api_call)
     end
   end
 end

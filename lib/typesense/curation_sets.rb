@@ -6,6 +6,7 @@ module Typesense
 
     def initialize(api_call)
       @api_call = api_call
+      @curation_sets = {}
     end
 
     def upsert(curation_set_name, curation_set_data)
@@ -17,7 +18,7 @@ module Typesense
     end
 
     def [](curation_set_name)
-      CurationSet.new(curation_set_name, @api_call)
+      @curation_sets[curation_set_name] ||= CurationSet.new(curation_set_name, @api_call)
     end
   end
 end

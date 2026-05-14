@@ -147,10 +147,10 @@ describe Typesense::AnalyticsRules do
       expect(result.instance_variable_get(:@rule_name)).to eq(rule_name)
     end
 
-    it 'does not memoize the analytics rule instance' do
+    it 'memoizes the analytics rule instance' do
       first_call = integration_client.analytics.rules[rule_name]
       second_call = integration_client.analytics.rules[rule_name]
-      expect(first_call).not_to equal(second_call)
+      expect(first_call).to equal(second_call)
     end
   end
 end
