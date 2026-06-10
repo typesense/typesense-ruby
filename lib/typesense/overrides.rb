@@ -10,14 +10,34 @@ module Typesense
       @overrides       = {}
     end
 
+    # Create or update an override (curation rule) on this collection.
+    #
+    # @example
+    #   client.collections['products'].overrides.upsert('promote-hat', 'rule' => { 'query' => 'hat', 'match' => 'exact' }, 'includes' => [])
+    #
+    # @see https://typesense.org/docs/latest/api/curation.html
     def upsert(override_id, params)
       @api_call.put(endpoint_path(override_id), params)
     end
 
+    # Retrieve all overrides (curation rules) on this collection.
+    #
+    # @example
+    #   client.collections['products'].overrides.retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/curation.html
     def retrieve
       @api_call.get(endpoint_path)
     end
 
+    # Access an individual override by ID within this collection.
+    #
+    # @example
+    #   client.collections['products'].overrides['promote-hat'].retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/curation.html
+    #
+    # @return [Override]
     def [](override_id)
       @overrides[override_id] ||= Override.new(@collection_name, override_id, @api_call)
     end

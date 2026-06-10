@@ -9,6 +9,12 @@ module Typesense
       @dictionaries = {}
     end
 
+    # Upload a JSONL file containing word mappings to create or update a stemming dictionary.
+    #
+    # @example
+    #   client.stemming.dictionaries.upsert('irregular-plurals', [{ 'word' => 'people', 'root' => 'person' }])
+    #
+    # @see https://typesense.org/docs/latest/api/stemming.html
     def upsert(dict_id, words_and_roots_combinations)
       words_and_roots_combinations_in_jsonl = if words_and_roots_combinations.is_a?(Array)
                                                 words_and_roots_combinations.map { |combo| JSON.dump(combo) }.join("\n")
@@ -31,11 +37,25 @@ module Typesense
       end
     end
 
+    # Retrieve a list of all available stemming dictionaries.
+    #
+    # @example
+    #   client.stemming.dictionaries.retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/stemming.html
     def retrieve
       response = @api_call.get(endpoint_path)
       response || { 'dictionaries' => [] }
     end
 
+    # Access an individual stemming dictionary by ID.
+    #
+    # @example
+    #   client.stemming.dictionaries['en'].retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/stemming.html
+    #
+    # @return [StemmingDictionary]
     def [](dict_id)
       @dictionaries[dict_id] ||= StemmingDictionary.new(dict_id, @api_call)
     end
