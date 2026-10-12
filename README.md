@@ -29,6 +29,24 @@ Here are some examples with inline comments that walk you through how to use the
 
 Tests are also a good place to know how the the library works internally: [spec](spec)
 
+### Error handling
+
+Error responses from Typesense raise a subclass of `Typesense::Error`. The exception's `message` is the `message` from the API response, and the underlying Faraday response is available as `e.data[:response]` if you need the HTTP status, headers, or raw body:
+
+```ruby
+begin
+  client.collections['unknown'].retrieve
+rescue Typesense::Error::ObjectNotFound => e
+  e.message                 # => "Not Found"
+  e.data[:response].status  # => 404
+  e.data[:response].body    # => raw response body
+end
+```
+
+Status codes map to these classes: `RequestMalformed` (400), `RequestUnauthorized` (401), `ObjectNotFound` (404), `ObjectAlreadyExists` (409), `ObjectUnprocessable` (422), `ServerError` (5xx), `HTTPStatus0Error` (status 0), and `HTTPError` (any other non-2xx status).
+
+5xx responses and network errors are retried first. Once retries run out, the last error is re-raised, so a network failure surfaces as the original Faraday or `Errno` exception rather than a `Typesense::Error`.
+
 ### Keep-alive connections
 
 By default, the client opens a fresh HTTP connection (and TLS handshake) for every request. For high-traffic applications this can dominate request latency. Setting `keep_alive_connections: true` enables persistent connections via the `:net_http_persistent` Faraday adapter:
