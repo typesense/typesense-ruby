@@ -15,9 +15,8 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://typesense.org'
   spec.license       = 'Apache-2.0'
 
-  # rubocop:disable Gemspec/RequiredRubyVersion, Lint/RedundantCopDisableDirective
+  # rubocop:disable-next Gemspec/RequiredRubyVersion, Lint/RedundantCopDisableDirective
   spec.required_ruby_version = '>= 2.7'
-  # rubocop:enable Gemspec/RequiredRubyVersion, Lint/RedundantCopDisableDirective
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
@@ -29,7 +28,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'base64', '~> 0.2'
   spec.add_dependency 'faraday', '~> 2.8'
   spec.add_dependency 'faraday-net_http_persistent', '~> 2.0'
-  spec.add_dependency 'json', '~> 2.9'
+  spec.add_dependency 'json', '>= 2.9', '< 4'
   spec.add_dependency 'net-http-persistent', '~> 4.0'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end

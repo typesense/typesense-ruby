@@ -11,7 +11,7 @@ gem 'guard', '~> 2.16'
 gem 'guard-rubocop', '~> 1.3'
 gem 'rake', '~> 13.0'
 gem 'rspec', '~> 3.9'
-gem 'rubocop', '~> 1.86'
+gem 'rubocop', '~> 1.90'
 gem 'rubocop-rspec', '~> 3.9', require: false
 gem 'simplecov', '~> 0.18'
 gem 'timecop', '~> 0.9'
