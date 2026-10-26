@@ -15,9 +15,8 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://typesense.org'
   spec.license       = 'Apache-2.0'
 
-  # rubocop:disable Gemspec/RequiredRubyVersion, Lint/RedundantCopDisableDirective
+  # rubocop:disable-next Gemspec/RequiredRubyVersion, Lint/RedundantCopDisableDirective
   spec.required_ruby_version = '>= 2.7'
-  # rubocop:enable Gemspec/RequiredRubyVersion, Lint/RedundantCopDisableDirective
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
