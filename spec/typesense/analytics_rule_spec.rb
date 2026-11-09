@@ -135,4 +135,17 @@ describe Typesense::AnalyticsRule do
       expect(result['params']['weight']).to eq(5)
     end
   end
+
+  describe '#upsert' do
+    it 'is aliased as #update' do
+      expect(described_class.instance_method(:update)).to eq(described_class.instance_method(:upsert))
+    end
+
+    it 'creates the analytics rule if it does not exist yet' do
+      result = integration_client.analytics.rules['test__new_rule'].upsert(rule_configuration.except('name'))
+
+      expect(result['name']).to eq('test__new_rule')
+      expect(integration_client.analytics.rules['test__new_rule'].retrieve['type']).to eq('counter')
+    end
+  end
 end

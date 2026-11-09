@@ -27,15 +27,16 @@ module Typesense
       @api_call.delete(endpoint_path)
     end
 
-    # Upserts an analytics rule with the given name.
+    # Create or update an analytics rule with the given name.
     #
     # @example
-    #   client.analytics.rules['products_query_hits'].update('type' => 'popular_queries', 'params' => {})
+    #   client.analytics.rules['products_click_counter'].upsert('type' => 'counter', 'collection' => 'products', 'event_type' => 'click', 'params' => { 'counter_field' => 'popularity', 'weight' => 1 })
     #
     # @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
-    def update(params)
+    def upsert(params)
       @api_call.put(endpoint_path, params)
     end
+    alias update upsert
 
     private
 
