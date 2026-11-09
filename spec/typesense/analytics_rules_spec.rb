@@ -137,6 +137,17 @@ describe Typesense::AnalyticsRules do
       rule_names = result.map { |rule| rule['name'] }
       expect(rule_names).to include(rule_name)
     end
+
+    it 'filters analytics rules by rule_tag' do
+      integration_client.analytics.rules.upsert('test__other_rule', rule_configuration.except('name').merge('rule_tag' => 'other_tag'))
+
+      result = integration_client.analytics.rules.retrieve(rule_tag: 'test_tag')
+
+      rule_names = result.map { |rule| rule['name'] }
+      expect(rule_names).to include(rule_name)
+      expect(rule_names).not_to include('test__other_rule')
+      expect(result.map { |rule| rule['rule_tag'] }).to all(eq('test_tag'))
+    end
   end
 
   describe '#upsert' do

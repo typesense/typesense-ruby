@@ -28,14 +28,16 @@ module Typesense
       @api_call.put("#{self.class::RESOURCE_PATH}/#{URI.encode_www_form_component(rule_name)}", params)
     end
 
-    # Retrieve all analytics rules.
+    # Retrieve all analytics rules. Pass `rule_tag` to only retrieve the rules with that tag.
     #
     # @example
     #   client.analytics.rules.retrieve
+    # @example
+    #   client.analytics.rules.retrieve(rule_tag: 'homepage')
     #
     # @see https://typesense.org/docs/latest/api/analytics-query-suggestions.html
-    def retrieve
-      @api_call.get(self.class::RESOURCE_PATH)
+    def retrieve(params = {})
+      @api_call.get(self.class::RESOURCE_PATH, params)
     end
 
     # Access an individual analytics rule by name.
