@@ -139,6 +139,28 @@ describe Typesense::AnalyticsRules do
     end
   end
 
+  describe '#upsert' do
+    it 'creates a rule that does not exist yet' do
+      result = integration_client.analytics.rules.upsert('test__upserted rule', rule_configuration.except('name'))
+
+      expect(result['name']).to eq('test__upserted rule')
+      expect(integration_client.analytics.rules['test__upserted rule'].retrieve['rule_tag']).to eq('test_tag')
+    end
+
+    it 'updates an existing rule' do
+      update_params = rule_configuration.except('name').merge(
+        'rule_tag' => 'updated_tag',
+        'params' => { 'counter_field' => 'popularity', 'weight' => 5 }
+      )
+
+      result = integration_client.analytics.rules.upsert(rule_name, update_params)
+
+      expect(result['name']).to eq(rule_name)
+      expect(result['rule_tag']).to eq('updated_tag')
+      expect(result['params']['weight']).to eq(5)
+    end
+  end
+
   describe '#[]' do
     it 'creates an analytics rule object and returns it' do
       result = integration_client.analytics.rules[rule_name]
