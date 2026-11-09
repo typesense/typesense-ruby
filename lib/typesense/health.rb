@@ -8,6 +8,12 @@ module Typesense
       @api_call = api_call
     end
 
+    # Checks if Typesense server is ready to accept requests.
+    #
+    # @example
+    #   client.health.retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/cluster-operations.html#health
     def retrieve
       @api_call.get(RESOURCE_PATH)
     end

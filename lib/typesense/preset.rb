@@ -7,10 +7,22 @@ module Typesense
       @api_call = api_call
     end
 
+    # Retrieve the details of a preset, given it's name.
+    #
+    # @example
+    #   client.presets['listing_view'].retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/search.html#presets
     def retrieve
       @api_call.get(endpoint_path)
     end
 
+    # Permanently deletes a preset, given it's name.
+    #
+    # @example
+    #   client.presets['listing_view'].delete
+    #
+    # @see https://typesense.org/docs/latest/api/search.html#presets
     def delete
       @api_call.delete(endpoint_path)
     end

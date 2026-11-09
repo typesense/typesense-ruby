@@ -7,6 +7,12 @@ module Typesense
       @api_call = api_call
     end
 
+    # Fetch details of a specific stemming dictionary.
+    #
+    # @example
+    #   client.stemming.dictionaries['en'].retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/stemming.html
     def retrieve
       @api_call.get(endpoint_path)
     end

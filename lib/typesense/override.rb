@@ -8,10 +8,22 @@ module Typesense
       @api_call        = api_call
     end
 
+    # Retrieve an override (curation rule) by ID on this collection.
+    #
+    # @example
+    #   client.collections['products'].overrides['promote-hat'].retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/curation.html
     def retrieve
       @api_call.get(endpoint_path)
     end
 
+    # Delete an override (curation rule) by ID on this collection.
+    #
+    # @example
+    #   client.collections['products'].overrides['promote-hat'].delete
+    #
+    # @see https://typesense.org/docs/latest/api/curation.html
     def delete
       @api_call.delete(endpoint_path)
     end
