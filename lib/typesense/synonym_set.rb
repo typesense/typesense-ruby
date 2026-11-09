@@ -2,9 +2,23 @@
 
 module Typesense
   class SynonymSet
+    # Access the items in this synonym set. Use it to list items, or as an array
+    # to access a single item by ID.
+    #
+    # @example
+    #   client.synonym_sets['my-set'].items.retrieve
+    # @example
+    #   client.synonym_sets['my-set'].items['smart-phone-synonyms'].retrieve
+    #
+    # @see https://typesense.org/docs/latest/api/synonyms.html
+    #
+    # @return [SynonymSetItems]
+    attr_reader :items
+
     def initialize(synonym_set_name, api_call)
       @synonym_set_name = synonym_set_name
       @api_call = api_call
+      @items = SynonymSetItems.new(@synonym_set_name, @api_call)
     end
 
     # Create or update a synonym set with the given name

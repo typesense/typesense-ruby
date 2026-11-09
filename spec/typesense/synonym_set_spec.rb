@@ -66,6 +66,15 @@ describe Typesense::SynonymSet do
     end
   end
 
+  describe '#items' do
+    it 'returns the items of the synonym set' do
+      skip('SynonymSets is only supported in Typesense v30+') unless typesense_v30_or_above?
+
+      expect(synonym_set.items).to be_a(Typesense::SynonymSetItems)
+      expect(synonym_set.items.retrieve).to eq(synonym_set_data['items'])
+    end
+  end
+
   describe '#delete' do
     it 'deletes the specified synonym set' do
       skip('SynonymSets is only supported in Typesense v30+') unless typesense_v30_or_above?
