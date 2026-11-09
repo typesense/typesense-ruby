@@ -376,6 +376,88 @@ describe Typesense::ApiCall do
     end
   end
 
+  describe 'request paths with stubbed nodes' do
+    let(:endpoints) do
+      [
+        '/collections/c/documents/..',
+        '/collections/c/documents/.',
+        '/collections/../documents/x',
+        '/collections/c/documents/a+b',
+        '/collections/c/documents/a%20b',
+        '/collections/c/documents/a%2Fb'
+      ]
+    end
+    let(:expected_targets) { endpoints.map { |endpoint| "#{endpoint}?q=a+b" } }
+    let(:request_targets) { [] }
+
+    before do
+      stub_request(:any, /node0:8108/)
+        .to_return(status: 200, body: JSON.dump('ok' => true), headers: { 'Content-Type' => 'application/json' })
+
+      # WebMock normalizes the URI it records and drops dot segments. Read the
+      # request target that Faraday hands to Net::HTTP instead (the 4th argument).
+      allow(Net::HTTPGenericRequest).to receive(:new).and_wrap_original do |original, *args|
+        request_targets << args[3]
+        original.call(*args)
+      end
+    end
+
+    def request_targets_for(keep_alive:, protocol: 'http')
+      client = Typesense::Client.new(
+        api_key: 'abcd',
+        nodes: [{ host: 'node0', port: 8108, protocol: protocol }],
+        log_level: Logger::ERROR,
+        keep_alive_connections: keep_alive
+      )
+      api_call = described_class.new(client.configuration)
+      endpoints.each { |endpoint| api_call.delete(endpoint, 'q' => 'a b') }
+      request_targets
+    end
+
+    it 'sends the endpoint and query unchanged with one-shot connections' do
+      expect(request_targets_for(keep_alive: false)).to eq(expected_targets)
+    end
+
+    it 'sends the endpoint and query unchanged with keep-alive connections' do
+      expect(request_targets_for(keep_alive: true)).to eq(expected_targets)
+    end
+
+    it 'sends the endpoint and query unchanged with keep-alive connections and an upper-case protocol' do
+      expect(request_targets_for(keep_alive: true, protocol: 'HTTP')).to eq(expected_targets)
+    end
+  end
+
+  describe 'keep-alive requests on a real Typesense server' do
+    let(:client) do
+      Typesense::Client.new(
+        api_key: 'xyz',
+        nodes: [{ host: 'localhost', port: 8108, protocol: 'http' }],
+        log_level: Logger::ERROR,
+        keep_alive_connections: true
+      )
+    end
+    let(:collection) { client.collections['api_call_dot_segments'] }
+
+    def delete_collection
+      collection.delete
+    rescue Typesense::Error::ObjectNotFound
+      # Already gone
+    end
+
+    before do
+      delete_collection
+      client.collections.create('name' => 'api_call_dot_segments', 'fields' => [{ 'name' => 'title', 'type' => 'string' }])
+      %w[x ..].each { |id| collection.documents.create('id' => id, 'title' => id) }
+    end
+
+    after { delete_collection }
+
+    it 'deletes only the document whose id is ".."' do
+      expect(collection.documents['..'].delete['id']).to eq('..')
+      expect(collection.documents['x'].retrieve['id']).to eq('x')
+    end
+  end
+
   describe 'keep-alive disabled (default)' do
     it 'is off by default on the configuration' do
       expect(typesense.configuration.keep_alive_connections).to be(false)

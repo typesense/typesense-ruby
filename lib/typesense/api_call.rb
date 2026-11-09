@@ -78,11 +78,14 @@ module Typesense
         @logger.debug "Attempting #{method.to_s.upcase} request Try ##{num_tries} to Node #{node[:index]}"
 
         begin
-          conn, request_path = connection_and_path_for(endpoint, node)
+          conn, request_url = connection_and_url_for(endpoint, node)
 
           headers = default_headers.merge(additional_headers)
 
-          response = conn.send(method, request_path) do |req|
+          # The URL is set on the request instead of being passed to the verb. Faraday
+          # looks up proxy settings again for every absolute URL passed to the verb.
+          response = conn.send(method) do |req|
+            req.url(request_url) unless request_url.nil?
             req.headers = headers
             req.params = query_parameters unless query_parameters.nil?
             unless body_parameters.nil?
@@ -130,17 +133,21 @@ module Typesense
 
     private
 
+    # Faraday 2.9.2 and later only treat a request URL as absolute when it starts
+    # with a lower-case "http://" or "https://".
     def uri_for(endpoint, node)
-      "#{node[:protocol]}://#{node[:host]}:#{node[:port]}#{endpoint}"
+      "#{node[:protocol].to_s.downcase}://#{node[:host]}:#{node[:port]}#{endpoint}"
     end
 
-    # Returns [connection, request_path]. When keep-alive is enabled, the connection
-    # is cached per (thread, node) and the path is appended at request time. When it
+    # Returns [connection, request_url]. When keep-alive is enabled, the connection
+    # is cached per (thread, node) and each request gets the full URL. Faraday merges
+    # a relative path into the base URL, and that merge drops "." and ".." segments.
+    # A delete of document ".." would then delete its whole collection. When keep-alive
     # is disabled, the original behaviour is preserved: a fresh Faraday is built for
     # the full per-request URL, so existing callers and stubs see no change.
-    def connection_and_path_for(endpoint, node)
+    def connection_and_url_for(endpoint, node)
       if @keep_alive_connections
-        [connection_for(node), endpoint]
+        [connection_for(node), uri_for(endpoint, node)]
       else
         [build_one_shot_connection(endpoint, node), nil]
       end
