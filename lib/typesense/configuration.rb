@@ -41,7 +41,7 @@ module Typesense
     private
 
     def node_missing_parameters?(node)
-      %i[protocol host port].any? { |attr| node.send(:[], attr).nil? }
+      %i[protocol host port].any? { |attr| node[attr].nil? }
     end
 
     def validate_keep_alive_options!(options)
